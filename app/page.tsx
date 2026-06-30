@@ -2,6 +2,8 @@ import Link from "next/link";
 import { NextAdventureCard } from "@/components/discovery/NextAdventureCard";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
+import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { createPageMetadata } from "@/lib/seo";
 
@@ -13,11 +15,18 @@ export const metadata = createPageMetadata({
 
 export default async function Home() {
   const adventure = await DiscoveryService.getNextAdventure();
-  const anchorPlaceId = adventure.place?.id;
+  const anchorTags = adventure.place?.tags ?? ["weekend", "scenic", "local"];
 
-  const [featuredCollection] = await DiscoveryService.getRecommendedCollections({ placeId: anchorPlaceId, limit: 1 });
-  const [featuredDeal] = await DiscoveryService.getRecommendedDeals({ placeId: anchorPlaceId, limit: 1 });
-  const [featuredGuide] = await DiscoveryService.getRecommendedArticles({ placeId: anchorPlaceId, limit: 1 });
+  const [featuredPlaceRecs, featuredCollectionRecs, featuredDealRecs, featuredGuideRecs] = await Promise.all([
+    CompassEngine.recommendWeekend(4),
+    CompassEngine.recommendCollectionsByTags(anchorTags, 4),
+    CompassEngine.recommendDealsByTags(anchorTags, 4),
+    CompassEngine.recommendArticlesByTags(anchorTags, 4),
+  ]);
+
+  const featuredCollection = featuredCollectionRecs[0]?.item;
+  const featuredDeal = featuredDealRecs[0]?.item;
+  const featuredGuide = featuredGuideRecs[0]?.item;
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
@@ -68,6 +77,21 @@ export default async function Home() {
             cta="Open guide"
           />
         </div>
+
+        <RecommendationRail
+          title="Compass Weekend Recommendations"
+          recommendations={featuredPlaceRecs}
+          emptyMessage="Compass recommendations will appear once place data is available."
+          mapItem={(recommendation) => ({
+            id: recommendation.item.id,
+            title: recommendation.item.name,
+            subtitle: recommendation.item.description,
+            href: `/places/${recommendation.item.slug}`,
+            score: recommendation.score,
+            badge: recommendation.item.placeType,
+            reasons: recommendation.reasons,
+          })}
+        />
       </section>
 
       <Footer />

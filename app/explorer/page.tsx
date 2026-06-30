@@ -1,6 +1,7 @@
 import { ExplorerExperience } from "@/components/explorer/ExplorerExperience";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { ExplorerService } from "@/lib/discovery/ExplorerService";
 import { createPageMetadata } from "@/lib/seo";
 
@@ -12,12 +13,15 @@ export const metadata = createPageMetadata({
 
 export default async function ExplorerPage() {
   const results = ExplorerService.getExplorerResults();
-  const detailedResults = await Promise.all(results.map((result) => ExplorerService.buildExplorerResultDetails(result)));
+  const [detailedResults, compassRecommendations] = await Promise.all([
+    Promise.all(results.map((result) => ExplorerService.buildExplorerResultDetails(result))),
+    CompassEngine.recommendAdventure(6),
+  ]);
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
       <Navbar />
-      <ExplorerExperience detailedResults={detailedResults} />
+      <ExplorerExperience detailedResults={detailedResults} compassRecommendations={compassRecommendations} />
       <Footer />
     </main>
   );

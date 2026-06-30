@@ -6,6 +6,7 @@ import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
 import { RecommendedDealsRail } from "@/components/discovery/RecommendedDealsRail";
 import { RecommendedEventsRail } from "@/components/discovery/RecommendedEventsRail";
+import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { ContentSection } from "@/components/public/ContentSection";
 import { HeroImage } from "@/components/public/HeroImage";
@@ -14,6 +15,7 @@ import { QuickFacts } from "@/components/public/QuickFacts";
 import { StoryQuote } from "@/components/story/StoryQuote";
 import { StorySummary } from "@/components/story/StorySummary";
 import { StorySidebar } from "@/components/story/StorySidebar";
+import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { articleJsonLd } from "@/lib/jsonLd";
 import { createArticleMetadata } from "@/lib/seo";
@@ -53,11 +55,15 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
     notFound();
   }
 
-  const [relatedPlaces, relatedCollections, relatedEvents, relatedDeals] = await Promise.all([
+  const [relatedPlaces, relatedCollections, relatedEvents, relatedDeals, compassPlaces, compassCollections, compassEvents, compassDeals] = await Promise.all([
     DiscoveryService.getRelatedPlaces({ articleId: article.id, limit: 4 }),
     DiscoveryService.getRecommendedCollections({ articleId: article.id, limit: 4 }),
     DiscoveryService.getRecommendedEvents({ articleId: article.id, limit: 4 }),
     DiscoveryService.getRecommendedDeals({ articleId: article.id, limit: 4 }),
+    CompassEngine.recommendByTags(article.tags, 4),
+    CompassEngine.recommendCollectionsByTags(article.tags, 4),
+    CompassEngine.recommendEventsByTags(article.tags, 4),
+    CompassEngine.recommendDealsByTags(article.tags, 4),
   ]);
 
   const story = articleToStory(article);
@@ -108,6 +114,62 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
             <RecommendedCollectionsRail collections={relatedCollections} title="Collections" />
             <RecommendedEventsRail events={relatedEvents} title="Events" />
             <RecommendedDealsRail deals={relatedDeals} title="Deals" />
+            <RecommendationRail
+              title="Compass Place Picks"
+              recommendations={compassPlaces}
+              emptyMessage="Compass place picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.name,
+                subtitle: recommendation.item.description,
+                href: `/places/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.placeType,
+                reasons: recommendation.reasons,
+              })}
+            />
+            <RecommendationRail
+              title="Compass Collection Picks"
+              recommendations={compassCollections}
+              emptyMessage="Compass collection picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.title,
+                subtitle: recommendation.item.subtitle,
+                href: `/collections/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.season,
+                reasons: recommendation.reasons,
+              })}
+            />
+            <RecommendationRail
+              title="Compass Event Picks"
+              recommendations={compassEvents}
+              emptyMessage="Compass event picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.title,
+                subtitle: recommendation.item.description,
+                href: `/events/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.eventType,
+                reasons: recommendation.reasons,
+              })}
+            />
+            <RecommendationRail
+              title="Compass Deal Picks"
+              recommendations={compassDeals}
+              emptyMessage="Compass deal picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.title,
+                subtitle: recommendation.item.shortDescription,
+                href: `/deals/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.dealType,
+                reasons: recommendation.reasons,
+              })}
+            />
           </article>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">

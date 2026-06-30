@@ -6,6 +6,7 @@ import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { NextAdventureCard } from "@/components/discovery/NextAdventureCard";
 import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
 import { RecommendedEventsRail } from "@/components/discovery/RecommendedEventsRail";
+import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { ContentSection } from "@/components/public/ContentSection";
 import { GalleryGrid } from "@/components/public/GalleryGrid";
@@ -22,6 +23,7 @@ import { StoryQuote } from "@/components/story/StoryQuote";
 import { StorySidebar } from "@/components/story/StorySidebar";
 import { StorySummary } from "@/components/story/StorySummary";
 import { VisitorTips } from "@/components/story/VisitorTips";
+import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
@@ -69,7 +71,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     notFound();
   }
 
-  const [reviewsEnabled, approvedReviews, storyRecord, relatedPlaces, relatedCollections, nearbyEvents, nextAdventure] = await Promise.all([
+  const [reviewsEnabled, approvedReviews, storyRecord, relatedPlaces, relatedCollections, nearbyEvents, nextAdventure, compassNearby, compassCollections, compassEvents] = await Promise.all([
     isFeatureEnabled("reviews"),
     getApprovedReviewsByPlaceId(place.id),
     getStoryByPlace(place.id),
@@ -77,6 +79,9 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     DiscoveryService.getRecommendedCollections({ placeId: place.id, limit: 4 }),
     DiscoveryService.getRecommendedEvents({ placeId: place.id, limit: 4 }),
     DiscoveryService.getNextAdventure(place.id),
+    CompassEngine.recommendNearby(place.id, 4),
+    CompassEngine.recommendCollectionsByTags(place.tags, 4),
+    CompassEngine.recommendEventsByTags(place.tags, 4),
   ]);
 
   const story = storyRecord ?? createFallbackStory(place);
@@ -161,6 +166,48 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             <NearbyPlacesRail places={nearbyLodging} title="Nearby Lodging" />
             <RecommendedEventsRail events={nearbyEvents} title="Nearby Events" />
             <RecommendedCollectionsRail collections={relatedCollections} title="Related Collections" />
+            <RecommendationRail
+              title="Compass Nearby Picks"
+              recommendations={compassNearby}
+              emptyMessage="Compass nearby picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.name,
+                subtitle: recommendation.item.description,
+                href: `/places/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.placeType,
+                reasons: recommendation.reasons,
+              })}
+            />
+            <RecommendationRail
+              title="Compass Collection Picks"
+              recommendations={compassCollections}
+              emptyMessage="Compass collection picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.title,
+                subtitle: recommendation.item.subtitle,
+                href: `/collections/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.season,
+                reasons: recommendation.reasons,
+              })}
+            />
+            <RecommendationRail
+              title="Compass Event Picks"
+              recommendations={compassEvents}
+              emptyMessage="Compass event picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.title,
+                subtitle: recommendation.item.description,
+                href: `/events/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.eventType,
+                reasons: recommendation.reasons,
+              })}
+            />
             <NextAdventureCard adventure={nextAdventure} title="Next Adventure" />
           </aside>
         </div>

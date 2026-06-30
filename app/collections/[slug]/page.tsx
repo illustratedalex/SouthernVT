@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { RecommendedArticlesRail } from "@/components/discovery/RecommendedArticlesRail";
 import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
+import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { ContentSection } from "@/components/public/ContentSection";
 import { HeroImage } from "@/components/public/HeroImage";
@@ -14,6 +15,7 @@ import { StoryQuote } from "@/components/story/StoryQuote";
 import { StorySidebar } from "@/components/story/StorySidebar";
 import { StorySummary } from "@/components/story/StorySummary";
 import { VisitorTips } from "@/components/story/VisitorTips";
+import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { collectionJsonLd } from "@/lib/jsonLd";
 import { getCollectionBySlug, getCollections } from "@/lib/repositories/collectionRepository";
@@ -58,12 +60,15 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
     notFound();
   }
 
-  const [allPlaces, storyRecord, similarCollections, featuredPlaces, relatedGuides] = await Promise.all([
+  const [allPlaces, storyRecord, similarCollections, featuredPlaces, relatedGuides, compassPlaces, compassCollections, compassGuides] = await Promise.all([
     getPlaces(),
     getStoryByCollection(collection.id),
     DiscoveryService.getRecommendedCollections({ collectionId: collection.id, limit: 3 }),
     DiscoveryService.getRelatedPlaces({ collectionId: collection.id, limit: 4 }),
     DiscoveryService.getRecommendedArticles({ collectionId: collection.id, limit: 4 }),
+    CompassEngine.recommendByTags(collection.tags, 4),
+    CompassEngine.recommendForAudience(collection.audience, 4),
+    CompassEngine.recommendArticlesByTags(collection.tags, 4),
   ]);
 
   const story = storyRecord ?? createFallbackCollectionStory(collection);
@@ -158,6 +163,48 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
             <RecommendedCollectionsRail collections={similarCollections} title="Similar Collections" />
             <NearbyPlacesRail places={featuredPlacesForRail} title="Featured Places" />
             <RecommendedArticlesRail articles={relatedGuides} title="Related Guides" />
+            <RecommendationRail
+              title="Compass Place Picks"
+              recommendations={compassPlaces}
+              emptyMessage="Compass place picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.name,
+                subtitle: recommendation.item.description,
+                href: `/places/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.placeType,
+                reasons: recommendation.reasons,
+              })}
+            />
+            <RecommendationRail
+              title="Compass Collection Picks"
+              recommendations={compassCollections}
+              emptyMessage="Compass collection picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.title,
+                subtitle: recommendation.item.subtitle,
+                href: `/collections/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.audience,
+                reasons: recommendation.reasons,
+              })}
+            />
+            <RecommendationRail
+              title="Compass Guide Picks"
+              recommendations={compassGuides}
+              emptyMessage="Compass guide picks will appear here."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.title,
+                subtitle: recommendation.item.excerpt,
+                href: `/guides/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.articleType,
+                reasons: recommendation.reasons,
+              })}
+            />
 
             <PublicCTA
               eyebrow="Ready to go"

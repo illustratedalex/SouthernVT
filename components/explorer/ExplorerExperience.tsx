@@ -7,16 +7,21 @@ import { ExplorerCTA } from "@/components/explorer/ExplorerCTA";
 import { ExplorerHero } from "@/components/explorer/ExplorerHero";
 import { MoodPicker } from "@/components/explorer/MoodPicker";
 import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
+import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
 import type { ExplorerResultDetails } from "@/lib/discovery/ExplorerService";
 import type { ExplorerMood } from "@/types/Explorer";
+import type { Recommendation } from "@/types/Recommendation";
+import type { Place } from "@/types/Place";
 
 type ExplorerExperienceProps = {
   detailedResults: ExplorerResultDetails[];
+  compassRecommendations: Recommendation<Place>[];
 };
 
-export function ExplorerExperience({ detailedResults }: ExplorerExperienceProps) {
+export function ExplorerExperience({ detailedResults, compassRecommendations }: ExplorerExperienceProps) {
   const [selectedMood, setSelectedMood] = useState<ExplorerMood | "any">("any");
   const [activeResultId, setActiveResultId] = useState<string | null>(detailedResults[0]?.result.id ?? null);
+  const [spinCount, setSpinCount] = useState(0);
 
   const moods = useMemo(() => Array.from(new Set(detailedResults.map((result) => result.result.mood))), [detailedResults]);
   const activeDetails = useMemo(
@@ -41,8 +46,9 @@ export function ExplorerExperience({ detailedResults }: ExplorerExperienceProps)
       return;
     }
 
-    const pick = pool[Math.floor(Math.random() * pool.length)];
+    const pick = pool[spinCount % pool.length];
     setActiveResultId(pick.result.id);
+    setSpinCount((current) => current + 1);
   };
 
   const plannerHref = activeDetails?.primaryPlace ? `/planner/new?place=${activeDetails.primaryPlace.id}` : "/planner/new";
@@ -62,13 +68,27 @@ export function ExplorerExperience({ detailedResults }: ExplorerExperienceProps)
           onClick={generateAdventure}
           className="rounded-full bg-[#1f3b2f] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[#f8f2e4] shadow-sm transition hover:bg-[#29493a]"
         >
-          I'm Feeling Adventurous
+          I&apos;m Feeling Adventurous
         </button>
       </div>
 
       <AdventureResultCard details={activeDetails} />
       <AdventureTimeline details={activeDetails} />
       <NearbyPlacesRail places={relatedPlaces} title="Related places" />
+      <RecommendationRail
+        title="Compass Adventure Picks"
+        recommendations={compassRecommendations}
+        emptyMessage="Compass adventure recommendations are loading."
+        mapItem={(recommendation) => ({
+          id: recommendation.item.id,
+          title: recommendation.item.name,
+          subtitle: recommendation.item.description,
+          href: `/places/${recommendation.item.slug}`,
+          score: recommendation.score,
+          badge: recommendation.item.placeType,
+          reasons: recommendation.reasons,
+        })}
+      />
       <ExplorerCTA plannerHref={plannerHref} />
     </section>
   );

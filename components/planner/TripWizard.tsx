@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { BudgetPicker } from "@/components/planner/BudgetPicker";
 import { GeneratedTripPreview } from "@/components/planner/GeneratedTripPreview";
 import { InterestPicker } from "@/components/planner/InterestPicker";
+import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
 import { TripPacePicker } from "@/components/planner/TripPacePicker";
 import { TripStep } from "@/components/planner/TripStep";
 import { generateMockTrip } from "@/repositories/TripRepository";
@@ -11,6 +12,7 @@ import type { Article } from "@/types/Article";
 import type { Collection } from "@/types/Collection";
 import type { Event } from "@/types/Event";
 import type { Place } from "@/types/Place";
+import type { Recommendation } from "@/types/Recommendation";
 import type { Trip, TripBudget, TripPace } from "@/types/Trip";
 
 type TripWizardProps = {
@@ -19,6 +21,7 @@ type TripWizardProps = {
   collections: Collection[];
   events: Event[];
   articles: Article[];
+  compassRecommendations: Recommendation<Place>[];
 };
 
 const interestOptions = [
@@ -32,7 +35,7 @@ const interestOptions = [
   "Relaxed Pace",
 ];
 
-export function TripWizard({ plannerEnabled, places, collections, events, articles }: TripWizardProps) {
+export function TripWizard({ plannerEnabled, places, collections, events, articles, compassRecommendations }: TripWizardProps) {
   const [step, setStep] = useState(0);
   const [homeBase, setHomeBase] = useState("Brattleboro");
   const [numberOfDays, setNumberOfDays] = useState(2);
@@ -74,6 +77,21 @@ export function TripWizard({ plannerEnabled, places, collections, events, articl
           </p>
         ) : null}
       </header>
+
+      <RecommendationRail
+        title="Compass Planner Picks"
+        recommendations={compassRecommendations}
+        emptyMessage="Compass planner picks will appear here."
+        mapItem={(recommendation) => ({
+          id: recommendation.item.id,
+          title: recommendation.item.name,
+          subtitle: recommendation.item.description,
+          href: `/places/${recommendation.item.slug}`,
+          score: recommendation.score,
+          badge: recommendation.item.placeType,
+          reasons: recommendation.reasons,
+        })}
+      />
 
       {step === 0 ? (
         <TripStep title="Home base town" description="Set your base town so the itinerary keeps drive-time reasonable.">

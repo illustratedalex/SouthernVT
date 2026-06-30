@@ -110,7 +110,27 @@ export function FieldWizard() {
   };
 
   useEffect(() => {
-    requestGps();
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setTimeout(() => {
+        setGpsStatus("error");
+      }, 0);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        setGpsStatus("ready");
+      },
+      () => {
+        setGpsStatus("error");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+      },
+    );
   }, []);
 
   useEffect(() => {
