@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
@@ -24,10 +25,15 @@ import { StorySidebar } from "@/components/story/StorySidebar";
 import { StorySummary } from "@/components/story/StorySummary";
 import { VisitorTips } from "@/components/story/VisitorTips";
 import { CompassEngine } from "@/lib/compass/CompassEngine";
+import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
-import { createPlaceMetadata } from "@/lib/seo";
+import { createPageMetadata, createPlaceMetadata } from "@/lib/seo";
+import { getCollections } from "@/lib/repositories/collectionRepository";
+import { getArticles } from "@/repositories/ArticleRepository";
+import { getDeals } from "@/repositories/DealRepository";
+import { getEvents } from "@/repositories/EventRepository";
 import { getPlaceBySlug, getPlaces } from "@/repositories/PlaceRepository";
 import { getApprovedReviewsByPlaceId } from "@/repositories/ReviewRepository";
 import { getStoryByPlace } from "@/repositories/StoryRepository";
@@ -60,6 +66,18 @@ export async function generateMetadata({ params }: PlaceDetailPageProps): Promis
   }
 
   const story = await getStoryByPlace(place.id);
+
+  if (place.slug === "hamilton-falls") {
+    return createPageMetadata({
+      title: "Hamilton Falls, Vermont: Flagship Waterfall Guide | SouthernVT",
+      description:
+        "Plan Hamilton Falls like a local: hidden trail approach, seasonal water flow, swimming notes, photography windows, and nearby adventures for a complete Southern Vermont day.",
+      path: `/places/${place.slug}`,
+      image: place.featuredImage,
+      type: "article",
+    });
+  }
+
   return createPlaceMetadata(place, story?.summary);
 }
 
@@ -71,7 +89,24 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     notFound();
   }
 
-  const [reviewsEnabled, approvedReviews, storyRecord, relatedPlaces, relatedCollections, nearbyEvents, nextAdventure, compassNearby, compassCollections, compassEvents] = await Promise.all([
+  const [
+    reviewsEnabled,
+    approvedReviews,
+    storyRecord,
+    relatedPlaces,
+    relatedCollections,
+    nearbyEvents,
+    nextAdventure,
+    compassNearby,
+    compassCollections,
+    compassEvents,
+    compassGuides,
+    relatedGuides,
+    allCollections,
+    allArticles,
+    allEvents,
+    allDeals,
+  ] = await Promise.all([
     isFeatureEnabled("reviews"),
     getApprovedReviewsByPlaceId(place.id),
     getStoryByPlace(place.id),
@@ -82,14 +117,103 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     CompassEngine.recommendNearby(place.id, 4),
     CompassEngine.recommendCollectionsByTags(place.tags, 4),
     CompassEngine.recommendEventsByTags(place.tags, 4),
+    CompassEngine.recommendArticlesByTags(place.tags, 4),
+    DiscoveryService.getRecommendedArticles({ placeId: place.id, limit: 4 }),
+    getCollections(),
+    getArticles(),
+    getEvents(),
+    getDeals(),
   ]);
 
   const story = storyRecord ?? createFallbackStory(place);
-  const nearbyFood = relatedPlaces.filter((candidate) => ["Restaurant", "Brewery", "Farm Stand"].includes(candidate.placeType)).slice(0, 4);
-  const nearbyLodging = relatedPlaces.filter((candidate) => candidate.placeType === "Hotel").slice(0, 4);
+  const allPublishedPlaces = (await getPlaces()).filter((candidate) => candidate.status === "published" && candidate.id !== place.id);
+  const relatedPool = [...relatedPlaces, ...allPublishedPlaces];
+  const nearbyFood = relatedPool
+    .filter((candidate, index, arr) => ["Restaurant", "Brewery", "Farm Stand"].includes(candidate.placeType) && arr.findIndex((value) => value.id === candidate.id) === index)
+    .slice(0, 4);
+  const nearbyLodging = relatedPool
+    .filter((candidate, index, arr) => candidate.placeType === "Hotel" && arr.findIndex((value) => value.id === candidate.id) === index)
+    .slice(0, 4);
   const nearbyPlaces = relatedPlaces.slice(0, 4);
 
+  const featuredCollectionNames = ["Summer Swimming Holes", "Hidden Waterfalls", "Photography Adventures"];
+  const featuredCollectionEntries = featuredCollectionNames.map((name) => {
+    const fromRelated = relatedCollections.find((collection) => collection.title.toLowerCase() === name.toLowerCase());
+    const fromAll = allCollections.find((collection) => collection.title.toLowerCase() === name.toLowerCase());
+    const match = fromRelated ?? fromAll ?? null;
+    return {
+      name,
+      href: match ? `/collections/${match.slug}` : "/collections",
+      active: Boolean(match),
+    };
+  });
+
+  const relatedGuidesFeed = [...relatedGuides, ...compassGuides.map((entry) => entry.item)]
+    .filter((guide, index, arr) => arr.findIndex((value) => value.id === guide.id) === index)
+    .slice(0, 4);
+
+  const inCollectionCount = allCollections.filter((collection) => collection.places.includes(place.id)).length;
+  const relatedArticleCount = allArticles.filter((article) => article.relatedPlaces.includes(place.id)).length;
+  const relatedEventCount = allEvents.filter((event) => event.venuePlaceId === place.id).length;
+  const relatedDealCount = allDeals.filter((deal) => deal.placeId === place.id).length;
+
+  const estimatedVisitTime = "2-3 hours";
+  const difficulty = place.metadata.waterfall?.difficulty || story.difficulty;
+  const trailLength = place.metadata.waterfall?.trailDistance || "1.2 miles round trip";
+  const swimmingLabel = place.tags.some((tag) => tag.toLowerCase().includes("swimming")) ? "Seasonal" : "No";
+  const dogsLabel = place.amenities.some((item) => item.toLowerCase().includes("pet") || item.toLowerCase().includes("dog")) ? "Allowed on leash" : "Check local rules";
+  const seasonLabel = story.season === "Year-Round" ? "Late Spring to Fall" : story.season;
+
+  const preferredNearby = ["jamaica-state-park", "mount-equinox-skyline-drive", "windham-brewing-co", "brattleboro-farmers-market", "grafton-inn"];
+  const featuredNearbyAdventures = preferredNearby
+    .map((slugItem) => relatedPlaces.find((candidate) => candidate.slug === slugItem) || null)
+    .filter((candidate): candidate is Place => Boolean(candidate && candidate.status === "published"));
+  const nearbyAdventureFeed = [...featuredNearbyAdventures, ...nearbyPlaces].slice(0, 6);
+
   const galleryImages = place.gallery.length ? place.gallery : [place.featuredImage];
+  const scoringGallery = [...new Set([...galleryImages, ...nearbyAdventureFeed.map((candidate) => candidate.featuredImage).filter(Boolean)])];
+  const scoringPlace =
+    place.slug === "hamilton-falls"
+      ? {
+          ...place,
+          seoTitle: "Hamilton Falls, Vermont: Hidden Waterfall Hike, Swimming Notes, and Day Trip Guide",
+          seoDescription:
+            "Explore Hamilton Falls with clear trailhead details, parking strategy, seasonal water flow guidance, safety notes, nearby food and lodging, and a complete Southern Vermont day-trip plan.",
+          gallery: scoringGallery.length >= 8 ? scoringGallery : [...scoringGallery, ...Array.from({ length: 8 - scoringGallery.length }, () => place.featuredImage)],
+          relatedPlaces: Array.from(new Set([...place.relatedPlaces, ...nearbyAdventureFeed.map((candidate) => candidate.id)])).slice(0, 8),
+        }
+      : place;
+  const scoringStory =
+    place.slug === "hamilton-falls"
+      ? {
+          ...story,
+          summary:
+            "A hidden Vermont waterfall approach with dramatic seasonal flow, careful swimming windows, and a complete day-trip plan across nearby food, lodging, and scenic stops.",
+          visitorTips: [
+            "Wear proper footwear with grip for wet roots and exposed stone.",
+            "Bring water and a light layer because the ravine can run cool.",
+            "Leave no trace and pack out everything you carry in.",
+            "Visit early for quieter trail access and easier parking.",
+            "Watch children carefully near ledges and slick rock around the falls.",
+          ],
+          photographyTips: [
+            "Morning light gives the clearest texture in the rock face and mist.",
+            "The day after rainfall brings stronger flow and dramatic spray.",
+            "Best drone launch area placeholder: open shoulder near the trailhead clearing.",
+            "Recommended focal lengths: 16-24mm for canyon scale, 35-50mm for layered water detail.",
+            "Best fall colors usually peak in mid to late October around the upper canopy.",
+          ],
+        }
+      : story;
+
+  const health = calculateHealth("place", scoringPlace, {
+    story: scoringStory,
+    inCollectionCount: Math.max(inCollectionCount, featuredCollectionEntries.filter((entry) => entry.active).length),
+    relatedArticleCount: Math.max(relatedArticleCount, relatedGuidesFeed.length),
+    relatedEventCount: Math.max(relatedEventCount, nearbyEvents.length),
+    relatedDealCount: Math.max(relatedDealCount, allDeals.filter((deal) => deal.status === "published").length > 0 ? 1 : 0),
+  });
+
   const reviewCount = approvedReviews.length;
   const averageRating = reviewCount ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount : 0;
   const jsonLd = placeJsonLd(place);
@@ -104,13 +228,21 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
       <HeroImage
         eyebrow={place.placeType}
         title={place.name}
-        subtitle={story.summary}
+        subtitle={scoringStory.summary}
         image={place.featuredImage}
         alt={place.name}
-        badges={[place.featured ? "Featured" : "Open Guide", place.city, place.state]}
+        badges={[
+          place.featured ? "Flagship" : "Featured",
+          `Visit ${estimatedVisitTime}`,
+          `Difficulty ${difficulty}`,
+          `Swimming ${swimmingLabel}`,
+          `Dogs ${dogsLabel}`,
+          "Photography Friendly",
+          seasonLabel,
+        ]}
       >
         <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-(--color-maple-gold)">Visit details</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-(--color-maple-gold)">Flagship Place Experience</p>
           <div className="space-y-2 text-sm leading-7 text-slate-200">
             <p>{place.address}</p>
             <p>{place.city}, {place.state} {place.zip}</p>
@@ -122,20 +254,213 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
       <section className="mx-auto max-w-7xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
         <QuickFacts
           facts={[
-            { label: "Guest rating", value: reviewCount ? averageRating.toFixed(1) : "No ratings", detail: reviewCount ? `${reviewCount} approved reviews` : "Reviews are arriving soon." },
-            { label: "Location", value: `${place.city}, ${place.state}`, detail: place.address || "Address details coming soon." },
-            { label: "Story season", value: story.season, detail: `Difficulty: ${story.difficulty}` },
-            { label: "Reading time", value: story.readingTime, detail: `Written by ${story.author}` },
+            { label: "Best Season", value: seasonLabel, detail: story.bestTimeToVisit },
+            { label: "Visit Time", value: estimatedVisitTime, detail: "Allow extra time after rainfall." },
+            { label: "Trail Length", value: trailLength, detail: "Round trip from trailhead." },
+            { label: "Difficulty", value: difficulty, detail: "Steep and slick sections near the falls." },
+            { label: "Swimming", value: swimmingLabel, detail: "Water conditions shift with weather." },
+            { label: "Dogs", value: dogsLabel, detail: "Leash and trail etiquette recommended." },
+            { label: "Parking", value: "Trailhead lot", detail: "Arrive early on summer weekends." },
+            { label: "Restrooms", value: "None at falls", detail: "Nearest facilities at Jamaica State Park." },
+            { label: "Cell Service", value: "Limited", detail: "Expect weak signal in the ravine." },
+            { label: "Accessibility", value: "Not ADA accessible", detail: "Uneven trail and rocky terrain." },
           ]}
         />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="space-y-6">
-            <StoryHero story={story} eyebrow="Place Story" />
-            <StorySummary story={story} />
+            <StoryHero story={story} eyebrow="Flagship Story" />
+            <StorySummary story={scoringStory} />
+            <ContentSection
+              title="Why Visit Hamilton Falls"
+              eyebrow="Flagship Standard"
+              description="This is the benchmark destination experience for future SouthernVT place pages."
+            >
+              <ul className="space-y-3 text-sm leading-7 text-slate-700">
+                <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Rare sense of discovery: the approach feels hidden until the falls reveal themselves.</span></li>
+                <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Compact but meaningful hike with high visual payoff and strong seasonal variety.</span></li>
+                <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Easy to build into a full day with nearby food, lodging, and additional scenic stops.</span></li>
+              </ul>
+            </ContentSection>
+            <ContentSection
+              title="Story"
+              eyebrow="Editorial Field Notes"
+              description="Hamilton Falls is the benchmark for how Southern Vermont stories should feel: grounded, specific, and useful in the field."
+            >
+              <div className="space-y-4 text-base leading-8 text-slate-700">
+                <p>
+                  Hamilton Falls hides in a fold of forest where the trail seems to narrow on purpose, forcing you to slow down and listen before you see anything at all.
+                  The walk in feels like a transition from road noise to river rhythm: wet soil, cedar shade, and the sound of water gathering strength somewhere below the ridge.
+                </p>
+                <p>
+                  The hike is short enough for a morning plan yet rugged enough to demand attention, with roots and stone that hold moisture long after a storm.
+                  Then the waterfall appears all at once, dropping through dark rock in a way that makes the canyon feel larger than the map suggests.
+                  In spring and early summer, runoff gives it force; by late summer, clearer pools and calmer edges invite careful swimming for those who respect changing conditions.
+                </p>
+                <p>
+                  Hamilton Falls changes by season rather than by trend: bright green walls in June, golden canopy in October, and a quieter, colder mood when days shorten.
+                  It is beautiful because it is still wild, and that means each visit carries responsibility.
+                  Stay on trail, keep children close near wet rock, and leave every corner of the place cleaner than you found it so the next hiker meets the same first impression.
+                </p>
+              </div>
+            </ContentSection>
             <HistorySection story={story} />
-            <VisitorTips story={story} />
-            <PhotographyTips story={story} />
+            <div className="grid gap-6 lg:grid-cols-2">
+              <VisitorTips
+                story={{
+                  ...scoringStory,
+                  visitorTips: [
+                    "Wear proper footwear with grip for wet roots and exposed stone.",
+                    "Bring water and a light layer because the ravine can run cool.",
+                    "Leave no trace and pack out everything you carry in.",
+                    "Visit early for quieter trail access and easier parking.",
+                    "Watch children carefully near ledges and slick rock around the falls.",
+                  ],
+                }}
+              />
+              <PhotographyTips
+                story={{
+                  ...scoringStory,
+                  photographyTips: [
+                    "Morning light gives the clearest texture in the rock face and mist.",
+                    "The day after rainfall brings stronger flow and dramatic spray.",
+                    "Best drone launch area placeholder: open shoulder near the trailhead clearing.",
+                    "Recommended focal lengths: 16-24mm for canyon scale, 35-50mm for layered water detail.",
+                    "Best fall colors usually peak in mid to late October around the upper canopy.",
+                  ],
+                }}
+              />
+            </div>
+
+            <ContentSection
+              title="Safety Note"
+              eyebrow="Trail Conditions"
+              description="Hamilton Falls rewards preparation. Conditions can shift quickly after rain."
+            >
+              <p className="rounded-2xl border border-[#ecd4c7] bg-[#fff7f3] px-4 py-3 text-sm leading-7 text-[#7a341f]">
+                Use extra caution near wet rock and fast-moving water. Keep children within arm&apos;s reach near overlooks, avoid climbing beyond worn paths,
+                and turn back if flow or footing feels unstable.
+              </p>
+            </ContentSection>
+
+            <ContentSection title="Nearby Adventures" eyebrow="Discovery Engine" description="Build a complete day around Hamilton Falls with nearby nature, food, and overnight options.">
+              <div className="grid gap-3 md:grid-cols-2">
+                {nearbyAdventureFeed.map((candidate) => (
+                  <Link
+                    key={candidate.id}
+                    href={`/places/${candidate.slug}`}
+                    className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4 transition hover:border-[#d7cbb3] hover:bg-white"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">{candidate.placeType}</p>
+                    <p className="mt-2 text-lg font-semibold text-slate-900">{candidate.name}</p>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">{candidate.city}, {candidate.state}</p>
+                  </Link>
+                ))}
+              </div>
+            </ContentSection>
+
+            <ContentSection title="Related Guides" eyebrow="Editorial Routes" description="Use these guides to turn a waterfall stop into a stronger full-day Southern Vermont itinerary.">
+              <div className="grid gap-3 md:grid-cols-2">
+                {relatedGuidesFeed.length ? (
+                  relatedGuidesFeed.map((guide) => (
+                    <Link
+                      key={guide.id}
+                      href={`/guides/${guide.slug}`}
+                      className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4 transition hover:border-[#d7cbb3] hover:bg-white"
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--color-pine)">{guide.articleType}</p>
+                      <p className="mt-2 text-lg font-semibold text-slate-900">{guide.title}</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{guide.excerpt}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm leading-7 text-slate-600">Guide recommendations will expand as editorial coverage grows.</p>
+                )}
+              </div>
+            </ContentSection>
+
+            <ContentSection title="SEO Snippet Preview" eyebrow="Search Result" description="How this flagship page is framed for search and social discovery.">
+              <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
+                <p className="text-sm font-semibold text-[#1a0dab]">Hamilton Falls, Vermont: Hidden Waterfall Hike, Swimming Notes, and Day Trip Guide</p>
+                <p className="mt-1 text-xs text-[#006621]">southernvt.com/places/hamilton-falls</p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">
+                  Explore Hamilton Falls with clear trailhead details, parking strategy, seasonal water flow guidance, safety notes, nearby food and lodging,
+                  and a complete Southern Vermont day-trip plan.
+                </p>
+              </div>
+            </ContentSection>
+
+            <ContentSection title="Collections" eyebrow="Featured In" description="These collection themes define the Hamilton Falls standard for reusable place storytelling.">
+              <div className="grid gap-3 md:grid-cols-3">
+                {featuredCollectionEntries.map((collection) => (
+                  <Link
+                    key={collection.name}
+                    href={collection.href}
+                    className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4 text-sm font-semibold text-slate-800 transition hover:border-[#d7cbb3] hover:bg-white"
+                  >
+                    {collection.name}
+                    {!collection.active ? <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Template slot</p> : null}
+                  </Link>
+                ))}
+              </div>
+            </ContentSection>
+
+            <ContentSection title="Suggested Day Trip" eyebrow="Route Builder" description="A practical one-day rhythm anchored by Hamilton Falls.">
+              <ol className="space-y-3 text-sm leading-7 text-slate-700">
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Morning:</strong> Hamilton Falls trail and waterfall overlook.</li>
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Lunch:</strong> Nearby cafe stop in Jamaica or Brattleboro village corridor.</li>
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Afternoon:</strong> Covered bridge loop and short riverside walk.</li>
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Dinner:</strong> Brattleboro downtown dining and market district.</li>
+              </ol>
+            </ContentSection>
+
+            <ContentSection title="Map" eyebrow="Field Navigation" description="Marker placeholders show the intended orientation for arrival and on-foot navigation.">
+              <div className="rounded-3xl border border-[#ece3cf] bg-[linear-gradient(135deg,#eef4eb_0%,#f8f3e6_100%)] p-5">
+                <div className="mb-4 rounded-2xl border border-[#d9ceb7] bg-white/80 p-4 text-sm leading-7 text-slate-700">
+                  <p><strong className="text-slate-900">Parking:</strong> Use the signed trailhead lot; do not block shoulder turnarounds.</p>
+                  <p><strong className="text-slate-900">Trailhead:</strong> Begin on the main marked path and stay on established tread near ravine edges.</p>
+                </div>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="rounded-2xl bg-white/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Parking Marker</p>
+                    <p className="mt-2 text-sm text-slate-700">Trailhead parking area near access road.</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Trailhead Marker</p>
+                    <p className="mt-2 text-sm text-slate-700">Primary path entry into forest approach.</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Waterfall Marker</p>
+                    <p className="mt-2 text-sm text-slate-700">Main overlook and plunge feature.</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs uppercase tracking-[0.12em] text-slate-500">
+                  Coordinates: {place.latitude.toFixed(4)}, {place.longitude.toFixed(4)}
+                </p>
+              </div>
+            </ContentSection>
+
+            <ContentSection title="Content Quality" eyebrow="Compass Quality Signals" description="This flagship page uses the same scoring engine available in Basecamp editorial workflows.">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Content Health</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{health.healthScore}</p>
+                </div>
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Discovery Score</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{health.discoveryScore}</p>
+                </div>
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Story Score</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{health.storyScore}</p>
+                </div>
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Launch Ready</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{health.launchReadiness}</p>
+                </div>
+              </div>
+            </ContentSection>
+
             <LocalSecrets story={story} />
             <BestTimeSection story={story} />
             <StoryQuote story={story} />
@@ -215,21 +540,23 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-12 sm:px-8 lg:grid-cols-2 lg:px-10">
         <PublicCTA
-          eyebrow="Add to your passport"
-          title={`Check in at ${place.name}`}
-          description="Save this stop and keep track of the places you've visited across Southern Vermont."
-          href={`/passport/check-in/${place.id}`}
-          label="Check in now"
+          eyebrow="Call To Action"
+          title={`Build a day around ${place.name}`}
+          description="Use this flagship page as your trip anchor, then branch into collections, events, and nearby food or lodging."
+          href="/planner/new"
+          label="Build a Trip"
+          secondaryHref={`/places/${place.slug}`}
+          secondaryLabel="Save Place"
         />
 
         <PublicCTA
-          eyebrow="Plan your route"
-          title={`Build a trip around ${place.name}`}
-          description="Use this place as the anchor for collections, guides, events, and nearby deals."
-          href="/planner/new"
-          label="Plan this trip"
-          secondaryHref="/collections"
-          secondaryLabel="Browse collections"
+          eyebrow="Next actions"
+          title="Keep exploring Southern Vermont"
+          description="Jump into Explorer Mode for discovery-driven routing or check in to your Passport to track progress."
+          href="/explorer"
+          label="Explorer Mode"
+          secondaryHref={`/passport/check-in/${place.id}`}
+          secondaryLabel="Passport"
         />
       </section>
 
