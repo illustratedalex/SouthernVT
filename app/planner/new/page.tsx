@@ -19,11 +19,11 @@ export default async function NewTripPlanPage() {
   const [plannerEnabled, compassRecommendations, popularStartingPoints, weekendInspiration, familyFriendlyIdeas, rainyDayBackups, scenicStops] = await Promise.all([
     isFeatureEnabled("aiPlanner"),
     CompassEngine.recommendWeekend(6),
-    CompassEngine.recommendByTags(["local", "easy", "weekend"], 6),
+    CompassEngine.recommendByVisitLength("2_3_hours", 6),
     CompassEngine.recommendWeekend(6),
     CompassEngine.recommendFamily(6),
-    CompassEngine.recommendByWeather("rain", 6),
-    CompassEngine.recommendPhotography(6),
+    CompassEngine.recommendRainyDay(6),
+    CompassEngine.recommendScenic(6),
   ]);
 
   return (

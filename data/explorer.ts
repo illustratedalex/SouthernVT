@@ -3,7 +3,7 @@ import type { ExplorerResult } from "@/types/Explorer";
 export const mockExplorerResults: ExplorerResult[] = [
   {
     id: "explorer-waterfall-morning",
-    mood: "outdoorsy",
+    mood: "adventure",
     title: "Waterfall Morning",
     summary: "Start early at Hamilton Falls, cool down by the river in Jamaica, and wrap with a local lunch nearby.",
     primaryPlaceId: "place-hamilton-falls",
@@ -63,7 +63,7 @@ export const mockExplorerResults: ExplorerResult[] = [
   },
   {
     id: "explorer-breweries-backroads",
-    mood: "foodie",
+    mood: "food",
     title: "Breweries & Backroads",
     summary: "A food-forward route mixing local pours, scenic detours, and one strong deal stop.",
     primaryPlaceId: "place-windham-brewing-co",
@@ -78,7 +78,7 @@ export const mockExplorerResults: ExplorerResult[] = [
   },
   {
     id: "explorer-covered-bridge-wander",
-    mood: "spontaneous",
+    mood: "scenic",
     title: "Covered Bridge Wander",
     summary: "Pick a scenic loop, follow village roads, and let the day unfold around classic Vermont landmarks.",
     primaryPlaceId: "place-mount-equinox-skyline-drive",

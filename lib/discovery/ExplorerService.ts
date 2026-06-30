@@ -1,5 +1,6 @@
 import { mockExplorerResults } from "@/data/explorer";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
+import { getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollectionById } from "@/lib/repositories/collectionRepository";
 import { getArticleById } from "@/repositories/ArticleRepository";
 import { getDealById } from "@/repositories/DealRepository";
@@ -54,6 +55,8 @@ export const ExplorerService = {
       result.eventId ? getEventById(result.eventId) : Promise.resolve(null),
     ]);
 
+    const primaryDNA = primaryPlace ? await getPlaceDNA(primaryPlace.id) : null;
+
     const [fallbackCollections, fallbackArticles, fallbackDeals, fallbackEvents] = primaryPlace
       ? await Promise.all([
           DiscoveryService.getRecommendedCollections({ placeId: primaryPlace.id, limit: 1 }),
@@ -64,7 +67,9 @@ export const ExplorerService = {
       : [[], [], [], []];
 
     return {
-      result,
+      result: primaryDNA && !primaryDNA.moods.includes(result.mood)
+        ? { ...result, mood: primaryDNA.moods[0] as ExplorerMood }
+        : result,
       primaryPlace,
       foodPlace,
       collection: collection ?? fallbackCollections[0] ?? null,

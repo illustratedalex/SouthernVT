@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { TripSummary } from "@/components/planner/TripSummary";
 import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
+import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { ExperienceService } from "@/lib/experience/ExperienceService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getTrips } from "@/repositories/TripRepository";
@@ -14,10 +15,14 @@ export const metadata: Metadata = {
 };
 
 export default async function PlannerLandingPage() {
-  const [plannerEnabled, loadedTrips, experienceFeed] = await Promise.all([
+  const [plannerEnabled, loadedTrips, experienceFeed, dnaFamilyIdeas, dnaRainyIdeas, dnaScenicIdeas, dnaWeekendIdeas] = await Promise.all([
     isFeatureEnabled("aiPlanner"),
     getTrips(),
     ExperienceService.getHomeFeed(4),
+    CompassEngine.recommendFamily(4),
+    CompassEngine.recommendRainyDay(4),
+    CompassEngine.recommendScenic(4),
+    CompassEngine.recommendByVisitLength("half_day", 4),
   ]);
   const trips = (Array.isArray(loadedTrips) ? loadedTrips : []).filter((trip) => trip.status !== "archived");
   const plannerRails = experienceFeed.rails.filter((rail) =>
@@ -85,6 +90,66 @@ export default async function PlannerLandingPage() {
               })}
             />
           ))}
+
+          <RecommendationRail
+            title="DNA Family-Friendly Ideas"
+            recommendations={dnaFamilyIdeas}
+            emptyMessage="Family-focused DNA ideas will appear here."
+            mapItem={(recommendation) => ({
+              id: recommendation.item.id,
+              title: recommendation.item.name,
+              subtitle: recommendation.item.description,
+              href: `/places/${recommendation.item.slug}`,
+              score: recommendation.score,
+              badge: recommendation.item.placeType,
+              reasons: recommendation.reasons,
+            })}
+          />
+
+          <RecommendationRail
+            title="DNA Rainy Day Backups"
+            recommendations={dnaRainyIdeas}
+            emptyMessage="Rainy-day DNA ideas will appear here."
+            mapItem={(recommendation) => ({
+              id: recommendation.item.id,
+              title: recommendation.item.name,
+              subtitle: recommendation.item.description,
+              href: `/places/${recommendation.item.slug}`,
+              score: recommendation.score,
+              badge: recommendation.item.placeType,
+              reasons: recommendation.reasons,
+            })}
+          />
+
+          <RecommendationRail
+            title="DNA Scenic Stops"
+            recommendations={dnaScenicIdeas}
+            emptyMessage="Scenic DNA ideas will appear here."
+            mapItem={(recommendation) => ({
+              id: recommendation.item.id,
+              title: recommendation.item.name,
+              subtitle: recommendation.item.description,
+              href: `/places/${recommendation.item.slug}`,
+              score: recommendation.score,
+              badge: recommendation.item.placeType,
+              reasons: recommendation.reasons,
+            })}
+          />
+
+          <RecommendationRail
+            title="DNA Weekend Inspiration"
+            recommendations={dnaWeekendIdeas}
+            emptyMessage="Weekend DNA ideas will appear here."
+            mapItem={(recommendation) => ({
+              id: recommendation.item.id,
+              title: recommendation.item.name,
+              subtitle: recommendation.item.description,
+              href: `/places/${recommendation.item.slug}`,
+              score: recommendation.score,
+              badge: recommendation.item.placeType,
+              reasons: recommendation.reasons,
+            })}
+          />
         </section>
       </section>
 

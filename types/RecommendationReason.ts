@@ -17,7 +17,11 @@ export type RecommendationReasonCode =
   | "food"
   | "adventure"
   | "photography"
-  | "hidden_gem";
+  | "hidden_gem"
+  | "dna_mood"
+  | "dna_visit_length"
+  | "dna_energy"
+  | "dna_crowd";
 
 export interface RecommendationReason {
   code: RecommendationReasonCode;

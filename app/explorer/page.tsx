@@ -15,9 +15,10 @@ export const metadata = createPageMetadata({
 
 export default async function ExplorerPage() {
   const results = ExplorerService.getExplorerResults();
-  const [detailedResults, compassRecommendations, experienceFeed] = await Promise.all([
+  const [detailedResults, compassRecommendations, moodOptions, experienceFeed] = await Promise.all([
     Promise.all(results.map((result) => ExplorerService.buildExplorerResultDetails(result))),
     CompassEngine.recommendAdventure(6),
+    CompassEngine.getMoodOptions(),
     ExperienceService.getHomeFeed(6),
   ]);
 
@@ -28,7 +29,7 @@ export default async function ExplorerPage() {
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
       <Navbar />
-      <ExplorerExperience detailedResults={detailedResults} compassRecommendations={compassRecommendations} />
+      <ExplorerExperience detailedResults={detailedResults} compassRecommendations={compassRecommendations} moodOptions={moodOptions} />
 
       <section className="mx-auto max-w-7xl space-y-6 px-6 pb-10 sm:px-8 lg:px-10">
         {explorerRails.map((rail) => (

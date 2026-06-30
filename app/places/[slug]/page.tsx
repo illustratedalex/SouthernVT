@@ -15,6 +15,7 @@ import { HeroImage } from "@/components/public/HeroImage";
 import { PublicCTA } from "@/components/public/PublicCTA";
 import { QuickFacts } from "@/components/public/QuickFacts";
 import { ReviewList } from "@/components/public/ReviewList";
+import { PlaceDNACard } from "@/components/public/PlaceDNACard";
 import { BestTimeSection } from "@/components/story/BestTimeSection";
 import { HistorySection } from "@/components/story/HistorySection";
 import { LocalSecrets } from "@/components/story/LocalSecrets";
@@ -30,6 +31,7 @@ import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
 import { createPageMetadata, createPlaceMetadata } from "@/lib/seo";
+import { getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getArticles } from "@/repositories/ArticleRepository";
 import { getDeals } from "@/repositories/DealRepository";
@@ -106,6 +108,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     allArticles,
     allEvents,
     allDeals,
+    placeDNA,
   ] = await Promise.all([
     isFeatureEnabled("reviews"),
     getApprovedReviewsByPlaceId(place.id),
@@ -123,6 +126,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     getArticles(),
     getEvents(),
     getDeals(),
+    getPlaceDNA(place.id),
   ]);
 
   const story = storyRecord ?? createFallbackStory(place);
@@ -266,6 +270,8 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             { label: "Accessibility", value: "Not ADA accessible", detail: "Uneven trail and rocky terrain." },
           ]}
         />
+
+        <PlaceDNACard dna={placeDNA} />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="space-y-6">

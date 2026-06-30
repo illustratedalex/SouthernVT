@@ -12,18 +12,41 @@ import type { ExplorerResultDetails } from "@/lib/discovery/ExplorerService";
 import type { ExplorerMood } from "@/types/Explorer";
 import type { Recommendation } from "@/types/Recommendation";
 import type { Place } from "@/types/Place";
+import { CompassEngine } from "@/lib/compass/CompassEngine";
+import type { PlaceMood } from "@/types/PlaceDNA";
 
 type ExplorerExperienceProps = {
   detailedResults: ExplorerResultDetails[];
   compassRecommendations: Recommendation<Place>[];
+  moodOptions: PlaceMood[];
 };
 
-export function ExplorerExperience({ detailedResults, compassRecommendations }: ExplorerExperienceProps) {
+export function ExplorerExperience({ detailedResults, compassRecommendations, moodOptions }: ExplorerExperienceProps) {
   const [selectedMood, setSelectedMood] = useState<ExplorerMood | "any">("any");
   const [activeResultId, setActiveResultId] = useState<string | null>(detailedResults[0]?.result.id ?? null);
   const [spinCount, setSpinCount] = useState(0);
+  const [dnaRecommendations, setDnaRecommendations] = useState<Recommendation<Place>[]>(compassRecommendations);
 
-  const moods = useMemo(() => Array.from(new Set(detailedResults.map((result) => result.result.mood))), [detailedResults]);
+  const moods = useMemo(() => {
+    const fromResults = Array.from(new Set(detailedResults.map((result) => result.result.mood)));
+    const fromDNA = moodOptions.filter((mood): mood is ExplorerMood => [
+      "adventure",
+      "relaxation",
+      "food",
+      "family",
+      "photography",
+      "dogs",
+      "swimming",
+      "scenic",
+      "quiet",
+      "shopping",
+      "history",
+      "rainy_day",
+      "romantic",
+      "accessibility",
+    ].includes(mood));
+    return Array.from(new Set([...fromResults, ...fromDNA]));
+  }, [detailedResults, moodOptions]);
   const activeDetails = useMemo(
     () => detailedResults.find((result) => result.result.id === activeResultId) ?? null,
     [activeResultId, detailedResults],
@@ -49,6 +72,14 @@ export function ExplorerExperience({ detailedResults, compassRecommendations }: 
     const pick = pool[spinCount % pool.length];
     setActiveResultId(pick.result.id);
     setSpinCount((current) => current + 1);
+
+    if (selectedMood !== "any") {
+      CompassEngine.recommendByMood(selectedMood, 6)
+        .then((next) => setDnaRecommendations(next))
+        .catch(() => setDnaRecommendations(compassRecommendations));
+    } else {
+      setDnaRecommendations(compassRecommendations);
+    }
   };
 
   const plannerHref = activeDetails?.primaryPlace ? `/planner/new?place=${activeDetails.primaryPlace.id}` : "/planner/new";
@@ -77,7 +108,7 @@ export function ExplorerExperience({ detailedResults, compassRecommendations }: 
       <NearbyPlacesRail places={relatedPlaces} title="Related places" />
       <RecommendationRail
         title="Compass Adventure Picks"
-        recommendations={compassRecommendations}
+        recommendations={dnaRecommendations}
         emptyMessage="Compass adventure recommendations are loading."
         mapItem={(recommendation) => ({
           id: recommendation.item.id,

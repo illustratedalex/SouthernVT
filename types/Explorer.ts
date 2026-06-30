@@ -1,11 +1,18 @@
 export type ExplorerMood =
-  | "relaxed"
-  | "outdoorsy"
-  | "foodie"
+  | "relaxation"
+  | "adventure"
+  | "food"
   | "family"
+  | "photography"
+  | "dogs"
+  | "swimming"
+  | "scenic"
+  | "quiet"
+  | "shopping"
+  | "history"
   | "rainy_day"
   | "romantic"
-  | "spontaneous";
+  | "accessibility";
 
 export interface ExplorerResult {
   id: string;

@@ -1,5 +1,6 @@
 import { mockRelationships } from "@/data/relationships";
 import { calculatePlaceCompleteness } from "@/lib/completeness/placeCompleteness";
+import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
 import { getPublishedArticles } from "@/repositories/ArticleRepository";
@@ -13,6 +14,7 @@ import type { Event } from "@/types/Event";
 import type { Place } from "@/types/Place";
 import type { Recommendation } from "@/types/Recommendation";
 import type { RecommendationReason } from "@/types/RecommendationReason";
+import type { EnergyLevel, PlaceMood, VisitLength } from "@/types/PlaceDNA";
 
 export type CompassContext = {
   anchorPlace?: Place;
@@ -21,6 +23,9 @@ export type CompassContext = {
   tags?: string[];
   weather?: "sunny" | "rain" | "snow" | "cloudy";
   month?: number;
+  moods?: PlaceMood[];
+  visitLength?: VisitLength;
+  energyLevel?: EnergyLevel;
 };
 
 function overlap(a: string[], b: string[]): number {
@@ -115,10 +120,34 @@ function weatherTagBoost(place: Place, weather: CompassContext["weather"]): numb
   return 0;
 }
 
+function normalizeWeather(weather: CompassContext["weather"]): "sunny" | "cloudy" | "rainy" | "snowy" | "any" {
+  if (weather === "rain") {
+    return "rainy";
+  }
+  if (weather === "snow") {
+    return "snowy";
+  }
+  if (weather === "cloudy") {
+    return "cloudy";
+  }
+  if (weather === "sunny") {
+    return "sunny";
+  }
+  return "any";
+}
+
+function dnaWeatherBoost(preference: "sunny" | "cloudy" | "rainy" | "snowy" | "any", weather?: CompassContext["weather"]): number {
+  if (!weather || preference === "any") {
+    return 0;
+  }
+  return normalizeWeather(weather) === preference ? 8 : 0;
+}
+
 export const CompassEngine = {
   async scorePlace(place: Place, context: CompassContext = {}): Promise<Recommendation<Place>> {
     const reasons: RecommendationReason[] = [];
     let score = 0;
+    const dna = await getPlaceDNA(place.id);
 
     if (context.anchorPlace && context.anchorPlace.id !== place.id) {
       const miles = distanceMiles(context.anchorPlace, place);
@@ -149,6 +178,44 @@ export const CompassEngine = {
     score += contextTagScore;
     if (contextTagScore > 0) {
       reasons.push(reason("Recommended because you liked waterfalls.", "tags", contextTagScore));
+    }
+
+    if (dna) {
+      const moodOverlap = overlap(context.moods ?? [], dna.moods);
+      if (moodOverlap > 0) {
+        const moodScore = moodOverlap * 8;
+        score += moodScore;
+        const leadMood = (context.moods ?? []).find((item) => dna.moods.includes(item));
+        if (leadMood === "photography") {
+          reasons.push(reason("Great for photography.", "dna_mood", moodScore));
+        } else if (leadMood === "scenic" || leadMood === "quiet") {
+          reasons.push(reason("Quiet scenic pick.", "dna_crowd", moodScore));
+        } else {
+          reasons.push(reason("Mood fit from Place DNA profile.", "dna_mood", moodScore));
+        }
+      }
+
+      const seasonalTarget = inferSeason(context).toLowerCase();
+      if (dna.bestSeasons.some((entry) => entry.toLowerCase().includes(seasonalTarget))) {
+        score += 10;
+        reasons.push(reason(`Best in ${inferSeason(context)}.`, "season", 10));
+      }
+
+      if (context.visitLength && dna.recommendedVisitLength === context.visitLength) {
+        score += 8;
+        reasons.push(reason(`Good for a ${context.visitLength.replaceAll("_", "-")} visit.`, "dna_visit_length", 8));
+      }
+
+      if (context.energyLevel && dna.energyLevel === context.energyLevel) {
+        score += 8;
+        reasons.push(reason(`${dna.energyLevel.charAt(0).toUpperCase() + dna.energyLevel.slice(1)} energy adventure.`, "dna_energy", 8));
+      }
+
+      const weatherScore = dnaWeatherBoost(dna.weatherPreference, context.weather);
+      if (weatherScore > 0) {
+        score += weatherScore;
+        reasons.push(reason("Weather preference match from Place DNA.", "weather", weatherScore));
+      }
     }
 
     if (place.featured) {
@@ -408,7 +475,7 @@ export const CompassEngine = {
   },
 
   async recommendFamily(limit = 6): Promise<Recommendation<Place>[]> {
-    const recs = await this.recommendByTags(["family", "kids", "easy"], limit);
+    const recs = await this.recommendByMood("family", limit);
     return recs.map((rec) => ({
       ...rec,
       reasons: [reason("Family friendly.", "family", 10), ...rec.reasons],
@@ -430,7 +497,7 @@ export const CompassEngine = {
   },
 
   async recommendAdventure(limit = 6): Promise<Recommendation<Place>[]> {
-    const recs = await this.recommendByTags(["trail", "waterfall", "outdoor", "scenic"], limit);
+    const recs = await this.recommendByMood("adventure", limit);
     return recs.map((rec) => ({
       ...rec,
       reasons: [reason("Adventure-ready route match.", "adventure", 10), ...rec.reasons],
@@ -439,7 +506,7 @@ export const CompassEngine = {
   },
 
   async recommendPhotography(limit = 6): Promise<Recommendation<Place>[]> {
-    const recs = await this.recommendByTags(["scenic", "views", "foliage", "waterfall"], limit);
+    const recs = await this.recommendByMood("photography", limit);
     return recs.map((rec) => ({
       ...rec,
       reasons: [reason("Strong photography potential.", "photography", 10), ...rec.reasons],
@@ -482,5 +549,57 @@ export const CompassEngine = {
     const events = await getPublishedEvents();
     const recs = await Promise.all(events.map((event) => this.scoreEvent(event, { tags })));
     return sortRecommendations(recs, limit);
+  },
+
+  async recommendByMood(mood: PlaceMood, limit = 6): Promise<Recommendation<Place>[]> {
+    const places = (await getPlaces()).filter((place) => place.status === "published");
+    const recs = await Promise.all(places.map((place) => this.scorePlace(place, { moods: [mood], tags: [mood] })));
+    return sortRecommendations(recs, limit);
+  },
+
+  async recommendByVisitLength(visitLength: VisitLength, limit = 6): Promise<Recommendation<Place>[]> {
+    const places = (await getPlaces()).filter((place) => place.status === "published");
+    const recs = await Promise.all(places.map((place) => this.scorePlace(place, { visitLength })));
+    return sortRecommendations(recs, limit);
+  },
+
+  async recommendByEnergy(energyLevel: EnergyLevel, limit = 6): Promise<Recommendation<Place>[]> {
+    const places = (await getPlaces()).filter((place) => place.status === "published");
+    const recs = await Promise.all(places.map((place) => this.scorePlace(place, { energyLevel })));
+    return sortRecommendations(recs, limit);
+  },
+
+  async recommendRainyDay(limit = 6): Promise<Recommendation<Place>[]> {
+    const recs = await this.recommendByMood("rainy_day", limit);
+    return recs.map((rec) => ({
+      ...rec,
+      reasons: [reason("Reliable rainy day fallback.", "weather", 10), ...rec.reasons],
+      score: rec.score + 10,
+    }));
+  },
+
+  async recommendDogFriendly(limit = 6): Promise<Recommendation<Place>[]> {
+    const recs = await this.recommendByMood("dogs", limit);
+    return recs.map((rec) => ({
+      ...rec,
+      reasons: [reason("Dog-friendly profile from Place DNA.", "dna_mood", 10), ...rec.reasons],
+      score: rec.score + 10,
+    }));
+  },
+
+  async recommendScenic(limit = 6): Promise<Recommendation<Place>[]> {
+    const recs = await this.recommendByMood("scenic", limit);
+    return recs.map((rec) => ({
+      ...rec,
+      reasons: [reason("Scenic route profile from Place DNA.", "dna_mood", 10), ...rec.reasons],
+      score: rec.score + 10,
+    }));
+  },
+
+  async getMoodOptions(): Promise<PlaceMood[]> {
+    const allDNA = await getAllPlaceDNA();
+    const moods = new Set<PlaceMood>();
+    allDNA.forEach((entry) => entry.moods.forEach((mood) => moods.add(mood)));
+    return Array.from(moods.values());
   },
 };

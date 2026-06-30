@@ -1,4 +1,5 @@
 import { mockRelationships } from "@/data/relationships";
+import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
 import { getPublishedArticles } from "@/repositories/ArticleRepository";
@@ -10,6 +11,7 @@ import type { Collection } from "@/types/Collection";
 import type { Deal } from "@/types/Deal";
 import type { Event } from "@/types/Event";
 import type { Place } from "@/types/Place";
+import type { PlaceMood } from "@/types/PlaceDNA";
 
 type PlaceScopedOptions = {
   placeId?: string;
@@ -126,6 +128,10 @@ function storyDifficultyBoost(anchorDifficulty?: string, candidateDifficulty?: s
   return anchorDifficulty === candidateDifficulty ? 4 : 0;
 }
 
+function dnaMoodBoost(anchorMoods: PlaceMood[], candidateMoods: PlaceMood[]): number {
+  return overlapCount(anchorMoods, candidateMoods) * 7;
+}
+
 async function loadPublishedCollections(): Promise<Collection[]> {
   const collections = await getCollections();
   return collections.filter((collection) => collection.status === "published");
@@ -208,15 +214,16 @@ export const DiscoveryService = {
       return places.filter((place) => place.status === "published").slice(0, limit);
     }
 
-    const [anchorCollections, anchorArticles, anchorStory] = await Promise.all([
+    const [anchorCollections, anchorArticles, anchorStory, anchorDNA] = await Promise.all([
       Promise.resolve(collections.filter((collection) => collection.places.includes(anchor.id))),
       Promise.resolve(articles.filter((article) => article.relatedPlaces.includes(anchor.id))),
       getStoryByPlace(anchor.id),
+      getPlaceDNA(anchor.id),
     ]);
 
     const scored: Array<Scored<Place>> = [];
     for (const candidate of places.filter((entry) => entry.status === "published" && entry.id !== anchor.id)) {
-      const candidateStory = await getStoryByPlace(candidate.id);
+      const [candidateStory, candidateDNA] = await Promise.all([getStoryByPlace(candidate.id), getPlaceDNA(candidate.id)]);
       const tagScore = overlapCount(anchor.tags, candidate.tags) * 9;
       const categoryScore = overlapCount(anchor.categories, candidate.categories) * 6;
       const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id);
@@ -224,10 +231,11 @@ export const DiscoveryService = {
       const sharedArticleScore = anchorArticles.filter((article) => article.relatedPlaces.includes(candidate.id)).length * 8;
       const featuredScore = candidate.featured ? 5 : 0;
       const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
+      const dnaScore = anchorDNA && candidateDNA ? dnaMoodBoost(anchorDNA.moods, candidateDNA.moods) : 0;
 
       scored.push({
         item: candidate,
-        score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore + storyScore,
+        score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore + storyScore + dnaScore,
       });
     }
 
@@ -404,19 +412,76 @@ export const DiscoveryService = {
       };
     }
 
-    const [collections, articles, deals, events] = await Promise.all([
+    const [collections, articles, deals, events, dnaForSeed] = await Promise.all([
       this.getRecommendedCollections({ placeId: seed.id, limit: 1 }),
       this.getRecommendedArticles({ placeId: seed.id, limit: 1 }),
       this.getRecommendedDeals({ placeId: seed.id, limit: 1 }),
       this.getRecommendedEvents({ placeId: seed.id, limit: 1 }),
+      getPlaceDNA(seed.id),
     ]);
 
+    const seededPlace = dnaForSeed
+      ? (await this.getRecommendedPlaces({ placeId: seed.id, mood: dnaForSeed.moods[0], season: dnaForSeed.bestSeasons[0], limit: 1 }))[0] ?? seed
+      : seed;
+
     return {
-      place: seed,
+      place: seededPlace,
       collection: collections[0] ?? null,
       article: articles[0] ?? null,
       deal: deals[0] ?? null,
       event: events[0] ?? null,
     };
+  },
+
+  async getRecommendedPlaces(options: PlaceScopedOptions & { mood?: PlaceMood; season?: string; visitLength?: string }): Promise<Place[]> {
+    const limit = options.limit ?? 4;
+    const places = (await getPlaces()).filter((place) => place.status === "published");
+    const [allDNA, anchor] = await Promise.all([getAllPlaceDNA(), resolveAnchorPlace(options)]);
+    const seasonNeedle = options.season?.toLowerCase();
+
+    const scored = places
+      .filter((place) => !anchor || place.id !== anchor.id)
+      .map((place) => {
+        const dna = allDNA.find((entry) => entry.placeId === place.id);
+        let score = 0;
+
+        if (anchor) {
+          score += graphBoost("place", anchor.id, "place", place.id);
+          score += overlapCount(anchor.tags, place.tags) * 6;
+        }
+
+        if (options.mood && dna?.moods.includes(options.mood)) {
+          score += 28;
+        }
+
+        if (seasonNeedle && dna?.bestSeasons.some((item) => item.toLowerCase().includes(seasonNeedle))) {
+          score += 20;
+        }
+
+        if (options.visitLength && dna?.recommendedVisitLength === options.visitLength) {
+          score += 16;
+        }
+
+        score += place.featured ? 6 : 0;
+        return { item: place, score };
+      });
+
+    return sortScored(scored, limit);
+  },
+
+  async getSeasonalPicks(season: string, limit = 4): Promise<Place[]> {
+    return this.getRecommendedPlaces({ season, limit });
+  },
+
+  async getPhotographyPicks(limit = 4): Promise<Place[]> {
+    return this.getRecommendedPlaces({ mood: "photography", limit });
+  },
+
+  async getDogFriendlyPicks(limit = 4): Promise<Place[]> {
+    return this.getRecommendedPlaces({ mood: "dogs", limit });
+  },
+
+  async getFamilyFriendlyPicks(limit = 4): Promise<Place[]> {
+    return this.getRecommendedPlaces({ mood: "family", limit });
   },
 };

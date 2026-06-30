@@ -3,13 +3,20 @@
 import type { ExplorerMood } from "@/types/Explorer";
 
 const moodLabels: Record<ExplorerMood, string> = {
-  relaxed: "Relaxed",
-  outdoorsy: "Outdoorsy",
-  foodie: "Foodie",
+  relaxation: "Relaxation",
+  adventure: "Adventure",
+  food: "Food",
   family: "Family",
+  photography: "Photography",
+  dogs: "Dogs",
+  swimming: "Swimming",
+  scenic: "Scenic",
+  quiet: "Quiet",
+  shopping: "Shopping",
+  history: "History",
   rainy_day: "Rainy Day",
   romantic: "Romantic",
-  spontaneous: "Spontaneous",
+  accessibility: "Accessibility",
 };
 
 type MoodPickerProps = {
