@@ -189,7 +189,23 @@ export function GlobalSearch() {
                   ))}
                 </section>
               ) : (
-                <p className="px-3 py-4 text-sm text-slate-600">No results yet. Try a different phrase.</p>
+                <div className="space-y-3 px-3 py-4 text-sm text-slate-600">
+                  <p>No results yet. Try a different phrase.</p>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <button type="button" onClick={() => router.push("/collections")} className="rounded-xl border border-[#d8c9ad] bg-white px-3 py-2 text-left text-sm font-medium text-slate-700">
+                      Browse Collections
+                    </button>
+                    <button type="button" onClick={() => router.push("/places/hamilton-falls")} className="rounded-xl border border-[#d8c9ad] bg-white px-3 py-2 text-left text-sm font-medium text-slate-700">
+                      Popular Place: Hamilton Falls
+                    </button>
+                    <button type="button" onClick={() => router.push("/places/jamaica-state-park")} className="rounded-xl border border-[#d8c9ad] bg-white px-3 py-2 text-left text-sm font-medium text-slate-700">
+                      Popular Place: Jamaica State Park
+                    </button>
+                    <button type="button" onClick={() => router.push("/explorer")} className="rounded-xl border border-[#d8c9ad] bg-white px-3 py-2 text-left text-sm font-medium text-slate-700">
+                      Open Explorer Mode
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </div>

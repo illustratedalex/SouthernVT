@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { BetaBanner } from "@/components/public/BetaBanner";
 import { CommandPalette } from "@/components/search/CommandPalette";
 import { RelationshipStoreProvider } from "@/components/relationships/RelationshipStoreProvider";
 import { SearchProvider } from "@/components/search/SearchProvider";
@@ -37,6 +38,7 @@ export default function RootLayout({
               <SearchProvider>
                 <RelationshipStoreProvider>
                   <CommandPalette />
+                  <BetaBanner />
                   {children}
                 </RelationshipStoreProvider>
               </SearchProvider>

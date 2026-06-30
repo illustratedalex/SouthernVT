@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { NextAdventureCard } from "@/components/discovery/NextAdventureCard";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
-import { CompassEngine } from "@/lib/compass/CompassEngine";
-import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
+import { ExperienceService } from "@/lib/experience/ExperienceService";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata = createPageMetadata({
@@ -14,108 +12,70 @@ export const metadata = createPageMetadata({
 });
 
 export default async function Home() {
-  const adventure = await DiscoveryService.getNextAdventure();
-  const anchorTags = adventure.place?.tags ?? ["weekend", "scenic", "local"];
-
-  const [featuredPlaceRecs, featuredCollectionRecs, featuredDealRecs, featuredGuideRecs] = await Promise.all([
-    CompassEngine.recommendWeekend(4),
-    CompassEngine.recommendCollectionsByTags(anchorTags, 4),
-    CompassEngine.recommendDealsByTags(anchorTags, 4),
-    CompassEngine.recommendArticlesByTags(anchorTags, 4),
-  ]);
-
-  const featuredCollection = featuredCollectionRecs[0]?.item;
-  const featuredDeal = featuredDealRecs[0]?.item;
-  const featuredGuide = featuredGuideRecs[0]?.item;
+  const feed = await ExperienceService.getHomeFeed(6);
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
       <Navbar />
 
       <section className="mx-auto max-w-7xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
-        <NextAdventureCard adventure={adventure} title="Today's Story" />
+        <header className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Home Feed</p>
+          <h1 className="mt-2 text-3xl font-semibold text-slate-900">Living Southern Vermont Discovery</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600">
+            Dynamic rails powered by Seasonal Engine, Discover Mode, and Compass + Discovery signals. No AI, no auth, just living mock-data exploration.
+          </p>
+        </header>
 
-        <div>
+        <div className="flex flex-wrap gap-3">
           <Link
             href="/explorer"
             className="inline-flex rounded-full bg-[#1f3b2f] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[#f8f2e4] shadow-sm transition hover:bg-[#29493a]"
           >
             I&apos;m Feeling Adventurous
           </Link>
+          <span className="inline-flex rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#1f3b2f]">
+            Seasonal Engine: {feed.season}
+          </span>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <FeatureCard
-            title="Featured Collection"
-            heading={featuredCollection?.title ?? "No collection picked"}
-            subtitle={featuredCollection?.subtitle ?? "Discovery will surface a featured collection soon."}
-            href={featuredCollection ? `/collections/${featuredCollection.slug}` : "/collections"}
-            cta="Open collection"
-          />
+        <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Beta Launch Featured Places</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {[
+              { title: "Hamilton Falls", href: "/places/hamilton-falls" },
+              { title: "Jamaica State Park", href: "/places/jamaica-state-park" },
+              { title: "Grafton Inn", href: "/places/grafton-inn" },
+              { title: "Brattleboro Farmers Market", href: "/places/brattleboro-farmers-market" },
+              { title: "Mount Equinox", href: "/places/mount-equinox-skyline-drive" },
+            ].map((place) => (
+              <Link key={place.title} href={place.href} className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] px-4 py-3 text-sm font-semibold text-slate-800 hover:bg-white">
+                {place.title}
+              </Link>
+            ))}
+          </div>
+        </section>
 
-          <FeatureCard
-            title="Featured Place"
-            heading={adventure.place?.name ?? "No place picked"}
-            subtitle={adventure.place?.description ?? "Discovery will surface a featured place soon."}
-            href={adventure.place ? `/places/${adventure.place.slug}` : "/places"}
-            cta="Open place"
+        {feed.rails.map((rail) => (
+          <RecommendationRail
+            key={rail.key}
+            title={rail.title}
+            recommendations={rail.recommendations}
+            emptyMessage="This rail is warming up as data is refreshed."
+            mapItem={(recommendation) => ({
+              id: recommendation.item.id,
+              title: recommendation.item.name,
+              subtitle: recommendation.item.description,
+              href: `/places/${recommendation.item.slug}`,
+              score: recommendation.score,
+              badge: recommendation.item.placeType,
+              reasons: recommendation.reasons,
+            })}
           />
-
-          <FeatureCard
-            title="Featured Deal"
-            heading={featuredDeal?.title ?? "No deal picked"}
-            subtitle={featuredDeal?.shortDescription ?? "Discovery will surface a featured deal soon."}
-            href={featuredDeal ? `/deals/${featuredDeal.slug}` : "/deals"}
-            cta="Open deal"
-          />
-
-          <FeatureCard
-            title="Featured Guide"
-            heading={featuredGuide?.title ?? "No guide picked"}
-            subtitle={featuredGuide?.excerpt ?? "Discovery will surface a featured guide soon."}
-            href={featuredGuide ? `/guides/${featuredGuide.slug}` : "/guides"}
-            cta="Open guide"
-          />
-        </div>
-
-        <RecommendationRail
-          title="Compass Weekend Recommendations"
-          recommendations={featuredPlaceRecs}
-          emptyMessage="Compass recommendations will appear once place data is available."
-          mapItem={(recommendation) => ({
-            id: recommendation.item.id,
-            title: recommendation.item.name,
-            subtitle: recommendation.item.description,
-            href: `/places/${recommendation.item.slug}`,
-            score: recommendation.score,
-            badge: recommendation.item.placeType,
-            reasons: recommendation.reasons,
-          })}
-        />
+        ))}
       </section>
 
       <Footer />
     </main>
-  );
-}
-
-type FeatureCardProps = {
-  title: string;
-  heading: string;
-  subtitle: string;
-  href: string;
-  cta: string;
-};
-
-function FeatureCard({ title, heading, subtitle, href, cta }: FeatureCardProps) {
-  return (
-    <article className="rounded-[26px] border border-[#e8dfc8] bg-white p-5 shadow-[0_16px_52px_rgba(31,59,47,0.08)]">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--color-forest-green)">{title}</p>
-      <h2 className="mt-2 text-xl font-semibold text-slate-900">{heading}</h2>
-      <p className="mt-2 line-clamp-3 text-sm leading-7 text-slate-600">{subtitle}</p>
-      <Link href={href} className="mt-4 inline-flex rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-white">
-        {cta}
-      </Link>
-    </article>
   );
 }

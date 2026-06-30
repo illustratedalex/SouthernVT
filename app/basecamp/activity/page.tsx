@@ -9,6 +9,7 @@ import type { Activity, ActivityContentType, ActivityType } from "@/types/Activi
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
+  { label: "Content Studio", href: "/basecamp/content" },
   { label: "Places", href: "/basecamp/places" },
   { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },

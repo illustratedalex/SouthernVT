@@ -30,6 +30,7 @@ const stepLabels = ["Upload", "Map fields", "Preview", "Import Results"];
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
+  { label: "Content Studio", href: "/basecamp/content" },
   { label: "Places", href: "/basecamp/places" },
   { label: "Import", href: "/basecamp/import", active: true },
   { label: "Collections", href: "/basecamp/collections" },

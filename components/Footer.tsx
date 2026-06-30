@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="max-w-2xl">
           <p className="text-xl font-semibold text-(--color-cream)">{SITE_NAME}</p>
           <p className="mt-3 text-base leading-8 text-slate-400">
-            Thoughtful travel ideas for scenic drives, local dining, mountain stays, and unforgettable outdoor moments.
+            Public beta travel guide for scenic drives, local dining, mountain stays, and unforgettable outdoor moments across Southern Vermont.
           </p>
         </div>
 

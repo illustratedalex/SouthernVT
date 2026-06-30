@@ -11,6 +11,7 @@ import { getPlaces } from "@/repositories/PlaceRepository";
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp", active: true },
+  { label: "Content Studio", href: "/basecamp/content" },
   { label: "Places", href: "/basecamp/places" },
   { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },

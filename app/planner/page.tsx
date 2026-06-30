@@ -3,6 +3,8 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { TripSummary } from "@/components/planner/TripSummary";
+import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
+import { ExperienceService } from "@/lib/experience/ExperienceService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getTrips } from "@/repositories/TripRepository";
 
@@ -12,9 +14,15 @@ export const metadata: Metadata = {
 };
 
 export default async function PlannerLandingPage() {
-  const plannerEnabled = await isFeatureEnabled("aiPlanner");
-  const loadedTrips = await getTrips();
+  const [plannerEnabled, loadedTrips, experienceFeed] = await Promise.all([
+    isFeatureEnabled("aiPlanner"),
+    getTrips(),
+    ExperienceService.getHomeFeed(4),
+  ]);
   const trips = (Array.isArray(loadedTrips) ? loadedTrips : []).filter((trip) => trip.status !== "archived");
+  const plannerRails = experienceFeed.rails.filter((rail) =>
+    ["continue_exploring", "family_friendly", "dog_friendly", "under_30_minutes"].includes(rail.key),
+  );
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
@@ -56,6 +64,27 @@ export default async function PlannerLandingPage() {
               No trips available yet. Start a new itinerary and generate a preview.
             </article>
           )}
+        </section>
+
+        <section className="space-y-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Experience rails for planning</p>
+          {plannerRails.map((rail) => (
+            <RecommendationRail
+              key={rail.key}
+              title={rail.title}
+              recommendations={rail.recommendations}
+              emptyMessage="Planner rail is warming up with mock feed data."
+              mapItem={(recommendation) => ({
+                id: recommendation.item.id,
+                title: recommendation.item.name,
+                subtitle: recommendation.item.description,
+                href: `/places/${recommendation.item.slug}`,
+                score: recommendation.score,
+                badge: recommendation.item.placeType,
+                reasons: recommendation.reasons,
+              })}
+            />
+          ))}
         </section>
       </section>
 
