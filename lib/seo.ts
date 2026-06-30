@@ -60,20 +60,20 @@ export function createPageMetadata({ title, description, path, image, type = "we
   };
 }
 
-export function createPlaceMetadata(place: Place): Metadata {
+export function createPlaceMetadata(place: Place, storySummary?: string): Metadata {
   return createPageMetadata({
     title: place.seoTitle || `${place.name} | SouthernVT`,
-    description: place.seoDescription || place.description,
+    description: place.seoDescription || storySummary || place.description,
     path: `/places/${place.slug}`,
     image: place.featuredImage,
     type: "article",
   });
 }
 
-export function createCollectionMetadata(collection: Collection): Metadata {
+export function createCollectionMetadata(collection: Collection, storySummary?: string): Metadata {
   return createPageMetadata({
     title: collection.seoTitle || `${collection.title} | SouthernVT`,
-    description: collection.seoDescription || collection.description,
+    description: collection.seoDescription || storySummary || collection.description,
     path: `/collections/${collection.slug}`,
     image: collection.featuredImage,
     type: "article",

@@ -24,7 +24,16 @@ export default async function Home() {
       <Navbar />
 
       <section className="mx-auto max-w-7xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
-        <NextAdventureCard adventure={adventure} title="Today's Adventure" />
+        <NextAdventureCard adventure={adventure} title="Today's Story" />
+
+        <div>
+          <Link
+            href="/explorer"
+            className="inline-flex rounded-full bg-[#1f3b2f] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-[#f8f2e4] shadow-sm transition hover:bg-[#29493a]"
+          >
+            I&apos;m Feeling Adventurous
+          </Link>
+        </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <FeatureCard

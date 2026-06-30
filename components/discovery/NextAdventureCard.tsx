@@ -6,7 +6,7 @@ type NextAdventureCardProps = {
   title?: string;
 };
 
-export function NextAdventureCard({ adventure, title = "Today's Adventure" }: NextAdventureCardProps) {
+export function NextAdventureCard({ adventure, title = "Today's Story" }: NextAdventureCardProps) {
   if (!adventure.place) {
     return (
       <section className="rounded-[30px] border border-[#e8dfc8] bg-white p-6 shadow-[0_18px_58px_rgba(31,59,47,0.08)]">

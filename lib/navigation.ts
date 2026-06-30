@@ -1,5 +1,6 @@
 export const navigationItems = [
   { label: "Explore", href: "/places" },
+  { label: "Explorer", href: "/explorer" },
   { label: "Passport", href: "/passport" },
   { label: "Trip Planner", href: "/planner" },
   { label: "Guides", href: "/guides" },
@@ -10,6 +11,7 @@ export const navigationItems = [
 
 export const footerLinks = [
   { label: "Explore", href: "/places" },
+  { label: "Explorer", href: "/explorer" },
   { label: "Passport", href: "/passport" },
   { label: "Trip Planner", href: "/planner" },
   { label: "Guides", href: "/guides" },

@@ -11,10 +11,15 @@ import { ContentSection } from "@/components/public/ContentSection";
 import { HeroImage } from "@/components/public/HeroImage";
 import { PublicCTA } from "@/components/public/PublicCTA";
 import { QuickFacts } from "@/components/public/QuickFacts";
+import { StoryQuote } from "@/components/story/StoryQuote";
+import { StorySummary } from "@/components/story/StorySummary";
+import { StorySidebar } from "@/components/story/StorySidebar";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { articleJsonLd } from "@/lib/jsonLd";
 import { createArticleMetadata } from "@/lib/seo";
-import { getPublishedArticles, getArticleBySlug } from "@/repositories/ArticleRepository";
+import { getArticleBySlug, getPublishedArticles } from "@/repositories/ArticleRepository";
+import type { Article } from "@/types/Article";
+import type { Story } from "@/types/Story";
 
 interface GuideDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -55,6 +60,7 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
     DiscoveryService.getRecommendedDeals({ articleId: article.id, limit: 4 }),
   ]);
 
+  const story = articleToStory(article);
   const jsonLd = articleJsonLd(article);
 
   return (
@@ -65,9 +71,9 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Guides", href: "/guides" }, { label: article.title }]} />
 
       <HeroImage
-        eyebrow="SouthernVT Guide"
+        eyebrow="SouthernVT Guide Story"
         title={article.title}
-        subtitle={article.excerpt}
+        subtitle={story.summary}
         image={article.featuredImage}
         alt={article.title}
         badges={[article.articleType, article.author, new Date(article.publishedAt || article.updatedAt).toLocaleDateString()]}
@@ -84,15 +90,19 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
             { label: "Author", value: article.author, detail: "Original SouthernVT editorial voice." },
             { label: "Published", value: new Date(article.publishedAt || article.updatedAt).toLocaleDateString(), detail: "Last updated in the public guide library." },
             { label: "Type", value: article.articleType, detail: article.status },
-            { label: "Categories", value: `${article.categories.length}`, detail: article.categories.slice(0, 3).join(" · ") || "General editorial coverage" },
+            { label: "Reading", value: story.readingTime, detail: `Story season: ${story.season}` },
           ]}
         />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="space-y-6">
-            <ContentSection title="Article body" eyebrow="Guide copy" description={article.subtitle}>
+            <StorySummary story={story} />
+
+            <ContentSection title="Guide narrative" eyebrow="Story context" description={article.subtitle}>
               <div className="whitespace-pre-line text-sm leading-8 text-slate-700">{article.body}</div>
             </ContentSection>
+
+            <StoryQuote story={story} />
 
             <NearbyPlacesRail places={relatedPlaces} title="Places Mentioned" />
             <RecommendedCollectionsRail collections={relatedCollections} title="Collections" />
@@ -101,13 +111,7 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
           </article>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
-            <ContentSection title="Guide details" eyebrow="Reference" description="A quick summary of the editorial record.">
-              <div className="space-y-2 text-sm leading-7 text-slate-700">
-                <p>Type: {article.articleType}</p>
-                <p>Status: {article.status}</p>
-                <p>Categories: {article.categories.join(", ") || "None"}</p>
-              </div>
-            </ContentSection>
+            <StorySidebar story={story} />
 
             <PublicCTA
               eyebrow="Build from this guide"
@@ -123,4 +127,42 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
       <Footer />
     </main>
   );
+}
+
+function articleToStory(article: Article): Story {
+  return {
+    id: `story-article-${article.id}`,
+    title: article.title,
+    subtitle: article.subtitle,
+    body: article.body,
+    summary: article.excerpt,
+    author: article.author,
+    readingTime: "5 min",
+    difficulty: "Easy",
+    season: "Year-Round",
+    history: [
+      "This guide is part of the expanding Southern Vermont editorial library.",
+      "It is periodically updated as relationships between places and collections improve.",
+      "Local partner updates influence guide quality across seasons.",
+    ],
+    visitorTips: [
+      "Use this guide as a backbone, then personalize with one detour.",
+      "Check each linked place for live hours before departure.",
+      "Save event and deal links before going offline in mountain zones.",
+    ],
+    photographyTips: [
+      "Capture one landscape frame and one local detail at each stop.",
+      "Morning and evening windows usually produce the strongest color.",
+      "Keep lens cloths handy for moisture-prone trail and river areas.",
+    ],
+    localSecrets: [
+      "Most routes improve when you start earlier than planned.",
+      "Village centers often hide strong coffee and bakery anchors between stops.",
+      "Weekday travel can unlock shorter lines and calmer parking conditions.",
+    ],
+    bestTimeToVisit: "Year-round, with best conditions depending on each linked stop and event schedule.",
+    featuredQuote: article.excerpt,
+    createdAt: article.createdAt,
+    updatedAt: article.updatedAt,
+  };
 }

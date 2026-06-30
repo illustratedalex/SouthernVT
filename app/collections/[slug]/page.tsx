@@ -2,21 +2,26 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { Breadcrumbs } from "@/components/public/Breadcrumbs";
-import { ContentSection } from "@/components/public/ContentSection";
-import { GalleryGrid } from "@/components/public/GalleryGrid";
-import { HeroImage } from "@/components/public/HeroImage";
-import { PublicCTA } from "@/components/public/PublicCTA";
-import { QuickFacts } from "@/components/public/QuickFacts";
-import { CollectionPlaceListLive } from "@/components/public/CollectionPlaceListLive";
 import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { RecommendedArticlesRail } from "@/components/discovery/RecommendedArticlesRail";
 import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
+import { Breadcrumbs } from "@/components/public/Breadcrumbs";
+import { ContentSection } from "@/components/public/ContentSection";
+import { HeroImage } from "@/components/public/HeroImage";
+import { PublicCTA } from "@/components/public/PublicCTA";
+import { QuickFacts } from "@/components/public/QuickFacts";
+import { StoryQuote } from "@/components/story/StoryQuote";
+import { StorySidebar } from "@/components/story/StorySidebar";
+import { StorySummary } from "@/components/story/StorySummary";
+import { VisitorTips } from "@/components/story/VisitorTips";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { collectionJsonLd } from "@/lib/jsonLd";
-import { createCollectionMetadata } from "@/lib/seo";
 import { getCollectionBySlug, getCollections } from "@/lib/repositories/collectionRepository";
+import { createCollectionMetadata } from "@/lib/seo";
 import { getPlaces } from "@/repositories/PlaceRepository";
+import { getStoryByCollection } from "@/repositories/StoryRepository";
+import type { Collection } from "@/types/Collection";
+import type { Story } from "@/types/Story";
 
 interface CollectionPublicPageProps {
   params: Promise<{ slug: string }>;
@@ -41,7 +46,8 @@ export async function generateMetadata({ params }: CollectionPublicPageProps): P
     };
   }
 
-  return createCollectionMetadata(collection);
+  const story = await getStoryByCollection(collection.id);
+  return createCollectionMetadata(collection, story?.summary);
 }
 
 export default async function CollectionPublicPage({ params }: CollectionPublicPageProps) {
@@ -52,19 +58,17 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
     notFound();
   }
 
-  const [allPlaces, similarCollections, featuredPlaces, relatedGuides] = await Promise.all([
+  const [allPlaces, storyRecord, similarCollections, featuredPlaces, relatedGuides] = await Promise.all([
     getPlaces(),
+    getStoryByCollection(collection.id),
     DiscoveryService.getRecommendedCollections({ collectionId: collection.id, limit: 3 }),
     DiscoveryService.getRelatedPlaces({ collectionId: collection.id, limit: 4 }),
     DiscoveryService.getRecommendedArticles({ collectionId: collection.id, limit: 4 }),
   ]);
 
+  const story = storyRecord ?? createFallbackCollectionStory(collection);
   const collectionPlaces = allPlaces.filter((place) => collection.places.includes(place.id));
-
-  const featuredPlacesForRail = featuredPlaces
-    .filter((place) => place.featured || collection.places.includes(place.id))
-    .slice(0, 4);
-
+  const featuredPlacesForRail = featuredPlaces.filter((place) => place.featured || collection.places.includes(place.id)).slice(0, 4);
   const jsonLd = collectionJsonLd(collection);
 
   return (
@@ -75,15 +79,15 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Collections", href: "/collections" }, { label: collection.title }]} />
 
       <HeroImage
-        eyebrow="Collection Guide"
+        eyebrow="Collection Story"
         title={collection.title}
-        subtitle={collection.subtitle}
+        subtitle={story.summary}
         image={collection.featuredImage}
         alt={collection.title}
         badges={[collection.season, collection.audience, collection.featured ? "Featured" : "Curated"]}
       >
         <div className="space-y-3 text-sm leading-7 text-slate-200">
-          <p>{collection.description}</p>
+          <p>{story.subtitle}</p>
           <p>{collection.places.length} planned stops</p>
         </div>
       </HeroImage>
@@ -92,30 +96,35 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
         <QuickFacts
           facts={[
             { label: "Places", value: `${collection.places.length}`, detail: "Stops currently tied to this collection." },
-            { label: "Season", value: collection.season, detail: "Best matched to this time of year." },
+            { label: "Season", value: story.season, detail: "Best matched season for this route story." },
             { label: "Audience", value: collection.audience, detail: "Who this route fits best." },
-            { label: "Tags", value: `${collection.tags.length}`, detail: collection.tags.slice(0, 3).join(" · ") || "Seasonal and regional themes" },
+            { label: "Reading", value: story.readingTime, detail: `Written by ${story.author}` },
           ]}
         />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="space-y-6">
-            <ContentSection title="About this collection" eyebrow="Description" description={collection.subtitle}>
-              <p className="text-base leading-8 text-slate-700">{collection.description}</p>
+            <StorySummary story={story} />
+
+            <ContentSection title="Introduction" eyebrow="Collection Story" description={collection.subtitle}>
+              <p className="text-base leading-8 text-slate-700">{story.body}</p>
             </ContentSection>
 
-            <ContentSection title="Gallery" eyebrow="Photo set" description="A few visual cues from the places that shape this route.">
-              <GalleryGrid images={collection.gallery.slice(0, 6).length ? collection.gallery.slice(0, 6) : [collection.featuredImage]} alt={collection.title} />
+            <ContentSection title="Highlights" eyebrow="On this route" description="Core moments that make this collection worth the drive.">
+              <ul className="space-y-3 text-sm leading-7 text-slate-700">
+                {story.visitorTips.map((tip) => (
+                  <li key={tip} className="flex gap-3">
+                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-maple-gold)" />
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
             </ContentSection>
 
-            <ContentSection title="Places in this collection" eyebrow="Route stops" description="Use these stops as the backbone for the trip.">
-              <CollectionPlaceListLive collectionId={collection.id} fallbackPlaceIds={collection.places} />
-            </ContentSection>
-
-            <ContentSection title="Suggested itinerary" eyebrow="Trip planning" description="A simple starting point for building the route.">
+            <ContentSection title="Suggested Route" eyebrow="Trip planning" description="A practical sequence for the strongest version of this day.">
               {collectionPlaces.length ? (
                 <ol className="space-y-3 text-sm leading-7 text-slate-700">
-                  {collectionPlaces.slice(0, 4).map((place, index) => (
+                  {collectionPlaces.slice(0, 5).map((place, index) => (
                     <li key={place.id} className="flex gap-3">
                       <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f7efe1] text-xs font-semibold text-(--color-forest-green)">{index + 1}</span>
                       <span>
@@ -125,18 +134,27 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
                   ))}
                 </ol>
               ) : (
-                <p className="text-sm leading-7 text-slate-600">The itinerary will populate as collection stops are connected.</p>
+                <p className="text-sm leading-7 text-slate-600">Suggested route stops will appear as collection relationships are expanded.</p>
               )}
             </ContentSection>
+
+            <ContentSection title="What Makes This Collection Special" eyebrow="Local perspective" description="Notes from editors and regional travelers.">
+              <ul className="space-y-3 text-sm leading-7 text-slate-700">
+                {story.localSecrets.map((secret) => (
+                  <li key={secret} className="flex gap-3">
+                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" />
+                    <span>{secret}</span>
+                  </li>
+                ))}
+              </ul>
+            </ContentSection>
+
+            <VisitorTips story={story} />
+            <StoryQuote story={story} />
           </article>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
-            <ContentSection title="Map preview" eyebrow="Coming soon" description="Interactive stops on a regional map will land in a later release.">
-              <div className="flex h-64 items-center justify-center rounded-[24px] border border-dashed border-(--color-pine)/35 bg-[repeating-linear-gradient(45deg,rgba(31,59,47,0.04),rgba(31,59,47,0.04)_10px,rgba(31,59,47,0.07)_10px,rgba(31,59,47,0.07)_20px)] p-5 text-center">
-                <p className="text-sm leading-7 text-slate-600">Interactive route map coming soon. This placeholder will show collection stops on a regional map view.</p>
-              </div>
-            </ContentSection>
-
+            <StorySidebar story={story} />
             <RecommendedCollectionsRail collections={similarCollections} title="Similar Collections" />
             <NearbyPlacesRail places={featuredPlacesForRail} title="Featured Places" />
             <RecommendedArticlesRail articles={relatedGuides} title="Related Guides" />
@@ -155,4 +173,42 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
       <Footer />
     </main>
   );
+}
+
+function createFallbackCollectionStory(collection: Collection): Story {
+  return {
+    id: `story-fallback-${collection.id}`,
+    title: `${collection.title}: A Southern Vermont Route Story`,
+    subtitle: collection.subtitle,
+    body: collection.description,
+    summary: collection.description,
+    author: "Trailhead Editorial",
+    readingTime: "4 min",
+    difficulty: "Easy",
+    season: collection.season,
+    history: [
+      "This route evolved from repeat local travel patterns in Southern Vermont.",
+      "Stops were selected to balance scenery, pacing, and practical logistics.",
+      "Seasonal updates keep the sequence fresh while preserving the core experience.",
+    ],
+    visitorTips: [
+      "Start with your longest scenic segment first.",
+      "Keep one optional stop for weather-based flexibility.",
+      "Use local dining reservations to stabilize your timeline.",
+    ],
+    photographyTips: [
+      "Shoot one hero frame at each anchor stop.",
+      "Capture local signage and street details to tell the full route story.",
+      "Plan foliage shots around golden hour for stronger color depth.",
+    ],
+    localSecrets: [
+      "This route works best when you leave room for small village detours.",
+      "Weekdays can make high-interest stops easier to enjoy.",
+      "Pair this collection with a matching guide to add context before driving.",
+    ],
+    bestTimeToVisit: `${collection.season} is the strongest season, but this route can be adapted year-round.`,
+    featuredQuote: "The best collection days are the ones with one plan and two good detours.",
+    createdAt: collection.createdAt,
+    updatedAt: collection.updatedAt,
+  };
 }

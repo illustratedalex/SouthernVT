@@ -1,5 +1,6 @@
 import { mockRelationships } from "@/data/relationships";
 import { getCollections } from "@/lib/repositories/collectionRepository";
+import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
 import { getPublishedArticles } from "@/repositories/ArticleRepository";
 import { getPublishedDeals } from "@/repositories/DealRepository";
 import { getPublishedEvents } from "@/repositories/EventRepository";
@@ -94,6 +95,37 @@ function sortScored<T>(entries: Array<Scored<T>>, limit: number): T[] {
     .map((entry) => entry.item);
 }
 
+function tokenizeStory(value: string): string[] {
+  return value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2);
+}
+
+function storyKeywordBoost(storyText: string, candidateTokens: string[]): number {
+  if (!storyText.trim()) {
+    return 0;
+  }
+
+  const words = new Set(tokenizeStory(storyText));
+  return candidateTokens.reduce((sum, token) => (words.has(token.toLowerCase()) ? sum + 2 : sum), 0);
+}
+
+function storySeasonBoost(anchorSeason?: string, candidateSeason?: string): number {
+  if (!anchorSeason || !candidateSeason) {
+    return 0;
+  }
+  return anchorSeason === candidateSeason ? 8 : 0;
+}
+
+function storyDifficultyBoost(anchorDifficulty?: string, candidateDifficulty?: string): number {
+  if (!anchorDifficulty || !candidateDifficulty) {
+    return 0;
+  }
+  return anchorDifficulty === candidateDifficulty ? 4 : 0;
+}
+
 async function loadPublishedCollections(): Promise<Collection[]> {
   const collections = await getCollections();
   return collections.filter((collection) => collection.status === "published");
@@ -139,24 +171,29 @@ export const DiscoveryService = {
       return places.filter((place) => place.id !== placeId).slice(0, limit);
     }
 
-    const anchorCollections = collections.filter((collection) => collection.places.includes(anchor.id));
+    const [anchorCollections, anchorStory] = await Promise.all([
+      Promise.resolve(collections.filter((collection) => collection.places.includes(anchor.id))),
+      getStoryByPlace(anchor.id),
+    ]);
 
-    const scored = places
-      .filter((candidate) => candidate.id !== anchor.id)
-      .map((candidate) => {
-        const miles = distanceMiles(anchor.latitude, anchor.longitude, candidate.latitude, candidate.longitude);
-        const distanceScore = Math.max(0, 40 - Math.min(40, miles));
-        const tagScore = overlapCount(anchor.tags, candidate.tags) * 7;
-        const categoryScore = overlapCount(anchor.categories, candidate.categories) * 5;
-        const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id);
-        const featuredScore = candidate.featured ? 6 : 0;
-        const collectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 10;
+    const scored: Array<Scored<Place>> = [];
 
-        return {
-          item: candidate,
-          score: distanceScore + tagScore + categoryScore + relationshipScore + featuredScore + collectionScore,
-        };
+    for (const candidate of places.filter((entry) => entry.id !== anchor.id)) {
+      const candidateStory = await getStoryByPlace(candidate.id);
+      const miles = distanceMiles(anchor.latitude, anchor.longitude, candidate.latitude, candidate.longitude);
+      const distanceScore = Math.max(0, 40 - Math.min(40, miles));
+      const tagScore = overlapCount(anchor.tags, candidate.tags) * 7;
+      const categoryScore = overlapCount(anchor.categories, candidate.categories) * 5;
+      const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id);
+      const featuredScore = candidate.featured ? 6 : 0;
+      const collectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 10;
+      const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
+
+      scored.push({
+        item: candidate,
+        score: distanceScore + tagScore + categoryScore + relationshipScore + featuredScore + collectionScore + storyScore,
       });
+    }
 
     return sortScored(scored, limit);
   },
@@ -171,24 +208,28 @@ export const DiscoveryService = {
       return places.filter((place) => place.status === "published").slice(0, limit);
     }
 
-    const anchorCollections = collections.filter((collection) => collection.places.includes(anchor.id));
-    const anchorArticles = articles.filter((article) => article.relatedPlaces.includes(anchor.id));
+    const [anchorCollections, anchorArticles, anchorStory] = await Promise.all([
+      Promise.resolve(collections.filter((collection) => collection.places.includes(anchor.id))),
+      Promise.resolve(articles.filter((article) => article.relatedPlaces.includes(anchor.id))),
+      getStoryByPlace(anchor.id),
+    ]);
 
-    const scored = places
-      .filter((candidate) => candidate.status === "published" && candidate.id !== anchor.id)
-      .map((candidate) => {
-        const tagScore = overlapCount(anchor.tags, candidate.tags) * 9;
-        const categoryScore = overlapCount(anchor.categories, candidate.categories) * 6;
-        const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id);
-        const sharedCollectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 12;
-        const sharedArticleScore = anchorArticles.filter((article) => article.relatedPlaces.includes(candidate.id)).length * 8;
-        const featuredScore = candidate.featured ? 5 : 0;
+    const scored: Array<Scored<Place>> = [];
+    for (const candidate of places.filter((entry) => entry.status === "published" && entry.id !== anchor.id)) {
+      const candidateStory = await getStoryByPlace(candidate.id);
+      const tagScore = overlapCount(anchor.tags, candidate.tags) * 9;
+      const categoryScore = overlapCount(anchor.categories, candidate.categories) * 6;
+      const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id);
+      const sharedCollectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 12;
+      const sharedArticleScore = anchorArticles.filter((article) => article.relatedPlaces.includes(candidate.id)).length * 8;
+      const featuredScore = candidate.featured ? 5 : 0;
+      const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
 
-        return {
-          item: candidate,
-          score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore,
-        };
+      scored.push({
+        item: candidate,
+        score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore + storyScore,
       });
+    }
 
     return sortScored(scored, limit);
   },
@@ -201,34 +242,41 @@ export const DiscoveryService = {
     const anchorCollection = options.collectionId ? collections.find((collection) => collection.id === options.collectionId) ?? null : null;
     const anchorArticle = options.articleId ? articles.find((article) => article.id === options.articleId) ?? null : null;
 
-    const scored = collections
-      .filter((collection) => collection.id !== options.collectionId)
-      .map((collection) => {
-        let score = 0;
+    const [anchorStory, anchorCollectionStory] = await Promise.all([
+      anchor ? getStoryByPlace(anchor.id) : Promise.resolve(null),
+      anchorCollection ? getStoryByCollection(anchorCollection.id) : Promise.resolve(null),
+    ]);
 
-        if (anchor) {
-          score += collection.places.includes(anchor.id) ? 24 : 0;
-          score += overlapCount(anchor.tags, collection.tags) * 8;
-          score += graphBoost("place", anchor.id, "collection", collection.id);
-        }
+    const scored: Array<Scored<Collection>> = [];
+    for (const collection of collections.filter((entry) => entry.id !== options.collectionId)) {
+      const collectionStory = await getStoryByCollection(collection.id);
+      let score = 0;
 
-        if (anchorCollection) {
-          score += overlapCount(anchorCollection.tags, collection.tags) * 8;
-          score += collection.season === anchorCollection.season ? 8 : 0;
-          score += collection.audience === anchorCollection.audience ? 6 : 0;
-          score += graphBoost("collection", anchorCollection.id, "collection", collection.id);
-        }
+      if (anchor) {
+        score += collection.places.includes(anchor.id) ? 24 : 0;
+        score += overlapCount(anchor.tags, collection.tags) * 8;
+        score += graphBoost("place", anchor.id, "collection", collection.id);
+        score += storyKeywordBoost(anchorStory?.summary ?? "", collection.tags);
+      }
 
-        if (anchorArticle) {
-          score += anchorArticle.relatedCollections.includes(collection.id) ? 20 : 0;
-          score += overlapCount(anchorArticle.tags, collection.tags) * 6;
-          score += graphBoost("article", anchorArticle.id, "collection", collection.id);
-        }
+      if (anchorCollection) {
+        score += overlapCount(anchorCollection.tags, collection.tags) * 8;
+        score += collection.season === anchorCollection.season ? 8 : 0;
+        score += collection.audience === anchorCollection.audience ? 6 : 0;
+        score += graphBoost("collection", anchorCollection.id, "collection", collection.id);
+      }
 
-        score += collection.featured ? 6 : 0;
+      if (anchorArticle) {
+        score += anchorArticle.relatedCollections.includes(collection.id) ? 20 : 0;
+        score += overlapCount(anchorArticle.tags, collection.tags) * 6;
+        score += graphBoost("article", anchorArticle.id, "collection", collection.id);
+      }
 
-        return { item: collection, score };
-      });
+      score += storySeasonBoost(anchorCollectionStory?.season, collectionStory?.season);
+      score += collection.featured ? 6 : 0;
+
+      scored.push({ item: collection, score });
+    }
 
     return sortScored(scored, limit);
   },
@@ -240,6 +288,8 @@ export const DiscoveryService = {
 
     const anchorArticle = options.articleId ? articles.find((article) => article.id === options.articleId) ?? null : null;
 
+    const anchorStory = anchor ? await getStoryByPlace(anchor.id) : null;
+
     const scored = articles
       .filter((article) => article.id !== options.articleId)
       .map((article) => {
@@ -249,6 +299,7 @@ export const DiscoveryService = {
           score += article.relatedPlaces.includes(anchor.id) ? 25 : 0;
           score += overlapCount(anchor.tags, article.tags) * 8;
           score += graphBoost("place", anchor.id, "article", article.id);
+          score += storyKeywordBoost(`${anchorStory?.summary ?? ""} ${anchorStory?.body ?? ""}`, [...article.tags, ...article.categories]);
         }
 
         if (options.collectionId) {
@@ -276,6 +327,8 @@ export const DiscoveryService = {
 
     const anchorCollection = options.collectionId ? collections.find((collection) => collection.id === options.collectionId) ?? null : null;
 
+    const anchorStory = anchor ? await getStoryByPlace(anchor.id) : null;
+
     const scored = deals.map((deal) => {
       let score = 0;
 
@@ -284,6 +337,7 @@ export const DiscoveryService = {
         score += overlapCount(anchor.tags, deal.tags) * 8;
         score += overlapCount(anchor.categories, deal.categories) * 5;
         score += graphBoost("place", anchor.id, "deal", deal.id);
+        score += storyKeywordBoost(`${anchorStory?.summary ?? ""} ${anchorStory?.body ?? ""}`, [...deal.tags, ...deal.categories]);
       }
 
       if (anchorCollection) {
@@ -309,6 +363,8 @@ export const DiscoveryService = {
     const events = await getPublishedEvents();
     const anchor = await resolveAnchorPlace(options);
 
+    const anchorStory = anchor ? await getStoryByPlace(anchor.id) : null;
+
     const scored = events.map((event) => {
       let score = 0;
 
@@ -319,6 +375,7 @@ export const DiscoveryService = {
         score += event.city === anchor.city ? 8 : 0;
         score += overlapCount(anchor.tags, event.tags) * 6;
         score += graphBoost("place", anchor.id, "event", event.id);
+        score += storyKeywordBoost(`${anchorStory?.summary ?? ""} ${anchorStory?.body ?? ""}`, [...event.tags, ...event.categories]);
       }
 
       if (options.articleId) {
