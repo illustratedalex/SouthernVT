@@ -1,0 +1,130 @@
+import type { PassportMember, PassportReward, PassportStamp } from "@/types/Passport";
+
+export const mockPassportMembers: PassportMember[] = [
+  {
+    id: "member-sam-rivera",
+    displayName: "Sam Rivera",
+    email: "sam@example.com",
+    homeTown: "Brattleboro",
+    createdAt: "2026-06-01T08:00:00.000Z",
+  },
+  {
+    id: "member-taylor-nguyen",
+    displayName: "Taylor Nguyen",
+    email: "taylor@example.com",
+    homeTown: "Manchester",
+    createdAt: "2026-06-03T09:20:00.000Z",
+  },
+  {
+    id: "member-jordan-lee",
+    displayName: "Jordan Lee",
+    email: "jordan@example.com",
+    createdAt: "2026-06-05T10:40:00.000Z",
+  },
+];
+
+export const mockPassportStamps: PassportStamp[] = [
+  {
+    id: "stamp-001",
+    memberId: "member-sam-rivera",
+    placeId: "place-hamilton-falls",
+    placeName: "Hamilton Falls",
+    stampType: "visit",
+    earnedAt: "2026-06-10T10:30:00.000Z",
+    notes: "Sunny morning hike and waterfall overlook.",
+  },
+  {
+    id: "stamp-002",
+    memberId: "member-sam-rivera",
+    placeId: "place-jamaica-state-park",
+    placeName: "Jamaica State Park",
+    stampType: "visit",
+    earnedAt: "2026-06-12T12:10:00.000Z",
+  },
+  {
+    id: "stamp-003",
+    memberId: "member-sam-rivera",
+    placeId: "place-brattleboro-farmers-market",
+    placeName: "Brattleboro Farmers Market",
+    stampType: "event",
+    earnedAt: "2026-06-14T09:05:00.000Z",
+  },
+  {
+    id: "stamp-004",
+    memberId: "member-taylor-nguyen",
+    placeId: "place-grafton-inn",
+    placeName: "Grafton Inn",
+    stampType: "deal",
+    earnedAt: "2026-06-15T16:45:00.000Z",
+    notes: "Used weekday lodging partner offer.",
+  },
+  {
+    id: "stamp-005",
+    memberId: "member-taylor-nguyen",
+    placeId: "place-vermont-country-store",
+    placeName: "Vermont Country Store",
+    stampType: "visit",
+    earnedAt: "2026-06-17T11:25:00.000Z",
+  },
+  {
+    id: "stamp-006",
+    memberId: "member-jordan-lee",
+    placeId: "place-jamaica-state-park",
+    placeName: "Jamaica State Park",
+    stampType: "collection",
+    earnedAt: "2026-06-18T14:00:00.000Z",
+  },
+  {
+    id: "stamp-007",
+    memberId: "member-jordan-lee",
+    placeId: "place-hamilton-falls",
+    placeName: "Hamilton Falls",
+    stampType: "visit",
+    earnedAt: "2026-06-20T08:50:00.000Z",
+  },
+  {
+    id: "stamp-008",
+    memberId: "member-jordan-lee",
+    placeId: "place-brattleboro-farmers-market",
+    placeName: "Brattleboro Farmers Market",
+    stampType: "event",
+    earnedAt: "2026-06-21T09:35:00.000Z",
+  },
+];
+
+export const mockPassportRewards: PassportReward[] = [
+  {
+    id: "reward-local-starter",
+    title: "Local Starter Badge",
+    description: "Earn your first reward after collecting 2 stamps.",
+    requiredStamps: 2,
+    rewardType: "badge",
+    status: "active",
+  },
+  {
+    id: "reward-weekend-saver",
+    title: "Weekend Saver Discount",
+    description: "Unlock a partner discount after 4 passport stamps.",
+    requiredStamps: 4,
+    rewardType: "discount",
+    status: "active",
+    expiresAt: "2026-12-31",
+  },
+  {
+    id: "reward-summer-giveaway",
+    title: "Summer Adventure Giveaway",
+    description: "Enter our seasonal giveaway by collecting 6 stamps.",
+    requiredStamps: 6,
+    rewardType: "giveaway",
+    status: "active",
+    expiresAt: "2026-09-30",
+  },
+  {
+    id: "reward-vip-experience",
+    title: "VIP Experience Pass",
+    description: "Unlock a premium partner experience after 8 stamps.",
+    requiredStamps: 8,
+    rewardType: "experience",
+    status: "inactive",
+  },
+];

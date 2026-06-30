@@ -1,0 +1,20 @@
+[
+  {
+    "id": "gem-001",
+    "slug": "riverstone-picnic-bridge",
+    "name": "Riverstone picnic bridge",
+    "description": "A quiet riverside path with a stone bridge, picnic tables, and late afternoon shade.",
+    "featuredImage": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
+    ],
+    "location": "Manchester, VT",
+    "coordinates": { "lat": 43.1631, "lng": -73.0724 },
+    "createdAt": "2026-06-03T09:15:00.000Z",
+    "updatedAt": "2026-06-18T14:20:00.000Z",
+    "blurb": "A local favorite for slow mornings and quiet photos.",
+    "difficulty": "easy",
+    "accessNote": "Best visited before noon on weekends.",
+    "isFeatured": true
+  }
+]

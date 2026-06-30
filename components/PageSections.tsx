@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SectionHeading } from "./SectionHeading";
 
 const exploreCards = [
@@ -266,10 +267,10 @@ export function FooterSection() {
           </p>
         </div>
         <div className="flex flex-wrap gap-6 text-sm text-stone-400">
-          <a className="transition hover:text-white" href="#">Explore</a>
-          <a className="transition hover:text-white" href="#">Events</a>
-          <a className="transition hover:text-white" href="#">Stay</a>
-          <a className="transition hover:text-white" href="#">Newsletter</a>
+          <Link className="transition hover:text-white" href="/places">Explore</Link>
+          <Link className="transition hover:text-white" href="/events">Events</Link>
+          <Link className="transition hover:text-white" href="/places">Stay</Link>
+          <Link className="transition hover:text-white" href="/planner/new">Newsletter</Link>
         </div>
       </div>
     </footer>

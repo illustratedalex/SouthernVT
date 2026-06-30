@@ -1,9 +1,11 @@
+import { Card, Container, Section } from "@/components/ui";
+
 export default function AdventureFeature() {
   return (
-    <section id="adventure" className="bg-[#f3ebd8] py-20">
-      <div className="mx-auto grid max-w-7xl gap-10 px-6 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
-        <div className="rounded-[2rem] bg-[#1f3b2f] p-8 text-[#f8f2e4] shadow-xl sm:p-10">
-          <p className="text-sm font-semibold uppercase tracking-[0.32em] text-[#d8b15d]">
+    <Section id="adventure" className="bg-(--color-cream)/70">
+      <Container className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+        <Card className="rounded-4xl bg-(--color-forest-green) p-8 text-(--color-cream) shadow-xl sm:p-10">
+          <p className="text-sm font-semibold uppercase tracking-[0.32em] text-(--color-maple-gold)">
             Today&apos;s adventure
           </p>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -17,18 +19,18 @@ export default function AdventureFeature() {
             <span className="rounded-full border border-white/15 px-4 py-2">Scenic route</span>
             <span className="rounded-full border border-white/15 px-4 py-2">Family friendly</span>
           </div>
-        </div>
+        </Card>
 
-        <div className="overflow-hidden rounded-[2rem] shadow-xl">
+        <div className="overflow-hidden rounded-4xl shadow-xl">
           <div
-            className="h-full min-h-[320px] bg-cover bg-center"
+            className="h-full min-h-80 bg-cover bg-center"
             style={{
               backgroundImage:
                 "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1400&q=80')",
             }}
           />
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

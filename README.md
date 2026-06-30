@@ -1,5 +1,28 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Supabase Foundation
+
+The app now supports swappable repository implementations:
+
+- Mock repositories (default when Supabase env vars are missing)
+- Supabase repositories (enabled automatically when env vars are present)
+
+### Environment variables
+
+Create a `.env.local` file with:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+### Migration and seed files
+
+- Migration: [supabase/migrations/202606280001_cms_foundation.sql](supabase/migrations/202606280001_cms_foundation.sql)
+- Seed: [supabase/seed.sql](supabase/seed.sql)
+
+Run these in your Supabase SQL editor (or via Supabase CLI) to initialize the CMS foundation tables and seed data from current mock content.
+
 ## Getting Started
 
 First, run the development server:

@@ -1,0 +1,34 @@
+import Link from "next/link";
+import type { Event } from "@/types/Event";
+
+interface EventCardProps {
+  event: Event;
+}
+
+export function EventCard({ event }: EventCardProps) {
+  return (
+    <article className="overflow-hidden rounded-[26px] border border-[#e8dfc8] bg-white shadow-[0_14px_48px_rgba(31,59,47,0.1)] transition hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(31,59,47,0.14)]">
+      <div className="relative h-44 overflow-hidden">
+        <img src={event.featuredImage} alt={event.title} className="h-full w-full object-cover" />
+        <div className="absolute left-4 top-4 rounded-full bg-(--color-cream)/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-(--color-forest-green)">
+          {event.eventType}
+        </div>
+      </div>
+
+      <div className="space-y-3 p-5">
+        <h3 className="text-xl font-semibold text-slate-900">{event.title}</h3>
+        <p className="text-sm font-medium text-slate-600">{event.city}, {event.state}</p>
+        <p className="line-clamp-3 text-sm leading-7 text-slate-700">{event.description}</p>
+
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full bg-[#f7efe1] px-3 py-1 text-xs font-semibold text-[#1f3b2f]">{event.startDate}</span>
+          {event.featured ? <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Featured</span> : null}
+        </div>
+
+        <Link href={`/events/${event.slug}`} className="inline-flex rounded-full bg-(--color-forest-green) px-4 py-2 text-sm font-semibold text-(--color-cream) transition hover:bg-(--color-pine)">
+          View event
+        </Link>
+      </div>
+    </article>
+  );
+}

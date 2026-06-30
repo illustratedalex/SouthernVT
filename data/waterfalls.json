@@ -1,0 +1,20 @@
+[
+  {
+    "id": "fall-001",
+    "slug": "silver-ledge-falls",
+    "name": "Silver Ledge Falls",
+    "description": "A graceful waterfall tucked beneath a forest canopy with a short walk from the trailhead.",
+    "featuredImage": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80"
+    ],
+    "location": "West Dover, VT",
+    "coordinates": { "lat": 42.9504, "lng": -72.8754 },
+    "createdAt": "2026-05-28T08:30:00.000Z",
+    "updatedAt": "2026-06-16T12:10:00.000Z",
+    "elevationFeet": 980,
+    "difficulty": "moderate",
+    "accessNote": "Parking is limited during peak foliage weekends.",
+    "isFeatured": true
+  }
+]

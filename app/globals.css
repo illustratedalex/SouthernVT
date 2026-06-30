@@ -1,22 +1,22 @@
 @import "tailwindcss";
+@import "mapbox-gl/dist/mapbox-gl.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-forest-green: #1f3b2f;
+  --color-pine: #3e5b4a;
+  --color-cream: #f8f2e4;
+  --color-slate: #243238;
+  --color-maple-gold: #d8b15d;
+  --color-autumn-red: #8e3b2f;
+  --background: var(--color-cream);
+  --foreground: var(--color-slate);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
 }
 
 html {
@@ -24,12 +24,42 @@ html {
 }
 
 body {
-  background: #f8f7f3;
+  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-playfair), Georgia, serif;
 }
 
 ::selection {
-  background: rgba(16, 185, 129, 0.35);
-  color: #0f172a;
+  background: rgba(216, 177, 93, 0.35);
+  color: var(--color-forest-green);
+}
+
+.trailhead-map .mapboxgl-ctrl-group {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(248, 242, 228, 0.25);
+  background: rgba(31, 59, 47, 0.92);
+}
+
+.trailhead-map .mapboxgl-ctrl-group button {
+  background-color: transparent;
+}
+
+.trailhead-map .mapboxgl-ctrl button .mapboxgl-ctrl-icon {
+  filter: invert(96%) sepia(11%) saturate(331%) hue-rotate(345deg) brightness(102%) contrast(95%);
+}
+
+.trailhead-map .mapboxgl-ctrl-attrib {
+  background: rgba(31, 59, 47, 0.8);
+  color: #f8f2e4;
+  border-radius: 10px;
 }

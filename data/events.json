@@ -1,0 +1,23 @@
+[
+  {
+    "id": "event-001",
+    "slug": "summer-music-on-the-green",
+    "name": "Summer Music on the Green",
+    "description": "An evening of live music, local food, and family-friendly activities along the village green.",
+    "featuredImage": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80",
+    "gallery": [
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80"
+    ],
+    "location": "Brattleboro, VT",
+    "coordinates": { "lat": 42.8509, "lng": -72.5579 },
+    "createdAt": "2026-06-05T10:20:00.000Z",
+    "updatedAt": "2026-06-21T08:40:00.000Z",
+    "startDate": "2026-07-10T18:00:00.000Z",
+    "endDate": "2026-07-10T21:00:00.000Z",
+    "venue": "Village Green",
+    "city": "Brattleboro",
+    "state": "VT",
+    "category": "music",
+    "isFeatured": true
+  }
+]

@@ -1,0 +1,646 @@
+-- Seed data aligned to current mock content for Southern VT CMS.
+
+insert into public.places (
+  id, slug, name, description, place_type, categories, tags, address, city, state, zip,
+  latitude, longitude, phone, email, website, hours,
+  featured_image, gallery, amenities, featured, status, metadata, related_places,
+  seo_title, seo_description, created_at, updated_at
+)
+values
+  (
+    'place-hamilton-falls',
+    'hamilton-falls',
+    'Hamilton Falls',
+    'A classic Vermont waterfall tucked into the Glastenbury wilderness with a short, scenic approach and a dramatic plunge.',
+    'Waterfall',
+    '["Waterfall","Hiking","Scenic"]'::jsonb,
+    '["waterfall","forest","summer"]'::jsonb,
+    'Hamilton Falls Trailhead',
+    'Jamaica',
+    'VT',
+    '05343',
+    43.1074,
+    -72.8104,
+    '',
+    '',
+    'https://www.vtstateparks.com',
+    'Dawn to dusk',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Trail Access","Picnic Area"]'::jsonb,
+    true,
+    'published',
+    '{"waterfall":{"height":"40 feet","swimming":false,"trailDistance":"1.2 miles round trip","difficulty":"Moderate"}}'::jsonb,
+    '["place-jamaica-state-park","place-putney-mountain"]'::jsonb,
+    'Hamilton Falls | Southern Vermont Waterfall Guide',
+    'Visit Hamilton Falls in southern Vermont for a scenic hike and a classic waterfall view.',
+    '2026-05-10T09:00:00.000Z',
+    '2026-06-18T14:20:00.000Z'
+  ),
+  (
+    'place-jamaica-state-park',
+    'jamaica-state-park',
+    'Jamaica State Park',
+    'A riverside state park with swimming holes, camping, and access to the West River Trail.',
+    'Trail',
+    '["State Park","Trail","Family"]'::jsonb,
+    '["river","camping","family-friendly"]'::jsonb,
+    '48 Salmon Hole Lane',
+    'Jamaica',
+    'VT',
+    '05343',
+    43.1006,
+    -72.7798,
+    '(802) 874-4723',
+    '',
+    'https://vtstateparks.com/jamaica',
+    '8:00 AM - sunset',
+    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Restrooms","Swimming"]'::jsonb,
+    true,
+    'published',
+    '{"trail":{"distance":"2.7 miles","elevationGain":"320 feet","loop":false,"dogsAllowed":true}}'::jsonb,
+    '["place-hamilton-falls","place-putney-mountain"]'::jsonb,
+    'Jamaica State Park | Southern Vermont Trails',
+    'Explore Jamaica State Park for riverside hiking, camping, and family-friendly outdoor time.',
+    '2026-05-12T09:00:00.000Z',
+    '2026-06-17T10:15:00.000Z'
+  ),
+  (
+    'place-brattleboro-farmers-market',
+    'brattleboro-farmers-market',
+    'Brattleboro Farmers Market',
+    'A lively Saturday market where local growers, bakers, and makers bring fresh seasonal Vermont goods downtown.',
+    'Farm Stand',
+    '["Market","Local Food","Downtown"]'::jsonb,
+    '["farmers market","local","seasonal"]'::jsonb,
+    '70 Main Street',
+    'Brattleboro',
+    'VT',
+    '05301',
+    42.8501,
+    -72.5579,
+    '(802) 579-0644',
+    'market@brattleborofarmersmarket.com',
+    'https://brattleborofarmersmarket.com',
+    'Saturdays 9:00 AM - 2:00 PM',
+    'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Restrooms","Family Friendly"]'::jsonb,
+    false,
+    'published',
+    '{}'::jsonb,
+    '["place-vermont-country-store","place-bellows-falls-downtown"]'::jsonb,
+    'Brattleboro Farmers Market | Local Vermont Produce',
+    'Shop local produce, baked goods, and artisan products at the Brattleboro Farmers Market.',
+    '2026-05-25T09:00:00.000Z',
+    '2026-06-16T08:45:00.000Z'
+  ),
+  (
+    'place-vermont-country-store',
+    'vermont-country-store',
+    'Vermont Country Store',
+    'The classic Vermont general store for pantry staples, gifts, local foods, and nostalgic finds.',
+    'Shop',
+    '["Retail","Local Made","Gifts"]'::jsonb,
+    '["classic","shopping","local goods"]'::jsonb,
+    '657 Main Street',
+    'Weston',
+    'VT',
+    '05161',
+    43.3039,
+    -72.7945,
+    '(802) 824-3184',
+    'customer.service@vermontcountrystore.com',
+    'https://www.vermontcountrystore.com',
+    'Daily 9:00 AM - 6:00 PM',
+    'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Accessible","Family Friendly"]'::jsonb,
+    true,
+    'published',
+    '{"shop":{"products":"Pantry goods, gifts, apparel, housewares","localMade":true,"shippingAvailable":true}}'::jsonb,
+    '["place-grafton-inn","place-mount-equinox-skyline-drive"]'::jsonb,
+    'Vermont Country Store | Weston Shopping',
+    'Visit the Vermont Country Store in Weston for local products, gifts, and classic Vermont goods.',
+    '2026-05-20T09:00:00.000Z',
+    '2026-06-18T09:10:00.000Z'
+  ),
+  (
+    'place-mount-equinox-skyline-drive',
+    'mount-equinox-skyline-drive',
+    'Mount Equinox Skyline Drive',
+    'A scenic drive to a summit overlook with wide southern Vermont views, foliage color, and clear-day visibility for miles.',
+    'Scenic Overlook',
+    '["Scenic Drive","Overlook","Fall Foliage"]'::jsonb,
+    '["views","mountain","foliage"]'::jsonb,
+    'Skyline Drive',
+    'Manchester',
+    'VT',
+    '05255',
+    43.1768,
+    -73.0521,
+    '(802) 362-1114',
+    '',
+    'https://www.equinoxresort.com/skyline-drive',
+    'Seasonal hours',
+    'https://images.unsplash.com/photo-1506424482690-f7cd225efb41?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Scenic Views"]'::jsonb,
+    true,
+    'published',
+    '{}'::jsonb,
+    '["place-grafton-inn","place-vermont-country-store"]'::jsonb,
+    'Mount Equinox Skyline Drive | Southern Vermont Views',
+    'Drive to the Mount Equinox summit overlook for one of the best views in southern Vermont.',
+    '2026-05-14T09:00:00.000Z',
+    '2026-06-18T16:30:00.000Z'
+  ),
+  (
+    'place-grafton-inn',
+    'grafton-inn',
+    'Grafton Inn',
+    'A historic inn with classic New England charm, refined dining, and an easy village-center location.',
+    'Hotel',
+    '["Lodging","Historic","Hospitality"]'::jsonb,
+    '["inn","historic","stay"]'::jsonb,
+    '45 Main Street',
+    'Grafton',
+    'VT',
+    '05146',
+    43.1691,
+    -72.6188,
+    '(802) 843-2248',
+    'stay@graftoninnvermont.com',
+    'https://graftoninnvermont.com',
+    'Check-in from 3:00 PM',
+    'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Breakfast","Parking","Pet Friendly"]'::jsonb,
+    false,
+    'draft',
+    '{"hotel":{"rooms":"45 rooms and suites","checkIn":"3:00 PM","petFriendly":true}}'::jsonb,
+    '["place-mount-equinox-skyline-drive","place-vermont-country-store"]'::jsonb,
+    'Grafton Inn | Historic Vermont Hotel',
+    'Stay at the Grafton Inn for a historic Vermont lodging experience in a classic village setting.',
+    '2026-05-18T09:00:00.000Z',
+    '2026-06-15T13:40:00.000Z'
+  ),
+  (
+    'place-putney-mountain',
+    'putney-mountain',
+    'Putney Mountain',
+    'A rewarding trail network with broad views, mixed forest, and a memorable summit lookout.',
+    'Trail',
+    '["Trail","Summit","Hiking"]'::jsonb,
+    '["trail","ridge","summit"]'::jsonb,
+    'Putney Mountain Trailhead',
+    'Putney',
+    'VT',
+    '05346',
+    43.0255,
+    -72.5224,
+    '',
+    '',
+    'https://www.putneymountain.org',
+    'Sunrise to sunset',
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Dogs Allowed"]'::jsonb,
+    false,
+    'published',
+    '{"trail":{"distance":"4.1 miles","elevationGain":"1,100 feet","loop":true,"dogsAllowed":true}}'::jsonb,
+    '["place-hamilton-falls","place-jamaica-state-park"]'::jsonb,
+    'Putney Mountain | Southern Vermont Trail Guide',
+    'Hike Putney Mountain for ridge views, summit scenery, and a rewarding southern Vermont outing.',
+    '2026-05-22T09:00:00.000Z',
+    '2026-06-14T11:05:00.000Z'
+  ),
+  (
+    'place-bellows-falls-downtown',
+    'bellows-falls-downtown',
+    'Bellows Falls Downtown',
+    'A walkable village center with historic architecture, river views, local shops, and easy access to food and transit.',
+    'Shop',
+    '["Downtown","Shopping","Historic"]'::jsonb,
+    '["walkable","shops","river"]'::jsonb,
+    'Main Street',
+    'Bellows Falls',
+    'VT',
+    '05101',
+    43.132,
+    -72.4441,
+    '',
+    '',
+    'https://www.bellowsfalls.org',
+    'Open year-round',
+    'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Walkable","Family Friendly"]'::jsonb,
+    false,
+    'draft',
+    '{"shop":{"products":"Independent shops, antiques, cafes, local gifts","localMade":true,"shippingAvailable":false}}'::jsonb,
+    '["place-brattleboro-farmers-market","place-vermont-country-store"]'::jsonb,
+    'Bellows Falls Downtown | Southern Vermont Shopping',
+    'Explore Bellows Falls Downtown for shopping, dining, and a historic village experience.',
+    '2026-05-28T09:00:00.000Z',
+    '2026-06-13T15:25:00.000Z'
+  ),
+  (
+    'place-windham-brewing-co',
+    'windham-brewing-co',
+    'Windham Brewing Co.',
+    'A welcoming brewery in the heart of Brattleboro with rotating taps, hearty pub fare, and a lively community room.',
+    'Brewery',
+    '["Beer","Food & Drink","Downtown"]'::jsonb,
+    '["brewery","pub","local beer"]'::jsonb,
+    '123 Main Street',
+    'Brattleboro',
+    'VT',
+    '05301',
+    42.8502,
+    -72.5571,
+    '(802) 555-0142',
+    'hello@windhambrewingco.com',
+    'https://windhambrewingco.com',
+    'Daily 11:30 AM - 9:00 PM',
+    'https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["Parking","Outdoor Seating","Reservations"]'::jsonb,
+    false,
+    'published',
+    '{}'::jsonb,
+    '["place-brattleboro-farmers-market","place-vermont-country-store"]'::jsonb,
+    'Windham Brewing Co. | Brattleboro Brewery',
+    'Enjoy local beer and pub fare at Windham Brewing Co. in downtown Brattleboro.',
+    '2026-05-30T09:00:00.000Z',
+    '2026-06-19T13:15:00.000Z'
+  )
+on conflict (id) do update
+set
+  slug = excluded.slug,
+  name = excluded.name,
+  description = excluded.description,
+  place_type = excluded.place_type,
+  categories = excluded.categories,
+  tags = excluded.tags,
+  address = excluded.address,
+  city = excluded.city,
+  state = excluded.state,
+  zip = excluded.zip,
+  latitude = excluded.latitude,
+  longitude = excluded.longitude,
+  phone = excluded.phone,
+  email = excluded.email,
+  website = excluded.website,
+  hours = excluded.hours,
+  featured_image = excluded.featured_image,
+  gallery = excluded.gallery,
+  amenities = excluded.amenities,
+  featured = excluded.featured,
+  status = excluded.status,
+  metadata = excluded.metadata,
+  related_places = excluded.related_places,
+  seo_title = excluded.seo_title,
+  seo_description = excluded.seo_description,
+  created_at = excluded.created_at,
+  updated_at = excluded.updated_at,
+  archived_at = null;
+
+insert into public.collections (
+  id, slug, title, subtitle, description, featured_image,
+  gallery, place_ids, tags, metadata, season, audience,
+  status, featured, seo_title, seo_description, created_at, updated_at
+)
+values
+  (
+    'collection-summer-swimming-holes',
+    'summer-swimming-holes',
+    'Summer Swimming Holes',
+    'The best places to cool off on a warm Vermont day',
+    'A curated guide to the region''s favorite summer water stops, from waterfall pools to riverside park swims.',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
+    '["place-hamilton-falls","place-jamaica-state-park"]'::jsonb,
+    '["summer","swimming","waterfall"]'::jsonb,
+    '{}'::jsonb,
+    'Summer',
+    'Outdoor Explorers',
+    'published',
+    true,
+    'Summer Swimming Holes in Southern Vermont',
+    'Find the best summer swimming holes across Southern Vermont with this curated collection.',
+    '2026-05-20T09:00:00.000Z',
+    '2026-06-22T12:15:00.000Z'
+  ),
+  (
+    'collection-fall-foliage-weekend',
+    'fall-foliage-weekend',
+    'Fall Foliage Weekend',
+    'A perfect long-weekend loop for peak color',
+    'Scenic drives, summit views, and classic Vermont stops designed for a memorable autumn road trip.',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+    '[]'::jsonb,
+    '["place-mount-equinox-skyline-drive","place-grafton-inn","place-vermont-country-store"]'::jsonb,
+    '["fall","foliage","weekend"]'::jsonb,
+    '{}'::jsonb,
+    'Fall',
+    'Road Trippers',
+    'published',
+    true,
+    'Fall Foliage Weekend in Southern Vermont',
+    'Plan a Southern Vermont fall foliage weekend with scenic roads, views, and charming stops.',
+    '2026-05-21T09:00:00.000Z',
+    '2026-06-23T10:45:00.000Z'
+  ),
+  (
+    'collection-rainy-day-adventures',
+    'rainy-day-adventures',
+    'Rainy Day Adventures',
+    'Indoor ideas and cozy stops when the weather turns',
+    'A collection built for gray skies, with shopping, food, and easygoing village downtime.',
+    'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80',
+    '[]'::jsonb,
+    '["place-windham-brewing-co","place-vermont-country-store","place-brattleboro-farmers-market"]'::jsonb,
+    '["rainy day","indoor","cozy"]'::jsonb,
+    '{}'::jsonb,
+    'Year-Round',
+    'Families',
+    'draft',
+    false,
+    'Rainy Day Adventures in Southern Vermont',
+    'Browse cozy indoor stops, breweries, and markets for rainy day plans in Southern Vermont.',
+    '2026-05-22T09:00:00.000Z',
+    '2026-06-20T14:10:00.000Z'
+  )
+on conflict (id) do update
+set
+  slug = excluded.slug,
+  title = excluded.title,
+  subtitle = excluded.subtitle,
+  description = excluded.description,
+  featured_image = excluded.featured_image,
+  gallery = excluded.gallery,
+  place_ids = excluded.place_ids,
+  tags = excluded.tags,
+  metadata = excluded.metadata,
+  season = excluded.season,
+  audience = excluded.audience,
+  status = excluded.status,
+  featured = excluded.featured,
+  seo_title = excluded.seo_title,
+  seo_description = excluded.seo_description,
+  created_at = excluded.created_at,
+  updated_at = excluded.updated_at,
+  archived_at = null;
+
+insert into public.media_assets (
+  id, title, alt_text, asset_type, url, thumbnail_url, tags, attached_to, status, metadata
+)
+values
+  (
+    'media-hamilton-falls-hero',
+    'Hamilton Falls Hero Image',
+    'Hamilton Falls cascading through forest rock ledges',
+    'image',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=360&q=80',
+    '["waterfall","nature"]'::jsonb,
+    '["place:place-hamilton-falls","collection:collection-summer-swimming-holes"]'::jsonb,
+    'active',
+    '{}'::jsonb
+  )
+on conflict (id) do update
+set
+  title = excluded.title,
+  alt_text = excluded.alt_text,
+  asset_type = excluded.asset_type,
+  url = excluded.url,
+  thumbnail_url = excluded.thumbnail_url,
+  tags = excluded.tags,
+  attached_to = excluded.attached_to,
+  status = excluded.status,
+  metadata = excluded.metadata,
+  archived_at = null,
+  updated_at = now();
+
+insert into public.relationships (
+  id, source_type, source_id, target_type, target_id, relationship_type, label, sort_order, status, metadata
+)
+values
+  (
+    'rel-hamilton-nearby-jamaica',
+    'place',
+    'place-hamilton-falls',
+    'place',
+    'place-jamaica-state-park',
+    'nearby',
+    'Nearby',
+    0,
+    'active',
+    '{}'::jsonb
+  ),
+  (
+    'rel-country-store-nearby-grafton',
+    'place',
+    'place-vermont-country-store',
+    'place',
+    'place-grafton-inn',
+    'nearby',
+    'Nearby',
+    0,
+    'active',
+    '{}'::jsonb
+  )
+on conflict (id) do update
+set
+  source_type = excluded.source_type,
+  source_id = excluded.source_id,
+  target_type = excluded.target_type,
+  target_id = excluded.target_id,
+  relationship_type = excluded.relationship_type,
+  label = excluded.label,
+  sort_order = excluded.sort_order,
+  status = excluded.status,
+  metadata = excluded.metadata,
+  archived_at = null,
+  updated_at = now();
+
+insert into public.workflow_events (
+  id, content_type, content_id, from_status, to_status, actor, note, status, metadata
+)
+values
+  (
+    'wf-place-hamilton-published',
+    'place',
+    'place-hamilton-falls',
+    'draft',
+    'published',
+    'Alex',
+    'Final editorial review completed.',
+    'completed',
+    '{}'::jsonb
+  ),
+  (
+    'wf-collection-rainy-day-draft',
+    'collection',
+    'collection-rainy-day-adventures',
+    'draft',
+    'draft',
+    'Alex',
+    'Initial editorial draft saved for rainy day collection.',
+    'completed',
+    '{}'::jsonb
+  )
+on conflict (id) do update
+set
+  content_type = excluded.content_type,
+  content_id = excluded.content_id,
+  from_status = excluded.from_status,
+  to_status = excluded.to_status,
+  actor = excluded.actor,
+  note = excluded.note,
+  status = excluded.status,
+  metadata = excluded.metadata,
+  archived_at = null,
+  updated_at = now();
+
+insert into public.content_versions (
+  id, content_type, content_id, version_number, actor, summary, status, snapshot, metadata
+)
+values
+  (
+    'ver-place-hamilton-1',
+    'place',
+    'place-hamilton-falls',
+    1,
+    'Alex',
+    'Initial publish-ready draft',
+    'saved',
+    '{"status":"published"}'::jsonb,
+    '{}'::jsonb
+  ),
+  (
+    'ver-collection-fall-foliage-1',
+    'collection',
+    'collection-fall-foliage-weekend',
+    1,
+    'Alex',
+    'Initial version with scenic drive route and stops',
+    'saved',
+    '{"status":"published"}'::jsonb,
+    '{}'::jsonb
+  )
+on conflict (id) do update
+set
+  content_type = excluded.content_type,
+  content_id = excluded.content_id,
+  version_number = excluded.version_number,
+  actor = excluded.actor,
+  summary = excluded.summary,
+  status = excluded.status,
+  snapshot = excluded.snapshot,
+  metadata = excluded.metadata,
+  archived_at = null,
+  updated_at = now();
+
+insert into public.editorial_comments (
+  id, content_type, content_id, body, author, resolved, status, metadata
+)
+values
+  (
+    'comment-hamilton-footwear',
+    'place',
+    'place-hamilton-falls',
+    'Add stronger footwear guidance near final descent.',
+    'Alex',
+    false,
+    'open',
+    '{}'::jsonb
+  ),
+  (
+    'comment-rainy-day-intro',
+    'collection',
+    'collection-rainy-day-adventures',
+    'Refine intro to emphasize family-friendly pacing.',
+    'Alex',
+    false,
+    'open',
+    '{}'::jsonb
+  )
+on conflict (id) do update
+set
+  content_type = excluded.content_type,
+  content_id = excluded.content_id,
+  body = excluded.body,
+  author = excluded.author,
+  resolved = excluded.resolved,
+  status = excluded.status,
+  metadata = excluded.metadata,
+  archived_at = null,
+  updated_at = now();
+
+insert into public.activities (
+  id, type, content_type, content_id, title, description, actor, status, metadata
+)
+values
+  (
+    'activity-published-hamilton-falls',
+    'published',
+    'place',
+    'place-hamilton-falls',
+    'Published Hamilton Falls',
+    'Final editorial review completed and the public place page is now live.',
+    'Alex',
+    'logged',
+    '{"statusFrom":"scheduled","statusTo":"published"}'::jsonb
+  ),
+  (
+    'activity-created-fall-foliage-weekend',
+    'created',
+    'collection',
+    'collection-fall-foliage-weekend',
+    'Created Fall Foliage Weekend collection',
+    'Started a new fall itinerary with scenic drive and village stops.',
+    'Alex',
+    'logged',
+    '{"initialPlaces":3}'::jsonb
+  )
+on conflict (id) do update
+set
+  type = excluded.type,
+  content_type = excluded.content_type,
+  content_id = excluded.content_id,
+  title = excluded.title,
+  description = excluded.description,
+  actor = excluded.actor,
+  status = excluded.status,
+  metadata = excluded.metadata,
+  archived_at = null,
+  updated_at = now();
+
+insert into public.feature_flags (
+  key, label, description, enabled, environment, status, metadata
+)
+values
+  ('aiPlanner', 'AI Trip Planner', 'Controls visibility of the AI-assisted trip planner experience.', false, 'development', 'active', '{}'::jsonb),
+  ('passport', 'Passport', 'Enables destination passport progress and reward tracking.', false, 'development', 'active', '{}'::jsonb),
+  ('reviews', 'Reviews', 'Shows public place and collection review modules.', false, 'development', 'active', '{}'::jsonb),
+  ('weather', 'Weather', 'Adds destination weather summaries across place pages.', false, 'development', 'active', '{}'::jsonb),
+  ('analytics', 'Analytics', 'Turns on analytics dashboards and event tracking widgets.', false, 'development', 'active', '{}'::jsonb),
+  ('mapbox', 'Mapbox', 'Controls interactive map engine visibility and controls.', false, 'development', 'active', '{}'::jsonb),
+  ('supabase', 'Supabase', 'Switches repositories to Supabase-backed data adapters.', false, 'development', 'active', '{}'::jsonb),
+  ('businessPortal', 'Business Portal', 'Enables partner business self-service dashboard modules.', false, 'development', 'active', '{}'::jsonb),
+  ('publicCollections', 'Public Collections', 'Shows the public collections directory and detail routes.', true, 'production', 'active', '{}'::jsonb),
+  ('publicPlaces', 'Public Places', 'Shows the public places directory and detail routes.', true, 'production', 'active', '{}'::jsonb)
+on conflict (key) do update
+set
+  label = excluded.label,
+  description = excluded.description,
+  enabled = excluded.enabled,
+  environment = excluded.environment,
+  status = excluded.status,
+  metadata = excluded.metadata,
+  archived_at = null,
+  updated_at = now();

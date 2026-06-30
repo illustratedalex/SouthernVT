@@ -1,0 +1,39 @@
+name: Trailhead CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests if script exists
+        run: |
+          if npm run | grep -qE '^  test'; then
+            npm run test
+          else
+            echo "No test script found in package.json; skipping tests."
+          fi
