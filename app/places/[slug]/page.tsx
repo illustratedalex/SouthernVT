@@ -8,17 +8,19 @@ import { GalleryGrid } from "@/components/public/GalleryGrid";
 import { HeroImage } from "@/components/public/HeroImage";
 import { PublicCTA } from "@/components/public/PublicCTA";
 import { QuickFacts } from "@/components/public/QuickFacts";
-import { RelatedContentRail } from "@/components/public/RelatedContentRail";
 import { ReviewList } from "@/components/public/ReviewList";
+import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
+import { NextAdventureCard } from "@/components/discovery/NextAdventureCard";
+import { RecommendedArticlesRail } from "@/components/discovery/RecommendedArticlesRail";
+import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
+import { RecommendedDealsRail } from "@/components/discovery/RecommendedDealsRail";
+import { RecommendedEventsRail } from "@/components/discovery/RecommendedEventsRail";
+import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
 import { createPlaceMetadata } from "@/lib/seo";
-import { getPublishedArticles } from "@/repositories/ArticleRepository";
-import { getPublishedDeals } from "@/repositories/DealRepository";
-import { getPublishedEvents } from "@/repositories/EventRepository";
 import { getPlaceBySlug, getPlaces } from "@/repositories/PlaceRepository";
 import { getApprovedReviewsByPlaceId } from "@/repositories/ReviewRepository";
-import { getCollections } from "@/lib/repositories/collectionRepository";
 import { PlacePassportCTA } from "@/components/public/PlacePassportCTA";
 import { PlacePlanningCTA } from "@/components/public/PlacePlanningCTA";
 
@@ -56,32 +58,20 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     notFound();
   }
 
-  const [reviewsEnabled, approvedReviews, allPlaces, allCollections, allArticles, allEvents, allDeals] = await Promise.all([
+  const [reviewsEnabled, approvedReviews, nearbyPlaces, recommendedCollections, recommendedArticles, recommendedEvents, recommendedDeals, nextAdventure] = await Promise.all([
     isFeatureEnabled("reviews"),
     getApprovedReviewsByPlaceId(place.id),
-    getPlaces(),
-    getCollections(),
-    getPublishedArticles(),
-    getPublishedEvents(),
-    getPublishedDeals(),
+    DiscoveryService.getNearbyPlaces(place.id, 4),
+    DiscoveryService.getRecommendedCollections({ placeId: place.id, limit: 4 }),
+    DiscoveryService.getRecommendedArticles({ placeId: place.id, limit: 4 }),
+    DiscoveryService.getRecommendedEvents({ placeId: place.id, limit: 4 }),
+    DiscoveryService.getRecommendedDeals({ placeId: place.id, limit: 4 }),
+    DiscoveryService.getNextAdventure(place.id),
   ]);
 
   const galleryImages = place.gallery.length ? place.gallery : [place.featuredImage];
   const reviewCount = approvedReviews.length;
   const averageRating = reviewCount ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount : 0;
-  const nearbyPlaces = allPlaces.filter((candidate) => place.relatedPlaces.includes(candidate.id) && candidate.id !== place.id).slice(0, 4);
-  const featuredCollections = allCollections
-    .filter((collection) => collection.status === "published" && (collection.places.includes(place.id) || collection.tags.some((tag) => place.tags.includes(tag))))
-    .slice(0, 4);
-  const relatedGuides = allArticles
-    .filter((article) => article.status === "published" && (article.relatedPlaces.includes(place.id) || article.tags.some((tag) => place.tags.includes(tag))))
-    .slice(0, 4);
-  const eventsNearby = allEvents
-    .filter((event) => event.status === "published" && (event.venuePlaceId === place.id || event.city === place.city || event.tags.some((tag) => place.tags.includes(tag))))
-    .slice(0, 4);
-  const dealsNearby = allDeals
-    .filter((deal) => deal.status === "published" && (deal.placeId === place.id || deal.tags.some((tag) => place.tags.includes(tag))))
-    .slice(0, 4);
   const jsonLd = placeJsonLd(place);
   const visitorNotes = getVisitorNotes(place.placeType);
 
@@ -179,70 +169,12 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             <PlacePassportCTA place={place} />
             <PlacePlanningCTA place={place} />
 
-            <RelatedContentRail
-              title="Nearby places"
-              items={nearbyPlaces.map((nearby) => ({
-                id: nearby.id,
-                title: nearby.name,
-                subtitle: `${nearby.placeType} · ${nearby.city}`,
-                href: `/places/${nearby.slug}`,
-                badge: nearby.featured ? "Featured" : undefined,
-              }))}
-              emptyTitle="No nearby places yet"
-              emptyDescription="Nearby places will appear as more regional relationships are added."
-            />
-
-            <RelatedContentRail
-              title="Featured in collections"
-              items={featuredCollections.map((collection) => ({
-                id: collection.id,
-                title: collection.title,
-                subtitle: `${collection.season} · ${collection.audience}`,
-                href: `/collections/${collection.slug}`,
-                badge: collection.featured ? "Featured" : undefined,
-              }))}
-              emptyTitle="No collections yet"
-              emptyDescription="This place will be pulled into collections as the guide library grows."
-            />
-
-            <RelatedContentRail
-              title="Related guides"
-              items={relatedGuides.map((article) => ({
-                id: article.id,
-                title: article.title,
-                subtitle: article.subtitle,
-                href: `/guides/${article.slug}`,
-                badge: article.articleType,
-              }))}
-              emptyTitle="No related guides yet"
-              emptyDescription="Guides linked to this place will appear here once relationships are added."
-            />
-
-            <RelatedContentRail
-              title="Events nearby"
-              items={eventsNearby.map((event) => ({
-                id: event.id,
-                title: event.title,
-                subtitle: `${event.startDate} · ${event.city}`,
-                href: `/events/${event.slug}`,
-                badge: event.eventType,
-              }))}
-              emptyTitle="No nearby events yet"
-              emptyDescription="Seasonal event relationships will populate this rail over time."
-            />
-
-            <RelatedContentRail
-              title="Deals nearby"
-              items={dealsNearby.map((deal) => ({
-                id: deal.id,
-                title: deal.title,
-                subtitle: deal.shortDescription,
-                href: `/deals/${deal.slug}`,
-                badge: deal.dealType,
-              }))}
-              emptyTitle="No nearby deals yet"
-              emptyDescription="Local offers will appear here as partner offers are published."
-            />
+            <NearbyPlacesRail places={nearbyPlaces} />
+            <RecommendedCollectionsRail collections={recommendedCollections} title="Recommended Collections" />
+            <RecommendedArticlesRail articles={recommendedArticles} title="Articles Mentioning This Place" />
+            <RecommendedEventsRail events={recommendedEvents} title="Events Nearby" />
+            <RecommendedDealsRail deals={recommendedDeals} title="Deals Nearby" />
+            <NextAdventureCard adventure={nextAdventure} title="Next Adventure" />
           </aside>
         </div>
       </section>

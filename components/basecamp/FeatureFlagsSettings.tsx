@@ -13,6 +13,7 @@ type FeatureFlagsSettingsProps = {
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
   { label: "Places", href: "/basecamp/places" },
+  { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },
   { label: "Articles", href: "/basecamp/articles" },
   { label: "Media Library", href: "/basecamp/media" },

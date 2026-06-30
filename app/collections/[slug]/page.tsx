@@ -8,11 +8,13 @@ import { GalleryGrid } from "@/components/public/GalleryGrid";
 import { HeroImage } from "@/components/public/HeroImage";
 import { PublicCTA } from "@/components/public/PublicCTA";
 import { QuickFacts } from "@/components/public/QuickFacts";
-import { RelatedContentRail } from "@/components/public/RelatedContentRail";
 import { CollectionPlaceListLive } from "@/components/public/CollectionPlaceListLive";
+import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
+import { RecommendedArticlesRail } from "@/components/discovery/RecommendedArticlesRail";
+import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
+import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { collectionJsonLd } from "@/lib/jsonLd";
 import { createCollectionMetadata } from "@/lib/seo";
-import { getPublishedArticles } from "@/repositories/ArticleRepository";
 import { getCollectionBySlug, getCollections } from "@/lib/repositories/collectionRepository";
 import { getPlaces } from "@/repositories/PlaceRepository";
 
@@ -50,24 +52,17 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
     notFound();
   }
 
-  const [allCollections, allPlaces, allArticles] = await Promise.all([getCollections(), getPlaces(), getPublishedArticles()]);
+  const [allPlaces, similarCollections, featuredPlaces, relatedGuides] = await Promise.all([
+    getPlaces(),
+    DiscoveryService.getRecommendedCollections({ collectionId: collection.id, limit: 3 }),
+    DiscoveryService.getRelatedPlaces({ collectionId: collection.id, limit: 4 }),
+    DiscoveryService.getRecommendedArticles({ collectionId: collection.id, limit: 4 }),
+  ]);
 
   const collectionPlaces = allPlaces.filter((place) => collection.places.includes(place.id));
 
-  const relatedCollections = allCollections
-    .filter((item) => item.id !== collection.id && item.status === "published")
-    .sort((a, b) => {
-      const seasonMatchA = a.season === collection.season ? 1 : 0;
-      const seasonMatchB = b.season === collection.season ? 1 : 0;
-      if (seasonMatchA !== seasonMatchB) {
-        return seasonMatchB - seasonMatchA;
-      }
-      return Number(b.featured) - Number(a.featured);
-    })
-    .slice(0, 3);
-
-  const relatedGuides = allArticles
-    .filter((article) => article.status === "published" && (article.relatedCollections.includes(collection.id) || article.tags.some((tag) => collection.tags.includes(tag))))
+  const featuredPlacesForRail = featuredPlaces
+    .filter((place) => place.featured || collection.places.includes(place.id))
     .slice(0, 4);
 
   const jsonLd = collectionJsonLd(collection);
@@ -142,31 +137,9 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
               </div>
             </ContentSection>
 
-            <RelatedContentRail
-              title="Related collections"
-              items={relatedCollections.map((item) => ({
-                id: item.id,
-                title: item.title,
-                subtitle: item.subtitle,
-                href: `/collections/${item.slug}`,
-                badge: item.season,
-              }))}
-              emptyTitle="No related collections yet"
-              emptyDescription="More nearby thematic routes will appear as collections expand."
-            />
-
-            <RelatedContentRail
-              title="Related guides"
-              items={relatedGuides.map((article) => ({
-                id: article.id,
-                title: article.title,
-                subtitle: article.subtitle,
-                href: `/guides/${article.slug}`,
-                badge: article.articleType,
-              }))}
-              emptyTitle="No related guides yet"
-              emptyDescription="Guides matched to this collection will appear as editorial relationships are added."
-            />
+            <RecommendedCollectionsRail collections={similarCollections} title="Similar Collections" />
+            <NearbyPlacesRail places={featuredPlacesForRail} title="Featured Places" />
+            <RecommendedArticlesRail articles={relatedGuides} title="Related Guides" />
 
             <PublicCTA
               eyebrow="Ready to go"

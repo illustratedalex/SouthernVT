@@ -2,19 +2,19 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
+import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
+import { RecommendedDealsRail } from "@/components/discovery/RecommendedDealsRail";
+import { RecommendedEventsRail } from "@/components/discovery/RecommendedEventsRail";
 import { Breadcrumbs } from "@/components/public/Breadcrumbs";
 import { ContentSection } from "@/components/public/ContentSection";
 import { HeroImage } from "@/components/public/HeroImage";
 import { PublicCTA } from "@/components/public/PublicCTA";
 import { QuickFacts } from "@/components/public/QuickFacts";
-import { RelatedContentRail } from "@/components/public/RelatedContentRail";
+import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { articleJsonLd } from "@/lib/jsonLd";
 import { createArticleMetadata } from "@/lib/seo";
-import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getPublishedArticles, getArticleBySlug } from "@/repositories/ArticleRepository";
-import { getPublishedDeals } from "@/repositories/DealRepository";
-import { getPlaces } from "@/repositories/PlaceRepository";
-import { getEvents } from "@/repositories/EventRepository";
 
 interface GuideDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -48,31 +48,12 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
     notFound();
   }
 
-  const [allPlaces, allCollections, allEvents, allDeals] = await Promise.all([getPlaces(), getCollections(), getEvents(), getPublishedDeals()]);
-
-  const relatedPlaces = allPlaces
-    .filter((place) => article.relatedPlaces.includes(place.id) || article.tags.some((tag) => place.tags.includes(tag)))
-    .map((place) => ({
-      id: place.id,
-      title: place.name,
-      subtitle: `${place.placeType} · ${place.city}`,
-      href: `/places/${place.slug}`,
-    }));
-
-  const relatedCollections = allCollections.filter((collection) => article.relatedCollections.includes(collection.id));
-
-  const relatedEvents = allEvents.filter((event) => article.relatedEvents.includes(event.id) || article.tags.some((tag) => event.tags.includes(tag)));
-
-  const relatedDeals = allDeals
-    .filter((deal) => deal.status === "published" && (article.relatedPlaces.includes(deal.placeId) || article.relatedCollections.includes(deal.collectionId ?? "") || article.tags.some((tag) => deal.tags.includes(tag))))
-    .map((deal) => ({
-      id: deal.id,
-      title: deal.title,
-      subtitle: deal.shortDescription,
-      href: `/deals/${deal.slug}`,
-      badge: deal.dealType,
-    }))
-    .slice(0, 4);
+  const [relatedPlaces, relatedCollections, relatedEvents, relatedDeals] = await Promise.all([
+    DiscoveryService.getRelatedPlaces({ articleId: article.id, limit: 4 }),
+    DiscoveryService.getRecommendedCollections({ articleId: article.id, limit: 4 }),
+    DiscoveryService.getRecommendedEvents({ articleId: article.id, limit: 4 }),
+    DiscoveryService.getRecommendedDeals({ articleId: article.id, limit: 4 }),
+  ]);
 
   const jsonLd = articleJsonLd(article);
 
@@ -113,45 +94,10 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
               <div className="whitespace-pre-line text-sm leading-8 text-slate-700">{article.body}</div>
             </ContentSection>
 
-            <RelatedContentRail
-              title="Related places"
-              items={relatedPlaces}
-              emptyTitle="No related places yet"
-              emptyDescription="Places connected to this guide will appear as relationships are added."
-            />
-
-            <RelatedContentRail
-              title="Related collections"
-              items={relatedCollections.map((collection) => ({
-                id: collection.id,
-                title: collection.title,
-                subtitle: `${collection.season} · ${collection.audience}`,
-                href: `/collections/${collection.slug}`,
-                badge: collection.season,
-              }))}
-              emptyTitle="No related collections yet"
-              emptyDescription="Collection links will populate as editorial relationships are expanded."
-            />
-
-            <RelatedContentRail
-              title="Related events"
-              items={relatedEvents.map((event) => ({
-                id: event.id,
-                title: event.title,
-                subtitle: `${event.startDate} · ${event.city}`,
-                href: `/events/${event.slug}`,
-                badge: event.eventType,
-              }))}
-              emptyTitle="No related events yet"
-              emptyDescription="Event connections will show up once editorial links are available."
-            />
-
-            <RelatedContentRail
-              title="Related deals"
-              items={relatedDeals}
-              emptyTitle="No related deals yet"
-              emptyDescription="Offer links tied to this guide will appear when partner deals are published."
-            />
+            <NearbyPlacesRail places={relatedPlaces} title="Places Mentioned" />
+            <RecommendedCollectionsRail collections={relatedCollections} title="Collections" />
+            <RecommendedEventsRail events={relatedEvents} title="Events" />
+            <RecommendedDealsRail deals={relatedDeals} title="Deals" />
           </article>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">

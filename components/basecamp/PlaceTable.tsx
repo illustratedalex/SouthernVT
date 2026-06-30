@@ -1,16 +1,19 @@
 import Link from "next/link";
 import { Button } from "@/components/ui";
+import type { CompletenessScore } from "@/types/Completeness";
 import type { Place } from "@/types/Place";
 import { BasecampActionMenu } from "./BasecampActionMenu";
+import { CompletenessMeter } from "./CompletenessMeter";
 import { PlaceStatusBadge } from "./PlaceStatusBadge";
 import { PlaceTypeBadge } from "./PlaceTypeBadge";
 
 interface PlaceTableProps {
   places: Place[];
+  completenessById?: Record<string, CompletenessScore>;
   onDelete?: (id: string) => void;
 }
 
-export function PlaceTable({ places, onDelete }: PlaceTableProps) {
+export function PlaceTable({ places, completenessById = {}, onDelete }: PlaceTableProps) {
   return (
     <div className="overflow-hidden rounded-[24px] border border-[#e8dfc8] bg-white/80 shadow-sm">
       <table className="min-w-full divide-y divide-slate-200 text-left">
@@ -20,6 +23,7 @@ export function PlaceTable({ places, onDelete }: PlaceTableProps) {
             <th className="px-4 py-3">Type</th>
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3">Location</th>
+            <th className="px-4 py-3">Completeness</th>
             <th className="px-4 py-3">Actions</th>
           </tr>
         </thead>
@@ -45,6 +49,9 @@ export function PlaceTable({ places, onDelete }: PlaceTableProps) {
                 <PlaceStatusBadge status={place.status} />
               </td>
               <td className="px-4 py-4">{place.address}</td>
+              <td className="px-4 py-4">
+                {completenessById[place.id] ? <CompletenessMeter score={completenessById[place.id]} compact /> : null}
+              </td>
               <td className="px-4 py-4">
                 <div className="flex items-center gap-2">
                   <Link href={`/basecamp/places/${place.id}`}>

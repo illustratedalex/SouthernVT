@@ -5,6 +5,7 @@ import { isFeatureEnabled } from "@/lib/featureFlags";
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
   { label: "Places", href: "/basecamp/places" },
+  { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },
   { label: "Media Library", href: "/basecamp/media" },
   { label: "Activity", href: "/basecamp/activity" },

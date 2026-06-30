@@ -4,12 +4,15 @@ import {
   Sidebar,
 } from "@/components/admin";
 import { ActivityFeed, BasecampPageHeader, BasecampSection, BasecampStatCard } from "@/components/basecamp";
+import { calculatePlaceCompleteness } from "@/lib/completeness/placeCompleteness";
 import { getFeatureFlags } from "@/lib/featureFlags";
 import { getRecentActivity } from "@/lib/repositories/ActivityRepository";
+import { getPlaces } from "@/repositories/PlaceRepository";
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp", active: true },
   { label: "Places", href: "/basecamp/places" },
+  { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },
   { label: "Media Library", href: "/basecamp/media" },
   { label: "Activity", href: "/basecamp/activity" },
@@ -69,9 +72,16 @@ const latestContent = [
 ];
 
 export default async function BasecampPage() {
-  const recentActivity = await getRecentActivity(6);
+  const [recentActivity, places] = await Promise.all([getRecentActivity(6), getPlaces()]);
   const featureFlags = await getFeatureFlags();
   const activeFeatureCount = featureFlags.filter((flag) => flag.enabled).length;
+  const completenessScores = places.map((place) => calculatePlaceCompleteness(place));
+  const averageCompleteness = completenessScores.length > 0
+    ? Math.round(completenessScores.reduce((sum, score) => sum + score.percentage, 0) / completenessScores.length)
+    : 0;
+  const readyForLaunchCount = completenessScores.filter((score) => score.percentage >= 80).length;
+  const needingPhotosCount = places.filter((place) => !place.featuredImage || place.gallery.length < 3).length;
+  const missingRelationshipsCount = places.filter((place) => place.relatedPlaces.length === 0).length;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(213,183,102,0.16),transparent_32%),linear-gradient(135deg,#f7efe1_0%,#fcfaf6_100%)] text-slate-800">
@@ -114,6 +124,32 @@ export default async function BasecampPage() {
             </BasecampSection>
             <QuickActionsPanel items={quickActions} />
           </section>
+
+          <BasecampSection
+            title="Content Readiness"
+            eyebrow="Basecamp"
+            description="Completeness overview for Places. Recommended launch threshold is 80%."
+            className="p-6"
+          >
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Average completeness</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-900">{averageCompleteness}%</p>
+              </div>
+              <div className="rounded-2xl border border-[#cde8d6] bg-[#ecf8f0] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1f5a3d]">Ready for launch</p>
+                <p className="mt-2 text-3xl font-semibold text-[#1f5a3d]">{readyForLaunchCount}</p>
+              </div>
+              <div className="rounded-2xl border border-[#efe0b8] bg-[#fff8e8] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7a5c17]">Needing photos</p>
+                <p className="mt-2 text-3xl font-semibold text-[#7a5c17]">{needingPhotosCount}</p>
+              </div>
+              <div className="rounded-2xl border border-[#f0d7d2] bg-[#fff2f0] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8b2e1f]">Missing relationships</p>
+                <p className="mt-2 text-3xl font-semibold text-[#8b2e1f]">{missingRelationshipsCount}</p>
+              </div>
+            </div>
+          </BasecampSection>
 
           <LatestContentPanel items={latestContent} />
         </main>

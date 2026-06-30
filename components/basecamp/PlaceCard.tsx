@@ -1,15 +1,18 @@
 import Link from "next/link";
 import { Badge, Button, Card } from "@/components/ui";
+import type { CompletenessScore } from "@/types/Completeness";
 import type { Place } from "@/types/Place";
+import { CompletenessMeter } from "./CompletenessMeter";
 import { PlaceStatusBadge } from "./PlaceStatusBadge";
 import { PlaceTypeBadge } from "./PlaceTypeBadge";
 
 interface PlaceCardProps {
   place: Place;
+  completeness?: CompletenessScore;
   onDelete?: (id: string) => void;
 }
 
-export function PlaceCard({ place, onDelete }: PlaceCardProps) {
+export function PlaceCard({ place, completeness, onDelete }: PlaceCardProps) {
   return (
     <Card className="overflow-hidden p-0">
       <div className="aspect-[4/3] overflow-hidden bg-slate-100">
@@ -25,6 +28,8 @@ export function PlaceCard({ place, onDelete }: PlaceCardProps) {
         </div>
 
         <p className="line-clamp-3 text-sm leading-7 text-slate-600">{place.description}</p>
+
+        {completeness ? <CompletenessMeter score={completeness} compact /> : null}
 
         <div className="flex flex-wrap gap-2">
           {place.featured ? <Badge>Featured</Badge> : null}

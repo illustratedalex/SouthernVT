@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { BasecampEmptyState, BasecampPageHeader, BasecampToolbar, PlaceCard, PlaceFilters, PlaceTable } from "@/components/basecamp";
+import { calculatePlaceCompleteness } from "@/lib/completeness/placeCompleteness";
 import { deletePlace, getPlaces } from "@/repositories/PlaceRepository";
+import type { CompletenessScore } from "@/types/Completeness";
 import type { Place, PlaceStatus, PlaceType } from "@/types/Place";
 
 export default function PlacesPage() {
@@ -28,6 +30,13 @@ export default function PlacesPage() {
       return matchesSearch && matchesType && matchesStatus;
     });
   }, [places, search, placeType, status]);
+
+  const completenessById = useMemo<Record<string, CompletenessScore>>(() => {
+    return places.reduce<Record<string, CompletenessScore>>((accumulator, place) => {
+      accumulator[place.id] = calculatePlaceCompleteness(place);
+      return accumulator;
+    }, {});
+  }, [places]);
 
   const handleDelete = async (id: string) => {
     await deletePlace(id);
@@ -65,12 +74,12 @@ export default function PlacesPage() {
           ) : (
             <>
               <div className="hidden md:block">
-                <PlaceTable places={visiblePlaces} onDelete={handleDelete} />
+                <PlaceTable places={visiblePlaces} completenessById={completenessById} onDelete={handleDelete} />
               </div>
 
               <div className="grid gap-4 md:hidden">
                 {visiblePlaces.map((place) => (
-                  <PlaceCard key={place.id} place={place} onDelete={handleDelete} />
+                  <PlaceCard key={place.id} place={place} completeness={completenessById[place.id]} onDelete={handleDelete} />
                 ))}
               </div>
             </>
