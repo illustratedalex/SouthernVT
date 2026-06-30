@@ -42,6 +42,7 @@ export * from "./TopPagesTable";
 export * from "./SearchMetricsTable";
 export * from "./EngagementTable";
 export * from "./AnalyticsInsightCard";
+export * from "./ContentHealthGauge";
 export * from "./CompletenessMeter";
 export * from "./ImportUploader";
 export * from "./ImportMapping";

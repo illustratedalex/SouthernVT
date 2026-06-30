@@ -3,10 +3,10 @@ import type { Story } from "@/types/Story";
 export const mockStories: Story[] = [
   {
     id: "story-place-hamilton-falls",
-    title: "Hamilton Falls: The Quiet Thunder of Jamaica",
-    subtitle: "A classic Southern Vermont waterfall walk with deep forest shade and cold spray in the air.",
-    body: "Hamilton Falls feels like a place that asks you to slow down. The trail moves through hemlock and hardwood, then opens to a dramatic drop where the sound of water takes over the whole ravine. Locals have treated this as a summer reset for years: an early start, a careful hike, and a long pause at the overlook before heading back into town for lunch.",
-    summary: "A signature Southern Vermont waterfall stop where short effort meets big scenery.",
+    title: "Hamilton Falls: Worth a Morning, Not Just a Pin",
+    subtitle: "A dramatic Jamaica waterfall destination tucked in the woods near Jamaica State Park.",
+    body: "Hamilton Falls is one of Southern Vermont's most dramatic waterfall destinations, tucked into the woods near Jamaica State Park. It should feel like a place worth planning a morning around, not just a pin on a map. The approach is scenic and shaded, and the final reveal brings the kind of sound and scale that defines a true Vermont waterfall stop.",
+    summary: "A dramatic Southern Vermont waterfall destination that rewards intentional, morning-first planning.",
     author: "Trailhead Editorial",
     readingTime: "4 min",
     difficulty: "Moderate",
@@ -17,9 +17,11 @@ export const mockStories: Story[] = [
       "Regional hikers often pair Hamilton Falls with Jamaica village stops for a full-day outing."
     ],
     visitorTips: [
-      "Arrive before mid-morning to secure easier parking and a quieter trail.",
-      "Wear shoes with grip because wet rock near the falls can stay slick all day.",
-      "Pack out snacks and bottles; this site stays beautiful when visitors leave no trace."
+      "Wear sturdy shoes.",
+      "Water levels can change quickly.",
+      "Best after spring rain or during early summer.",
+      "Pack out everything you bring in.",
+      "Be careful around wet rock."
     ],
     photographyTips: [
       "Overcast days flatten harsh highlights and make the greens look richer.",

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Sidebar } from "@/components/admin";
 import {
   ContentScoreGauge,
@@ -9,20 +10,14 @@ import {
   WeeklyGoalCard,
   WritingQueue,
 } from "@/components/basecamp/content-studio";
-import { calculatePlaceCompleteness } from "@/lib/completeness/placeCompleteness";
+import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getMediaAssets } from "@/lib/repositories/mediaRepository";
 import { getArticles } from "@/repositories/ArticleRepository";
 import { getDeals } from "@/repositories/DealRepository";
 import { getEvents } from "@/repositories/EventRepository";
 import { getPlaces } from "@/repositories/PlaceRepository";
-import { getStoryByPlace } from "@/repositories/StoryRepository";
-import type { Article } from "@/types/Article";
-import type { Collection } from "@/types/Collection";
-import type { Deal } from "@/types/Deal";
-import type { Event } from "@/types/Event";
-import type { MediaAsset } from "@/types/MediaAsset";
-import type { Place } from "@/types/Place";
+import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
 
 type ReadinessStats = {
   completed: number;
@@ -33,6 +28,7 @@ type ReadinessStats = {
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
   { label: "Content Studio", href: "/basecamp/content", active: true },
+  { label: "Content Report", href: "/basecamp/content/report" },
   { label: "Places", href: "/basecamp/places" },
   { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },
@@ -84,87 +80,6 @@ function statsFromScores(scores: number[], threshold = 80): ReadinessStats {
   };
 }
 
-function calculateCollectionCompleteness(collection: Collection): number {
-  const checks = [
-    collection.title.trim().length > 0,
-    collection.subtitle.trim().length > 0,
-    collection.description.trim().length > 0,
-    collection.featuredImage.trim().length > 0,
-    collection.gallery.length >= 1,
-    collection.places.length >= 3,
-    collection.tags.length >= 2,
-    collection.seoTitle.trim().length > 0,
-    collection.seoDescription.trim().length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
-function calculateArticleCompleteness(article: Article): number {
-  const checks = [
-    article.title.trim().length > 0,
-    article.subtitle.trim().length > 0,
-    article.excerpt.trim().length > 0,
-    article.body.trim().length > 0,
-    article.featuredImage.trim().length > 0,
-    article.relatedPlaces.length > 0,
-    article.categories.length > 0,
-    article.tags.length > 0,
-    article.seoTitle.trim().length > 0,
-    article.seoDescription.trim().length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
-function calculateEventCompleteness(event: Event): number {
-  const checks = [
-    event.title.trim().length > 0,
-    event.description.trim().length > 0,
-    event.startDate.trim().length > 0,
-    event.endDate.trim().length > 0,
-    event.startTime.trim().length > 0,
-    event.endTime.trim().length > 0,
-    event.venuePlaceId.trim().length > 0,
-    event.featuredImage.trim().length > 0,
-    event.organizerName.trim().length > 0,
-    event.organizerEmail.trim().length > 0,
-    event.categories.length > 0,
-    event.tags.length > 0,
-    event.seoTitle.trim().length > 0,
-    event.seoDescription.trim().length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
-function calculateDealCompleteness(deal: Deal): number {
-  const checks = [
-    deal.title.trim().length > 0,
-    deal.description.trim().length > 0,
-    deal.shortDescription.trim().length > 0,
-    deal.placeId.trim().length > 0,
-    deal.terms.trim().length > 0,
-    deal.startDate.trim().length > 0,
-    deal.endDate.trim().length > 0,
-    deal.featuredImage.trim().length > 0,
-    deal.categories.length > 0,
-    deal.tags.length > 0,
-    deal.seoTitle.trim().length > 0,
-    deal.seoDescription.trim().length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
-function calculateMediaCompleteness(asset: MediaAsset): number {
-  const checks = [
-    asset.title.trim().length > 0,
-    asset.altText.trim().length > 0,
-    asset.url.trim().length > 0,
-    asset.thumbnailUrl.trim().length > 0,
-    asset.tags.length > 0,
-    asset.attachedTo.length > 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
 function buildLandscapeImage(date: Date): string {
   const options = [
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1400&q=80",
@@ -188,13 +103,47 @@ export default async function BasecampContentStudioPage() {
   ]);
 
   const placeStories = await Promise.all(places.map((place) => getStoryByPlace(place.id)));
+  const collectionStories = await Promise.all(collections.map((collection) => getStoryByCollection(collection.id)));
 
-  const placeScores = places.map((place) => calculatePlaceCompleteness(place).percentage);
-  const collectionScores = collections.map(calculateCollectionCompleteness);
-  const articleScores = articles.map(calculateArticleCompleteness);
-  const eventScores = events.map(calculateEventCompleteness);
-  const dealScores = deals.map(calculateDealCompleteness);
-  const mediaScores = mediaAssets.map(calculateMediaCompleteness);
+  const placeHealth = places.map((place, index) => {
+    const inCollectionCount = collections.filter((collection) => collection.places.includes(place.id)).length;
+    const relatedArticleCount = articles.filter((article) => article.relatedPlaces.includes(place.id)).length;
+    const relatedEventCount = events.filter((event) => event.venuePlaceId === place.id).length;
+    const relatedDealCount = deals.filter((deal) => deal.placeId === place.id).length;
+    return calculateHealth("place", place, {
+      story: placeStories[index],
+      inCollectionCount,
+      relatedArticleCount,
+      relatedEventCount,
+      relatedDealCount,
+    });
+  });
+
+  const collectionHealth = collections.map((collection, index) =>
+    calculateHealth("collection", collection, {
+      story: collectionStories[index],
+    }),
+  );
+  const articleHealth = articles.map((article) => calculateHealth("article", article));
+  const eventHealth = events.map((event) => calculateHealth("event", event));
+  const dealHealth = deals.map((deal) => calculateHealth("deal", deal));
+
+  const placeScores = placeHealth.map((item) => item.healthScore);
+  const collectionScores = collectionHealth.map((item) => item.healthScore);
+  const articleScores = articleHealth.map((item) => item.healthScore);
+  const eventScores = eventHealth.map((item) => item.healthScore);
+  const dealScores = dealHealth.map((item) => item.healthScore);
+  const mediaScores = mediaAssets.map((asset) => {
+    const checks = [
+      asset.title.trim().length > 0,
+      asset.altText.trim().length > 0,
+      asset.url.trim().length > 0,
+      asset.thumbnailUrl.trim().length > 0,
+      asset.tags.length > 0,
+      asset.attachedTo.length > 0,
+    ];
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  });
 
   const readiness = {
     places: statsFromScores(placeScores),
@@ -209,37 +158,30 @@ export default async function BasecampContentStudioPage() {
   const season = inferSeason(currentDate.getMonth() + 1);
   const landscapeImage = buildLandscapeImage(currentDate);
 
-  const priorityItems = places
+  const allHealth = [...placeHealth, ...collectionHealth, ...articleHealth, ...eventHealth, ...dealHealth];
+  const launchReadyCount = allHealth.filter((item) => item.launchReadiness >= 80).length;
+  const needsPhotosCount = allHealth.filter((item) => item.photographyScore < 60).length;
+  const needsStoryCount = allHealth.filter((item) => item.storyScore < 60).length;
+  const needsRelationshipsCount = allHealth.filter((item) => item.discoveryScore < 60).length;
+  const needsSEOCount = allHealth.filter((item) => item.seoScore < 60).length;
+  const now = new Date();
+  const needsReviewCount = allHealth.filter((item) => new Date(item.nextReview).getTime() <= now.getTime()).length;
+
+  const editorialTasks = places
     .flatMap((place, index) => {
       const priorities: Array<{ id: string; label: string; href: string }> = [];
-      if (place.gallery.length < 3) {
-        priorities.push({
-          id: `${place.id}-gallery`,
-          label: `${place.name} missing gallery depth`,
-          href: `/basecamp/places/${place.id}`,
-        });
-      }
-
       if (!placeStories[index]) {
         priorities.push({
           id: `${place.id}-story`,
-          label: `${place.name} missing Story`,
+          label: `${place.name} - Missing Story`,
           href: `/basecamp/places/${place.id}`,
         });
       }
 
-      if (!collections.some((collection) => collection.places.includes(place.id))) {
+      if (place.gallery.length < 3) {
         priorities.push({
-          id: `${place.id}-collections`,
-          label: `${place.name} missing Collections`,
-          href: `/basecamp/places/${place.id}`,
-        });
-      }
-
-      if (!place.featuredImage.trim()) {
-        priorities.push({
-          id: `${place.id}-hero`,
-          label: `${place.name} missing Hero Image`,
+          id: `${place.id}-gallery`,
+          label: `${place.name} - Missing Gallery`,
           href: `/basecamp/places/${place.id}`,
         });
       }
@@ -247,14 +189,40 @@ export default async function BasecampContentStudioPage() {
       if (place.relatedPlaces.length === 0) {
         priorities.push({
           id: `${place.id}-nearby`,
-          label: `${place.name} missing Nearby Places`,
+          label: `${place.name} - Needs Nearby Places`,
+          href: `/basecamp/places/${place.id}`,
+        });
+      }
+
+      if ((placeStories[index]?.photographyTips.length ?? 0) === 0) {
+        priorities.push({
+          id: `${place.id}-photo-tips`,
+          label: `${place.name} - Needs Photography Tips`,
+          href: `/basecamp/places/${place.id}`,
+        });
+      }
+
+      if (!place.featuredImage.trim()) {
+        priorities.push({
+          id: `${place.id}-hero`,
+          label: `${place.name} - Missing Hero`,
+          href: `/basecamp/places/${place.id}`,
+        });
+      }
+
+      if (!place.seoTitle.trim() || !place.seoDescription.trim()) {
+        priorities.push({
+          id: `${place.id}-seo`,
+          label: `${place.name} - Needs SEO`,
           href: `/basecamp/places/${place.id}`,
         });
       }
 
       return priorities;
     })
-    .slice(0, 8);
+    .slice(0, 16);
+
+  const priorityItems = editorialTasks.slice(0, 8);
 
   const photoMissions = places
     .map((place) => {
@@ -301,24 +269,53 @@ export default async function BasecampContentStudioPage() {
   ];
   const studioScore = roundAverage(allScores);
 
+  const missingStoryPlace = places.find((_, index) => !placeStories[index]);
+  const missingHeroPlace = places.find((place) => !place.featuredImage.trim());
+  const missingCollectionPlace = places.find((place) => !collections.some((collection) => collection.places.includes(place.id)));
+  const missingNearbyPlace = places.find((place) => place.relatedPlaces.length === 0);
+  const missingSEOPlace = places.find((place) => !place.seoTitle.trim() || !place.seoDescription.trim());
+
   const quickActions = [
-    { label: "Add Place", href: "/basecamp/places/new" },
-    { label: "Add Collection", href: "/basecamp/collections/new" },
-    { label: "Write Article", href: "/basecamp/articles/new" },
-    { label: "Upload Media", href: "/basecamp/media" },
-    { label: "Import CSV", href: "/basecamp/import" },
+    { label: "Add Story", href: missingStoryPlace ? `/basecamp/places/${missingStoryPlace.id}` : "/basecamp/places" },
+    { label: "Add Hero", href: missingHeroPlace ? `/basecamp/places/${missingHeroPlace.id}` : "/basecamp/places" },
+    { label: "Add Collection", href: missingCollectionPlace ? `/basecamp/places/${missingCollectionPlace.id}` : "/basecamp/collections/new" },
+    { label: "Add Nearby Place", href: missingNearbyPlace ? `/basecamp/places/${missingNearbyPlace.id}` : "/basecamp/places" },
+    { label: "Write SEO", href: missingSEOPlace ? `/basecamp/places/${missingSEOPlace.id}` : "/basecamp/places" },
+  ];
+
+  const todayGoals = [
+    { title: "Improve 3 Places", current: Math.min(3, placeHealth.filter((item) => item.healthScore >= 80).length), target: 3 },
+    { title: "Publish 1 Story", current: missingStoryPlace ? 0 : 1, target: 1 },
+    { title: "Upload 10 Photos", current: Math.min(10, mediaAssets.length), target: 10 },
   ];
 
   const weeklyGoals = [
-    { title: "Places", current: places.length, target: 100 },
-    { title: "Collections", current: collections.length, target: 50 },
-    { title: "Articles", current: articles.length, target: 100 },
+    { title: "Close 10 Tasks", current: Math.max(0, 10 - Math.min(10, editorialTasks.length)), target: 10 },
+    { title: "Reach 85% Health", current: Math.min(85, studioScore), target: 85 },
+    { title: "Ship 5 Launch-Ready", current: Math.min(5, launchReadyCount), target: 5 },
+  ];
+
+  const monthlyGoals = [
+    { title: "Improve 30 Places", current: Math.min(30, placeHealth.filter((item) => item.healthScore >= 80).length), target: 30 },
+    { title: "Publish 12 Stories", current: Math.min(12, places.filter((_, index) => Boolean(placeStories[index])).length), target: 12 },
+    { title: "Upload 120 Photos", current: Math.min(120, mediaAssets.length), target: 120 },
   ];
 
   const upcomingSeasons = ["Summer", "Fall", "Winter", "Spring"].map((name) => ({
     season: name,
     topics: seasonTopics[name],
   }));
+
+  const hamiltonFallsNeeds = [
+    "Hero photo",
+    "Gallery",
+    "Drone orbit",
+    "Parking notes",
+    "GPS verified",
+    "Nearby food",
+    "Nearby lodging",
+    "Nearby collection",
+  ];
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(213,183,102,0.16),transparent_32%),linear-gradient(135deg,#f7efe1_0%,#fcfaf6_100%)] text-slate-800">
@@ -347,32 +344,27 @@ export default async function BasecampContentStudioPage() {
           <TodaysPriorities items={priorityItems} />
 
           <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold text-slate-900">Content Readiness</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-2xl font-semibold text-slate-900">Content Health Buckets</h2>
+              <Link href="/basecamp/content/report" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-white">
+                Open Content Report
+              </Link>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
-                { label: "Places", value: readiness.places },
-                { label: "Collections", value: readiness.collections },
-                { label: "Articles", value: readiness.articles },
-                { label: "Events", value: readiness.events },
-                { label: "Deals", value: readiness.deals },
-                { label: "Media", value: readiness.media },
+                { label: "Content Ready For Launch", count: launchReadyCount, detail: `${allHealth.length} tracked` },
+                { label: "Needs Photos", count: needsPhotosCount, detail: "Photography health < 60" },
+                { label: "Needs Story", count: needsStoryCount, detail: "Story health < 60" },
+                { label: "Needs Relationships", count: needsRelationshipsCount, detail: "Discovery health < 60" },
+                { label: "Needs SEO", count: needsSEOCount, detail: "SEO health < 60" },
+                { label: "Needs Review", count: needsReviewCount, detail: "Review date due" },
+                { label: "Average Place Health", count: readiness.places.average, detail: `${readiness.places.completed} ready` },
+                { label: "Average Collection Health", count: readiness.collections.average, detail: `${readiness.collections.completed} ready` },
               ].map((entry) => (
                 <article key={entry.label} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1f3b2f]">{entry.label}</p>
-                  <div className="mt-2 grid grid-cols-3 gap-3 text-sm text-slate-700">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Completed</p>
-                      <p className="text-xl font-semibold text-slate-900">{entry.value.completed}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Needs Work</p>
-                      <p className="text-xl font-semibold text-slate-900">{entry.value.needsWork}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Avg</p>
-                      <p className="text-xl font-semibold text-slate-900">{entry.value.average}%</p>
-                    </div>
-                  </div>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{entry.count}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.12em] text-slate-500">{entry.detail}</p>
                 </article>
               ))}
             </div>
@@ -389,6 +381,45 @@ export default async function BasecampContentStudioPage() {
                 <article className="rounded-2xl border border-[#ece3cf] bg-white p-5 text-sm text-slate-600">No urgent photography missions right now.</article>
               )}
             </div>
+          </section>
+
+          <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Editorial Needs Spotlight</p>
+                <h2 className="mt-2 text-2xl font-semibold text-slate-900">Hamilton Falls</h2>
+                <p className="mt-1 text-sm leading-7 text-slate-600">Waterfall · Outdoor Recreation · Jamaica, Vermont</p>
+              </div>
+              <Link href="/basecamp/places/place-hamilton-falls" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-white">
+                Open Place
+              </Link>
+            </div>
+
+            <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+              {hamiltonFallsNeeds.map((need) => (
+                <div key={need} className="rounded-xl border border-[#ece3cf] bg-[#fcfaf6] px-3 py-2 text-sm text-slate-700">
+                  <span className="mr-2 text-[#1f3b2f]">☐</span>
+                  {need}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold text-slate-900">Editorial Tasks</h2>
+            <p className="mt-1 text-sm text-slate-600">Auto-generated from content health gaps. Open any item to jump into its editor.</p>
+            {editorialTasks.length ? (
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {editorialTasks.slice(0, 12).map((task) => (
+                  <Link key={task.id} href={task.href} className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-[#d7cbb3] hover:bg-white">
+                    <span className="mr-2 text-[#1f3b2f]">☐</span>
+                    {task.label}
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-slate-600">No open editorial tasks detected.</p>
+            )}
           </section>
 
           <WritingQueue
@@ -434,9 +465,27 @@ export default async function BasecampContentStudioPage() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-900">Weekly Goals</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">Today&apos;s Goal</h2>
+            <div className="grid gap-4 md:grid-cols-3">
+              {todayGoals.map((goal) => (
+                <WeeklyGoalCard key={goal.title} title={goal.title} current={goal.current} target={goal.target} />
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-slate-900">Weekly Goal</h2>
             <div className="grid gap-4 md:grid-cols-3">
               {weeklyGoals.map((goal) => (
+                <WeeklyGoalCard key={goal.title} title={goal.title} current={goal.current} target={goal.target} />
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold text-slate-900">Monthly Goal</h2>
+            <div className="grid gap-4 md:grid-cols-3">
+              {monthlyGoals.map((goal) => (
                 <WeeklyGoalCard key={goal.title} title={goal.title} current={goal.current} target={goal.target} />
               ))}
             </div>
