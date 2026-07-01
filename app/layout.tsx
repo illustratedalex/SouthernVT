@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { BetaBanner } from "@/components/public/BetaBanner";
 import { CommandPalette } from "@/components/search/CommandPalette";
 import { RelationshipStoreProvider } from "@/components/relationships/RelationshipStoreProvider";
@@ -45,6 +46,7 @@ export default function RootLayout({
             </ToastProvider>
           </RepositoryProvider>
         </ErrorBoundary>
+        <Analytics />
       </body>
     </html>
   );
