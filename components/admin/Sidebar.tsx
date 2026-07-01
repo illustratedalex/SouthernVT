@@ -21,6 +21,7 @@ const conditionalModuleMap: Array<{ label: string; href: string; flag: FeatureFl
   { label: "Weather", href: "/basecamp/weather", flag: "weather" },
   { label: "Analytics", href: "/basecamp/analytics", flag: "analytics" },
   { label: "Partner Portal", href: "/basecamp/partner-portal", flag: "businessPortal" },
+  { label: "Business Claims", href: "/basecamp/claims", flag: "businessPortal" },
   { label: "Mapbox Features", href: "/map", flag: "mapbox" },
 ];
 

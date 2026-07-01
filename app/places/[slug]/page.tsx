@@ -28,6 +28,7 @@ import { VisitorTips } from "@/components/story/VisitorTips";
 import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
+import { isBusinessPlaceType } from "@/lib/businessClaims";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
 import { createPageMetadata, createPlaceMetadata } from "@/lib/seo";
@@ -93,6 +94,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
   const [
     reviewsEnabled,
+    businessPortalEnabled,
     approvedReviews,
     storyRecord,
     relatedPlaces,
@@ -111,6 +113,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     placeDNA,
   ] = await Promise.all([
     isFeatureEnabled("reviews"),
+    isFeatureEnabled("businessPortal"),
     getApprovedReviewsByPlaceId(place.id),
     getStoryByPlace(place.id),
     DiscoveryService.getRelatedPlaces({ placeId: place.id, limit: 8 }),
@@ -220,6 +223,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
   const reviewCount = approvedReviews.length;
   const averageRating = reviewCount ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount : 0;
+  const showClaimListingLink = businessPortalEnabled && isBusinessPlaceType(place.placeType);
   const jsonLd = placeJsonLd(place);
 
   return (
@@ -486,6 +490,11 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                 <p>{place.address || "Address not listed"}</p>
                 <p>{place.city}, {place.state} {place.zip}</p>
                 <p>Latitude {place.latitude.toFixed(4)} · Longitude {place.longitude.toFixed(4)}</p>
+                {showClaimListingLink ? (
+                  <Link href={`/claim/${place.slug}`} className="inline-flex text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f] underline underline-offset-4">
+                    Claim this listing
+                  </Link>
+                ) : null}
               </div>
             </ContentSection>
 
