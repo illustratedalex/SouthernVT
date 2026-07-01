@@ -31,6 +31,7 @@ import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { isBusinessPlaceType } from "@/lib/businessClaims";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
+import { getPlaceLayoutProfile } from "@/lib/places/placeLayoutProfiles";
 import { createPageMetadata, createPlaceMetadata } from "@/lib/seo";
 import { getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
@@ -166,12 +167,8 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   const relatedEventCount = allEvents.filter((event) => event.venuePlaceId === place.id).length;
   const relatedDealCount = allDeals.filter((deal) => deal.placeId === place.id).length;
 
-  const estimatedVisitTime = "2-3 hours";
-  const difficulty = place.metadata.waterfall?.difficulty || story.difficulty;
-  const trailLength = place.metadata.waterfall?.trailDistance || "1.2 miles round trip";
-  const swimmingLabel = place.tags.some((tag) => tag.toLowerCase().includes("swimming")) ? "Seasonal" : "No";
-  const dogsLabel = place.amenities.some((item) => item.toLowerCase().includes("pet") || item.toLowerCase().includes("dog")) ? "Allowed on leash" : "Check local rules";
-  const seasonLabel = story.season === "Year-Round" ? "Late Spring to Fall" : story.season;
+  const layoutProfile = getPlaceLayoutProfile(place);
+  const isWaterfallLayout = layoutProfile.layoutType === "waterfall";
 
   const preferredNearby = ["jamaica-state-park", "mount-equinox-skyline-drive", "windham-brewing-co", "brattleboro-farmers-market", "grafton-inn"];
   const featuredNearbyAdventures = preferredNearby
@@ -226,6 +223,12 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   const reviewCount = approvedReviews.length;
   const averageRating = reviewCount ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount : 0;
   const showClaimListingLink = businessPortalEnabled && isBusinessPlaceType(place.placeType);
+  const sidebarActions = layoutProfile.sidebarActions.filter((action) => {
+    if (action.label.toLowerCase().includes("claim")) {
+      return showClaimListingLink;
+    }
+    return true;
+  });
   const showPremiumProfile = premiumProfilesEnabled && Boolean(place.isPremium);
   const premiumGallery = (place.businessGallery?.length ? place.businessGallery : place.gallery).slice(0, 8);
   const premiumEvents = allEvents.filter((event) => event.venuePlaceId === place.id).slice(0, 3);
@@ -247,12 +250,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
         alt={place.name}
         badges={[
           place.featured ? "Flagship" : "Featured",
-          `Visit ${estimatedVisitTime}`,
-          `Difficulty ${difficulty}`,
-          `Swimming ${swimmingLabel}`,
-          `Dogs ${dogsLabel}`,
-          "Photography Friendly",
-          seasonLabel,
+          ...layoutProfile.heroBadges,
           ...(showPremiumProfile ? ["Premium Partner"] : []),
         ]}
       >
@@ -333,100 +331,92 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
           </ContentSection>
         ) : null}
 
-        <QuickFacts
-          facts={[
-            { label: "Best Season", value: seasonLabel, detail: story.bestTimeToVisit },
-            { label: "Visit Time", value: estimatedVisitTime, detail: "Allow extra time after rainfall." },
-            { label: "Trail Length", value: trailLength, detail: "Round trip from trailhead." },
-            { label: "Difficulty", value: difficulty, detail: "Steep and slick sections near the falls." },
-            { label: "Swimming", value: swimmingLabel, detail: "Water conditions shift with weather." },
-            { label: "Dogs", value: dogsLabel, detail: "Leash and trail etiquette recommended." },
-            { label: "Parking", value: "Trailhead lot", detail: "Arrive early on summer weekends." },
-            { label: "Restrooms", value: "None at falls", detail: "Nearest facilities at Jamaica State Park." },
-            { label: "Cell Service", value: "Limited", detail: "Expect weak signal in the ravine." },
-            { label: "Accessibility", value: "Not ADA accessible", detail: "Uneven trail and rocky terrain." },
-          ]}
-        />
+        <QuickFacts facts={layoutProfile.quickFacts} />
 
         <PlaceDNACard dna={placeDNA} />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="space-y-6">
-            <StoryHero story={story} eyebrow="Flagship Story" />
+            <StoryHero story={story} eyebrow={isWaterfallLayout ? "Flagship Story" : layoutProfile.contentLabels.storyEyebrow} />
             <StorySummary story={scoringStory} />
             <ContentSection
-              title="Why Visit Hamilton Falls"
-              eyebrow="Flagship Standard"
-              description="This is the benchmark destination experience for future SouthernVT place pages."
+              title={`Why Visit ${place.name}`}
+              eyebrow={isWaterfallLayout ? "Flagship Standard" : "Destination Highlights"}
+              description={isWaterfallLayout ? "This is the benchmark destination experience for future SouthernVT place pages." : layoutProfile.contentLabels.storyDescription}
             >
-              <ul className="space-y-3 text-sm leading-7 text-slate-700">
-                <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Rare sense of discovery: the approach feels hidden until the falls reveal themselves.</span></li>
-                <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Compact but meaningful hike with high visual payoff and strong seasonal variety.</span></li>
-                <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Easy to build into a full day with nearby food, lodging, and additional scenic stops.</span></li>
-              </ul>
+              {isWaterfallLayout ? (
+                <ul className="space-y-3 text-sm leading-7 text-slate-700">
+                  <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Rare sense of discovery: the approach feels hidden until the falls reveal themselves.</span></li>
+                  <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Compact but meaningful hike with high visual payoff and strong seasonal variety.</span></li>
+                  <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Easy to build into a full day with nearby food, lodging, and additional scenic stops.</span></li>
+                </ul>
+              ) : (
+                <ul className="space-y-3 text-sm leading-7 text-slate-700">
+                  {layoutProfile.visitorTips.slice(0, 3).map((tip) => (
+                    <li key={tip} className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>{tip}</span></li>
+                  ))}
+                </ul>
+              )}
             </ContentSection>
             <ContentSection
               title="Story"
               eyebrow="Editorial Field Notes"
-              description="Hamilton Falls is the benchmark for how Southern Vermont stories should feel: grounded, specific, and useful in the field."
+              description={isWaterfallLayout ? "Hamilton Falls is the benchmark for how Southern Vermont stories should feel: grounded, specific, and useful in the field." : layoutProfile.contentLabels.storyDescription}
             >
-              <div className="space-y-4 text-base leading-8 text-slate-700">
-                <p>
-                  Hamilton Falls hides in a fold of forest where the trail seems to narrow on purpose, forcing you to slow down and listen before you see anything at all.
-                  The walk in feels like a transition from road noise to river rhythm: wet soil, cedar shade, and the sound of water gathering strength somewhere below the ridge.
-                </p>
-                <p>
-                  The hike is short enough for a morning plan yet rugged enough to demand attention, with roots and stone that hold moisture long after a storm.
-                  Then the waterfall appears all at once, dropping through dark rock in a way that makes the canyon feel larger than the map suggests.
-                  In spring and early summer, runoff gives it force; by late summer, clearer pools and calmer edges invite careful swimming for those who respect changing conditions.
-                </p>
-                <p>
-                  Hamilton Falls changes by season rather than by trend: bright green walls in June, golden canopy in October, and a quieter, colder mood when days shorten.
-                  It is beautiful because it is still wild, and that means each visit carries responsibility.
-                  Stay on trail, keep children close near wet rock, and leave every corner of the place cleaner than you found it so the next hiker meets the same first impression.
-                </p>
-              </div>
+              {isWaterfallLayout ? (
+                <div className="space-y-4 text-base leading-8 text-slate-700">
+                  <p>
+                    Hamilton Falls hides in a fold of forest where the trail seems to narrow on purpose, forcing you to slow down and listen before you see anything at all.
+                    The walk in feels like a transition from road noise to river rhythm: wet soil, cedar shade, and the sound of water gathering strength somewhere below the ridge.
+                  </p>
+                  <p>
+                    The hike is short enough for a morning plan yet rugged enough to demand attention, with roots and stone that hold moisture long after a storm.
+                    Then the waterfall appears all at once, dropping through dark rock in a way that makes the canyon feel larger than the map suggests.
+                    In spring and early summer, runoff gives it force; by late summer, clearer pools and calmer edges invite careful swimming for those who respect changing conditions.
+                  </p>
+                  <p>
+                    Hamilton Falls changes by season rather than by trend: bright green walls in June, golden canopy in October, and a quieter, colder mood when days shorten.
+                    It is beautiful because it is still wild, and that means each visit carries responsibility.
+                    Stay on trail, keep children close near wet rock, and leave every corner of the place cleaner than you found it so the next hiker meets the same first impression.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4 text-base leading-8 text-slate-700">
+                  {story.body.split("\n\n").slice(0, 3).map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
             </ContentSection>
             <HistorySection story={story} />
             <div className="grid gap-6 lg:grid-cols-2">
               <VisitorTips
                 story={{
                   ...scoringStory,
-                  visitorTips: [
-                    "Wear proper footwear with grip for wet roots and exposed stone.",
-                    "Bring water and a light layer because the ravine can run cool.",
-                    "Leave no trace and pack out everything you carry in.",
-                    "Visit early for quieter trail access and easier parking.",
-                    "Watch children carefully near ledges and slick rock around the falls.",
-                  ],
+                  visitorTips: layoutProfile.visitorTips,
                 }}
               />
               <PhotographyTips
                 story={{
                   ...scoringStory,
-                  photographyTips: [
-                    "Morning light gives the clearest texture in the rock face and mist.",
-                    "The day after rainfall brings stronger flow and dramatic spray.",
-                    "Best drone launch area placeholder: open shoulder near the trailhead clearing.",
-                    "Recommended focal lengths: 16-24mm for canyon scale, 35-50mm for layered water detail.",
-                    "Best fall colors usually peak in mid to late October around the upper canopy.",
-                  ],
+                  photographyTips: layoutProfile.photographyTips,
                 }}
               />
             </div>
 
             <ContentSection
-              title="Safety Note"
-              eyebrow="Trail Conditions"
-              description="Hamilton Falls rewards preparation. Conditions can shift quickly after rain."
+              title={layoutProfile.contentLabels.safetyTitle}
+              eyebrow={isWaterfallLayout ? "Trail Conditions" : "Planning Note"}
+              description={layoutProfile.contentLabels.safetyDescription}
             >
               <p className="rounded-2xl border border-[#ecd4c7] bg-[#fff7f3] px-4 py-3 text-sm leading-7 text-[#7a341f]">
-                Use extra caution near wet rock and fast-moving water. Keep children within arm&apos;s reach near overlooks, avoid climbing beyond worn paths,
-                and turn back if flow or footing feels unstable.
+                {isWaterfallLayout
+                  ? "Use extra caution near wet rock and fast-moving water. Keep children within arm's reach near overlooks, avoid climbing beyond worn paths, and turn back if flow or footing feels unstable."
+                  : "Check hours, access, and current local conditions before arrival. Build in time for parking, seasonal variability, and local etiquette at this destination."}
               </p>
             </ContentSection>
 
-            <ContentSection title="Nearby Adventures" eyebrow="Discovery Engine" description="Build a complete day around Hamilton Falls with nearby nature, food, and overnight options.">
+            <ContentSection title="Nearby Adventures" eyebrow="Discovery Engine" description={layoutProfile.contentLabels.nearbyDescription}>
               <div className="grid gap-3 md:grid-cols-2">
                 {nearbyAdventureFeed.map((candidate) => (
                   <Link
@@ -442,7 +432,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               </div>
             </ContentSection>
 
-            <ContentSection title="Related Guides" eyebrow="Editorial Routes" description="Use these guides to turn a waterfall stop into a stronger full-day Southern Vermont itinerary.">
+            <ContentSection title="Related Guides" eyebrow="Editorial Routes" description={layoutProfile.contentLabels.guidesDescription}>
               <div className="grid gap-3 md:grid-cols-2">
                 {relatedGuidesFeed.length ? (
                   relatedGuidesFeed.map((guide) => (
@@ -462,18 +452,20 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               </div>
             </ContentSection>
 
-            <ContentSection title="SEO Snippet Preview" eyebrow="Search Result" description="How this flagship page is framed for search and social discovery.">
-              <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
-                <p className="text-sm font-semibold text-[#1a0dab]">Hamilton Falls, Vermont: Hidden Waterfall Hike, Swimming Notes, and Day Trip Guide</p>
-                <p className="mt-1 text-xs text-[#006621]">southernvt.com/places/hamilton-falls</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">
-                  Explore Hamilton Falls with clear trailhead details, parking strategy, seasonal water flow guidance, safety notes, nearby food and lodging,
-                  and a complete Southern Vermont day-trip plan.
-                </p>
-              </div>
-            </ContentSection>
+            {isWaterfallLayout ? (
+              <ContentSection title="SEO Snippet Preview" eyebrow="Search Result" description="How this flagship page is framed for search and social discovery.">
+                <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
+                  <p className="text-sm font-semibold text-[#1a0dab]">Hamilton Falls, Vermont: Hidden Waterfall Hike, Swimming Notes, and Day Trip Guide</p>
+                  <p className="mt-1 text-xs text-[#006621]">southernvt.com/places/hamilton-falls</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">
+                    Explore Hamilton Falls with clear trailhead details, parking strategy, seasonal water flow guidance, safety notes, nearby food and lodging,
+                    and a complete Southern Vermont day-trip plan.
+                  </p>
+                </div>
+              </ContentSection>
+            ) : null}
 
-            <ContentSection title="Collections" eyebrow="Featured In" description="These collection themes define the Hamilton Falls standard for reusable place storytelling.">
+            <ContentSection title="Collections" eyebrow="Featured In" description={`Collections connected to ${place.name} for reusable route planning and storytelling.`}>
               <div className="grid gap-3 md:grid-cols-3">
                 {featuredCollectionEntries.map((collection) => (
                   <Link
@@ -488,33 +480,33 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               </div>
             </ContentSection>
 
-            <ContentSection title="Suggested Day Trip" eyebrow="Route Builder" description="A practical one-day rhythm anchored by Hamilton Falls.">
+            <ContentSection title="Suggested Day Trip" eyebrow="Route Builder" description={`A practical one-day rhythm anchored by ${place.name}.`}>
               <ol className="space-y-3 text-sm leading-7 text-slate-700">
-                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Morning:</strong> Hamilton Falls trail and waterfall overlook.</li>
-                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Lunch:</strong> Nearby cafe stop in Jamaica or Brattleboro village corridor.</li>
-                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Afternoon:</strong> Covered bridge loop and short riverside walk.</li>
-                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Dinner:</strong> Brattleboro downtown dining and market district.</li>
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Morning:</strong> Start at {place.name} and settle into the destination rhythm.</li>
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Lunch:</strong> Nearby local cafe or market stop.</li>
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Afternoon:</strong> Add a nearby scenic or village experience.</li>
+                <li className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] px-4 py-3"><strong className="text-slate-900">Evening:</strong> Wrap with local dining or lodging based on your route.</li>
               </ol>
             </ContentSection>
 
             <ContentSection title="Map" eyebrow="Field Navigation" description="Marker placeholders show the intended orientation for arrival and on-foot navigation.">
               <div className="rounded-3xl border border-[#ece3cf] bg-[linear-gradient(135deg,#eef4eb_0%,#f8f3e6_100%)] p-5">
                 <div className="mb-4 rounded-2xl border border-[#d9ceb7] bg-white/80 p-4 text-sm leading-7 text-slate-700">
-                  <p><strong className="text-slate-900">Parking:</strong> Use the signed trailhead lot; do not block shoulder turnarounds.</p>
-                  <p><strong className="text-slate-900">Trailhead:</strong> Begin on the main marked path and stay on established tread near ravine edges.</p>
+                  <p><strong className="text-slate-900">Parking:</strong> Confirm on-site or nearby parking availability before arrival.</p>
+                  <p><strong className="text-slate-900">Arrival:</strong> Use local access guidance and posted destination signage.</p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-3">
                   <div className="rounded-2xl bg-white/80 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Parking Marker</p>
-                    <p className="mt-2 text-sm text-slate-700">Trailhead parking area near access road.</p>
+                    <p className="mt-2 text-sm text-slate-700">Primary arrival and parking orientation.</p>
                   </div>
                   <div className="rounded-2xl bg-white/80 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Trailhead Marker</p>
-                    <p className="mt-2 text-sm text-slate-700">Primary path entry into forest approach.</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Destination Marker</p>
+                    <p className="mt-2 text-sm text-slate-700">Main destination reference point.</p>
                   </div>
                   <div className="rounded-2xl bg-white/80 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Waterfall Marker</p>
-                    <p className="mt-2 text-sm text-slate-700">Main overlook and plunge feature.</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-pine)">Nearby Marker</p>
+                    <p className="mt-2 text-sm text-slate-700">Connected stop or nearby waypoint.</p>
                   </div>
                 </div>
                 <p className="mt-4 text-xs uppercase tracking-[0.12em] text-slate-500">
@@ -557,6 +549,20 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
             <StorySidebar story={story} />
+
+            <ContentSection title="Quick Actions" eyebrow="Plan" description="Common actions for this destination.">
+              <div className="grid gap-2">
+                {sidebarActions.map((action) => (
+                  <Link
+                    key={action.label}
+                    href={action.href}
+                    className="inline-flex rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
+                  >
+                    {action.label}
+                  </Link>
+                ))}
+              </div>
+            </ContentSection>
 
             <ContentSection title="Location" eyebrow="Find it" description="Pinpoint the stop before heading out.">
               <div className="space-y-2 text-sm leading-7 text-slate-700">
@@ -629,22 +635,22 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-12 sm:px-8 lg:grid-cols-2 lg:px-10">
         <PublicCTA
           eyebrow="Call To Action"
-          title={`Build a day around ${place.name}`}
-          description="Use this flagship page as your trip anchor, then branch into collections, events, and nearby food or lodging."
-          href="/planner/new"
-          label="Build a Trip"
-          secondaryHref={`/places/${place.slug}`}
-          secondaryLabel="Save Place"
+          title={layoutProfile.primaryCTA.title}
+          description={layoutProfile.primaryCTA.description}
+          href={layoutProfile.primaryCTA.href}
+          label={layoutProfile.primaryCTA.label}
+          secondaryHref={layoutProfile.primaryCTA.secondaryHref}
+          secondaryLabel={layoutProfile.primaryCTA.secondaryLabel}
         />
 
         <PublicCTA
           eyebrow="Next actions"
-          title="Keep exploring Southern Vermont"
-          description="Jump into Explorer Mode for discovery-driven routing or check in to your Passport to track progress."
-          href="/explorer"
-          label="Explorer Mode"
-          secondaryHref={`/passport/check-in/${place.id}`}
-          secondaryLabel="Passport"
+          title={layoutProfile.secondaryCTA.title}
+          description={layoutProfile.secondaryCTA.description}
+          href={layoutProfile.secondaryCTA.href}
+          label={layoutProfile.secondaryCTA.label}
+          secondaryHref={layoutProfile.secondaryCTA.secondaryHref}
+          secondaryLabel={layoutProfile.secondaryCTA.secondaryLabel}
         />
       </section>
 

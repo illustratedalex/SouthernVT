@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore, useState } from "react";
 
 const DISMISS_KEY = "southernvt-beta-banner-dismissed";
 
@@ -10,17 +10,30 @@ function isPublicPath(pathname: string): boolean {
   return !pathname.startsWith("/basecamp") && !pathname.startsWith("/partner-portal") && !pathname.startsWith("/admin");
 }
 
+// useSyncExternalStore requires a subscribe function; localStorage has no change events,
+// so we return a no-op unsubscribe.
+const noopSubscribe = () => () => {};
+
+function getStoredDismissed() {
+  try {
+    return window.localStorage.getItem(DISMISS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function getServerDismissed() {
+  return false;
+}
+
 export function BetaBanner() {
   const pathname = usePathname();
-  const [dismissed, setDismissed] = useState(false);
+  // Track dismiss clicks that happen in the current session.
+  const [manualDismissed, setManualDismissed] = useState(false);
+  // Read persisted dismissal from localStorage without calling setState inside an effect.
+  const storedDismissed = useSyncExternalStore(noopSubscribe, getStoredDismissed, getServerDismissed);
 
-  useEffect(() => {
-    try {
-      setDismissed(window.localStorage.getItem(DISMISS_KEY) === "1");
-    } catch {
-      setDismissed(false);
-    }
-  }, []);
+  const dismissed = storedDismissed || manualDismissed;
 
   if (!isPublicPath(pathname) || dismissed) {
     return null;
@@ -38,7 +51,7 @@ export function BetaBanner() {
         <button
           type="button"
           onClick={() => {
-            setDismissed(true);
+            setManualDismissed(true);
             try {
               window.localStorage.setItem(DISMISS_KEY, "1");
             } catch {
