@@ -19,6 +19,9 @@ export interface PartnerDashboardStats {
   passportCheckIns: number;
   upcomingEvents: number;
   profileCompleteness: number;
+  profileViews?: number;
+  passportVisits?: number;
+  dealViews?: number;
 }
 
 export interface PartnerPortalActivityItem {

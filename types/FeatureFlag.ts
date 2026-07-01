@@ -7,6 +7,7 @@ export type FeatureFlagKey =
   | "mapbox"
   | "supabase"
   | "businessPortal"
+  | "premiumProfiles"
   | "events"
   | "publicCollections"
   | "publicPlaces";

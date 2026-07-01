@@ -26,6 +26,9 @@ export const mockPlaces: Place[] = [
     ],
     amenities: ["Parking", "Trail Access", "Picnic Area", "GPS Verified"],
     featured: true,
+    isPremium: false,
+    verifiedBusiness: false,
+    ownerClaimed: false,
     status: "published",
     metadata: {
       waterfall: {
@@ -36,6 +39,7 @@ export const mockPlaces: Place[] = [
       },
     },
     relatedPlaces: ["place-jamaica-state-park", "place-putney-mountain"],
+    sponsorLevel: "bronze",
     seoTitle: "Hamilton Falls | Southern Vermont Waterfall Guide",
     seoDescription: "Visit Hamilton Falls in southern Vermont for a scenic hike and a classic waterfall view.",
     createdAt: "2026-05-10T09:00:00.000Z",
@@ -63,6 +67,9 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Parking", "Restrooms", "Swimming"],
     featured: true,
+    isPremium: false,
+    verifiedBusiness: false,
+    ownerClaimed: false,
     status: "published",
     metadata: {
       trail: {
@@ -100,6 +107,9 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Parking", "Restrooms", "Family Friendly"],
     featured: false,
+    isPremium: false,
+    verifiedBusiness: false,
+    ownerClaimed: false,
     status: "published",
     metadata: {},
     relatedPlaces: ["place-vermont-country-store", "place-bellows-falls-downtown"],
@@ -130,6 +140,19 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Parking", "Accessible", "Family Friendly"],
     featured: true,
+    isPremium: true,
+    premiumExpires: "2027-06-30T00:00:00.000Z",
+    verifiedBusiness: true,
+    ownerClaimed: true,
+    sponsorLevel: "gold",
+    ownerMessage: "We have welcomed families to Weston for generations and love helping visitors discover local Vermont traditions.",
+    businessVideo: "https://www.youtube.com/watch?v=placeholder-vermont-country-store",
+    businessGallery: [
+      "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1481437156560-3205f6a55735?auto=format&fit=crop&w=1200&q=80",
+    ],
+    ctaButton: "Shop Now",
+    ctaUrl: "https://www.vermontcountrystore.com",
     status: "published",
     metadata: {
       shop: {
@@ -166,6 +189,9 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Parking", "Outdoor Seating", "Reservations"],
     featured: false,
+    isPremium: false,
+    verifiedBusiness: false,
+    ownerClaimed: false,
     status: "published",
     metadata: {},
     relatedPlaces: ["place-brattleboro-farmers-market", "place-vermont-country-store"],
@@ -196,6 +222,9 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Parking", "Scenic Views"],
     featured: true,
+    isPremium: false,
+    verifiedBusiness: false,
+    ownerClaimed: false,
     status: "published",
     metadata: {},
     relatedPlaces: ["place-grafton-inn", "place-vermont-country-store"],
@@ -226,6 +255,19 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Breakfast", "Parking", "Pet Friendly"],
     featured: false,
+    isPremium: true,
+    premiumExpires: "2027-12-31T00:00:00.000Z",
+    verifiedBusiness: true,
+    ownerClaimed: true,
+    sponsorLevel: "platinum",
+    ownerMessage: "Our team is excited to welcome travelers exploring Southern Vermont village life year-round.",
+    businessVideo: "https://www.youtube.com/watch?v=placeholder-grafton-inn",
+    businessGallery: [
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=1200&q=80",
+    ],
+    ctaButton: "Book Your Stay",
+    ctaUrl: "https://graftoninnvermont.com",
     status: "draft",
     metadata: {
       hotel: {
@@ -262,6 +304,9 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Parking", "Dogs Allowed"],
     featured: false,
+    isPremium: false,
+    verifiedBusiness: false,
+    ownerClaimed: false,
     status: "published",
     metadata: {
       trail: {
@@ -299,6 +344,9 @@ export const mockPlaces: Place[] = [
     gallery: ["https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=80"],
     amenities: ["Parking", "Walkable", "Family Friendly"],
     featured: false,
+    isPremium: false,
+    verifiedBusiness: false,
+    ownerClaimed: false,
     status: "draft",
     metadata: {
       shop: {

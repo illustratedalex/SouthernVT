@@ -1,4 +1,5 @@
 import { mockRelationships } from "@/data/relationships";
+import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getEdges as getKnowledgeEdges } from "@/lib/repositories/KnowledgeGraphRepository";
 import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
@@ -62,6 +63,7 @@ function graphKey(fromNodeId: string, toNodeId: string): string {
 }
 
 let knowledgeGraphIndexPromise: Promise<Map<string, number>> | null = null;
+let premiumProfilesEnabledPromise: Promise<boolean> | null = null;
 
 async function getKnowledgeGraphIndex(): Promise<Map<string, number>> {
   if (knowledgeGraphIndexPromise) {
@@ -77,6 +79,14 @@ async function getKnowledgeGraphIndex(): Promise<Map<string, number>> {
   });
 
   return knowledgeGraphIndexPromise;
+}
+
+async function premiumProfilesEnabled(): Promise<boolean> {
+  if (!premiumProfilesEnabledPromise) {
+    premiumProfilesEnabledPromise = isFeatureEnabled("premiumProfiles");
+  }
+
+  return premiumProfilesEnabledPromise;
 }
 
 function graphBoost(fromType: GraphType, fromId: string, toType: GraphType, toId: string, graphIndex?: Map<string, number>): number {
@@ -210,9 +220,10 @@ export const DiscoveryService = {
       return places.filter((place) => place.id !== placeId).slice(0, limit);
     }
 
-    const [anchorCollections, anchorStory] = await Promise.all([
+    const [anchorCollections, anchorStory, premiumEnabled] = await Promise.all([
       Promise.resolve(collections.filter((collection) => collection.places.includes(anchor.id))),
       getStoryByPlace(anchor.id),
+      premiumProfilesEnabled(),
     ]);
 
     const scored: Array<Scored<Place>> = [];
@@ -225,12 +236,13 @@ export const DiscoveryService = {
       const categoryScore = overlapCount(anchor.categories, candidate.categories) * 5;
       const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id, graphIndex);
       const featuredScore = candidate.featured ? 6 : 0;
+      const premiumScore = premiumEnabled && candidate.isPremium ? 4 : 0;
       const collectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 10;
       const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
 
       scored.push({
         item: candidate,
-        score: distanceScore + tagScore + categoryScore + relationshipScore + featuredScore + collectionScore + storyScore,
+        score: distanceScore + tagScore + categoryScore + relationshipScore + featuredScore + premiumScore + collectionScore + storyScore,
       });
     }
 
@@ -248,11 +260,12 @@ export const DiscoveryService = {
       return places.filter((place) => place.status === "published").slice(0, limit);
     }
 
-    const [anchorCollections, anchorArticles, anchorStory, anchorDNA] = await Promise.all([
+    const [anchorCollections, anchorArticles, anchorStory, anchorDNA, premiumEnabled] = await Promise.all([
       Promise.resolve(collections.filter((collection) => collection.places.includes(anchor.id))),
       Promise.resolve(articles.filter((article) => article.relatedPlaces.includes(anchor.id))),
       getStoryByPlace(anchor.id),
       getPlaceDNA(anchor.id),
+      premiumProfilesEnabled(),
     ]);
 
     const scored: Array<Scored<Place>> = [];
@@ -264,12 +277,13 @@ export const DiscoveryService = {
       const sharedCollectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 12;
       const sharedArticleScore = anchorArticles.filter((article) => article.relatedPlaces.includes(candidate.id)).length * 8;
       const featuredScore = candidate.featured ? 5 : 0;
+      const premiumScore = premiumEnabled && candidate.isPremium ? 4 : 0;
       const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
       const dnaScore = anchorDNA && candidateDNA ? dnaMoodBoost(anchorDNA.moods, candidateDNA.moods) : 0;
 
       scored.push({
         item: candidate,
-        score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore + storyScore + dnaScore,
+        score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore + premiumScore + storyScore + dnaScore,
       });
     }
 

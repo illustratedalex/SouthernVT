@@ -3,7 +3,9 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { RecommendationRail } from "@/components/recommendation/RecommendationRail";
 import { ExperienceService } from "@/lib/experience/ExperienceService";
+import { isFeatureEnabled } from "@/lib/featureFlags";
 import { createPageMetadata } from "@/lib/seo";
+import { getPlaces } from "@/repositories/PlaceRepository";
 
 export const metadata = createPageMetadata({
   title: "Southern Vermont | Travel & Adventure",
@@ -12,7 +14,16 @@ export const metadata = createPageMetadata({
 });
 
 export default async function Home() {
-  const feed = await ExperienceService.getHomeFeed(6);
+  const [feed, premiumProfilesEnabled, places] = await Promise.all([
+    ExperienceService.getHomeFeed(6),
+    isFeatureEnabled("premiumProfiles"),
+    getPlaces(),
+  ]);
+
+  const premiumPartners = places
+    .filter((place) => place.status === "published" && place.isPremium)
+    .sort((a, b) => (b.sponsorLevel ?? "").localeCompare(a.sponsorLevel ?? ""))
+    .slice(0, 8);
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
@@ -55,6 +66,21 @@ export default async function Home() {
             ))}
           </div>
         </section>
+
+        {premiumProfilesEnabled && premiumPartners.length ? (
+          <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Featured Partners</p>
+            <div className="mt-4 flex gap-4 overflow-x-auto pb-2">
+              {premiumPartners.map((partner) => (
+                <Link key={partner.id} href={`/places/${partner.slug}`} className="min-w-72 rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4 hover:bg-white">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7c5b13]">Premium {partner.sponsorLevel ?? "partner"}</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-900">{partner.name}</p>
+                  <p className="mt-1 text-sm text-slate-600">{partner.city}, {partner.state}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {feed.rails.map((rail) => (
           <RecommendationRail

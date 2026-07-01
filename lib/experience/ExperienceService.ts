@@ -1,5 +1,6 @@
 import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { DiscoveryService, type NextAdventure } from "@/lib/discovery/DiscoveryService";
+import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getPlaces } from "@/repositories/PlaceRepository";
 import type { Recommendation } from "@/types/Recommendation";
 import type { RecommendationReason } from "@/types/RecommendationReason";
@@ -79,11 +80,12 @@ export const ExperienceService = {
     const month = new Date().getMonth() + 1;
     const season = inferSeason(month);
 
-    const [dailyAdventure, allPlaces, seasonalEngine, discoverMode] = await Promise.all([
+    const [dailyAdventure, allPlaces, seasonalEngine, discoverMode, premiumProfilesEnabled] = await Promise.all([
       DiscoveryService.getNextAdventure(),
       getPlaces(),
       CompassEngine.recommendForSeason(season, limitPerRail),
       CompassEngine.recommendAdventure(limitPerRail),
+      isFeatureEnabled("premiumProfiles"),
     ]);
 
     const publishedPlaces = allPlaces.filter((place) => place.status === "published");
@@ -126,7 +128,17 @@ export const ExperienceService = {
         weight: 10,
       },
       10,
-    );
+    ).map((recommendation) => {
+      if (premiumProfilesEnabled && recommendation.item.isPremium) {
+        return {
+          ...recommendation,
+          score: recommendation.score + 3,
+          reasons: [{ code: "featured" as const, message: "Premium partner featured section boost.", weight: 3 }, ...recommendation.reasons],
+        };
+      }
+
+      return recommendation;
+    });
 
     const recentlyAddedCandidates = [...publishedPlaces]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())

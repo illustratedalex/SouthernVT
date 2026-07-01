@@ -64,6 +64,7 @@ async function buildSearchIndex(): Promise<SearchResult[]> {
       subtitle: `${place.placeType} · ${place.city}, ${place.state}`,
       type: "place",
       url: `/places/${place.slug}`,
+      premium: Boolean(place.isPremium),
       keywords: [
         place.name,
         place.description,
@@ -144,6 +145,9 @@ function getScore(query: string, item: SearchResult) {
     if (title.includes(token)) score += 2;
     if (keywordText.includes(token)) score += 1;
   }
+
+  // Premium gets a small weighted boost, but does not dominate relevance.
+  if (item.premium && score > 0) score += 2;
 
   return score;
 }

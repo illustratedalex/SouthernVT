@@ -1,5 +1,7 @@
 export type PlaceStatus = "draft" | "review" | "scheduled" | "published" | "archived";
 
+export type SponsorLevel = "bronze" | "silver" | "gold" | "platinum";
+
 export type PlaceType =
   | "Restaurant"
   | "Waterfall"
@@ -67,6 +69,16 @@ export interface Place {
   status: PlaceStatus;
   metadata: PlaceMetadata;
   relatedPlaces: string[];
+  isPremium?: boolean;
+  premiumExpires?: string;
+  verifiedBusiness?: boolean;
+  ownerClaimed?: boolean;
+  sponsorLevel?: SponsorLevel;
+  ownerMessage?: string;
+  businessVideo?: string;
+  businessGallery?: string[];
+  ctaButton?: string;
+  ctaUrl?: string;
   seoTitle: string;
   seoDescription: string;
   createdAt: string;

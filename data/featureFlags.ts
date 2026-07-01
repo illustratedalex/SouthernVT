@@ -74,6 +74,15 @@ export const mockFeatureFlags: FeatureFlag[] = [
     updatedAt: "2026-06-28T09:00:00.000Z",
   },
   {
+    key: "premiumProfiles",
+    label: "Premium Profiles",
+    description: "Enables premium business profile blocks, boosts, and partner dashboard indicators.",
+    enabled: false,
+    environment: "development",
+    createdAt: "2026-06-28T09:00:00.000Z",
+    updatedAt: "2026-06-28T09:00:00.000Z",
+  },
+  {
     key: "publicCollections",
     label: "Public Collections",
     description: "Shows the public collections directory and detail routes.",

@@ -15,6 +15,9 @@ export const mockPartnerDashboardStats: PartnerDashboardStats = {
   passportCheckIns: 89,
   upcomingEvents: 2,
   profileCompleteness: 84,
+  profileViews: 1842,
+  passportVisits: 89,
+  dealViews: 624,
 };
 
 export const mockPartnerRecentActivity: PartnerPortalActivityItem[] = [

@@ -95,6 +95,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   const [
     reviewsEnabled,
     businessPortalEnabled,
+    premiumProfilesEnabled,
     approvedReviews,
     storyRecord,
     relatedPlaces,
@@ -114,6 +115,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   ] = await Promise.all([
     isFeatureEnabled("reviews"),
     isFeatureEnabled("businessPortal"),
+    isFeatureEnabled("premiumProfiles"),
     getApprovedReviewsByPlaceId(place.id),
     getStoryByPlace(place.id),
     DiscoveryService.getRelatedPlaces({ placeId: place.id, limit: 8 }),
@@ -224,6 +226,10 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   const reviewCount = approvedReviews.length;
   const averageRating = reviewCount ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount : 0;
   const showClaimListingLink = businessPortalEnabled && isBusinessPlaceType(place.placeType);
+  const showPremiumProfile = premiumProfilesEnabled && Boolean(place.isPremium);
+  const premiumGallery = (place.businessGallery?.length ? place.businessGallery : place.gallery).slice(0, 8);
+  const premiumEvents = allEvents.filter((event) => event.venuePlaceId === place.id).slice(0, 3);
+  const premiumDeals = allDeals.filter((deal) => deal.placeId === place.id).slice(0, 3);
   const jsonLd = placeJsonLd(place);
 
   return (
@@ -247,6 +253,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
           `Dogs ${dogsLabel}`,
           "Photography Friendly",
           seasonLabel,
+          ...(showPremiumProfile ? ["Premium Partner"] : []),
         ]}
       >
         <div className="space-y-4">
@@ -260,6 +267,72 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
       </HeroImage>
 
       <section className="mx-auto max-w-7xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
+        {showPremiumProfile ? (
+          <ContentSection
+            title="Premium Business Profile"
+            eyebrow="Premium Partner"
+            description="Enhanced profile experience for verified business partners."
+          >
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-[#d9bf72] bg-[#fff3d4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#7c5b13]">Premium</span>
+                {place.verifiedBusiness ? <span className="rounded-full border border-[#cde8d6] bg-[#ecf8f0] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#1f5a3d]">Verified Business</span> : null}
+                {place.sponsorLevel ? <span className="rounded-full border border-[#e8dfc8] bg-[#fcfaf6] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">Sponsor {place.sponsorLevel}</span> : null}
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                {premiumGallery.length ? premiumGallery.map((image, index) => (
+                  <img key={`${image}-${index}`} src={image} alt={`${place.name} premium gallery ${index + 1}`} className="h-44 w-full rounded-2xl object-cover" />
+                )) : <p className="text-sm text-slate-600">Image carousel placeholder</p>}
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Business Video</p>
+                  <p className="mt-2 text-sm text-slate-600">{place.businessVideo ? place.businessVideo : "Video placeholder"}</p>
+                </div>
+                <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Featured Story</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700">{scoringStory.summary}</p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-[#e8dfc8] bg-white p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Business Spotlight</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700">{place.description}</p>
+                </div>
+                <div className="rounded-2xl border border-[#e8dfc8] bg-white p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Owner Message</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700">{place.ownerMessage || "Owner message placeholder"}</p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-[#e8dfc8] bg-white p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Special Offers</p>
+                  <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                    {premiumDeals.length ? premiumDeals.map((deal) => <li key={deal.id}>{deal.title}</li>) : <li>Special offers placeholder</li>}
+                  </ul>
+                </div>
+                <div className="rounded-2xl border border-[#e8dfc8] bg-white p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Upcoming Events</p>
+                  <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                    {premiumEvents.length ? premiumEvents.map((event) => <li key={event.id}>{event.title}</li>) : <li>Upcoming events placeholder</li>}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <a href={place.ctaUrl || "#"} className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-3 text-sm font-semibold text-[#f8f2e4]">
+                  {place.ctaButton || "Book now"}
+                </a>
+                <span className="inline-flex rounded-full border border-[#d7cbb3] px-5 py-3 text-sm font-semibold text-slate-700">Book now placeholder</span>
+              </div>
+            </div>
+          </ContentSection>
+        ) : null}
+
         <QuickFacts
           facts={[
             { label: "Best Season", value: seasonLabel, detail: story.bestTimeToVisit },

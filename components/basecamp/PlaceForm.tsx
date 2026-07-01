@@ -12,7 +12,7 @@ import { addSessionActivityEvent, addSessionWorkflowEvent } from "@/lib/basecamp
 import { placeRepository } from "@/lib/repositories/placeRepository";
 import { executeWriteWithQueueFallback } from "@/lib/services";
 import { validatePlaceForm } from "@/lib/validation/basecampForms";
-import type { Place, PlaceMetadata, PlaceStatus, PlaceType } from "@/types/Place";
+import type { Place, PlaceMetadata, PlaceStatus, PlaceType, SponsorLevel } from "@/types/Place";
 import type { ContentStatus } from "@/types/Workflow";
 import { PlaceGallery } from "./PlaceGallery";
 import { PlacePreview } from "./PlacePreview";
@@ -26,7 +26,7 @@ interface PlaceFormProps {
   initialPlace?: Place;
 }
 
-type TabKey = "basic" | "location" | "media" | "categories" | "details" | "knowledge" | "seo" | "preview";
+type TabKey = "basic" | "location" | "media" | "categories" | "details" | "premium" | "knowledge" | "seo" | "preview";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "basic", label: "Basic" },
@@ -34,10 +34,13 @@ const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "media", label: "Media" },
   { key: "categories", label: "Categories" },
   { key: "details", label: "Details" },
+  { key: "premium", label: "Premium" },
   { key: "knowledge", label: "Knowledge Graph" },
   { key: "seo", label: "SEO" },
   { key: "preview", label: "Preview" },
 ];
+
+const sponsorLevels: SponsorLevel[] = ["bronze", "silver", "gold", "platinum"];
 
 const placeTypes: PlaceType[] = [
   "Restaurant",
@@ -145,6 +148,16 @@ function createEmptyPlace(): Place {
     gallery: [],
     amenities: [],
     featured: false,
+    isPremium: false,
+    premiumExpires: "",
+    verifiedBusiness: false,
+    ownerClaimed: false,
+    sponsorLevel: "bronze",
+    ownerMessage: "",
+    businessVideo: "",
+    businessGallery: [],
+    ctaButton: "",
+    ctaUrl: "",
     status: "draft",
     metadata: {},
     relatedPlaces: [],
@@ -587,6 +600,83 @@ export function PlaceForm({ initialPlace }: PlaceFormProps) {
                 ) : (
                   <p className="text-sm text-slate-500">This place type does not need extra metadata fields.</p>
                 )}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {activeTab === "premium" ? (
+          <section className="space-y-6 rounded-4xl border border-[#e8dfc8] bg-white/80 p-6 shadow-[0_20px_80px_rgba(31,59,47,0.08)] backdrop-blur">
+            <div className="rounded-3xl border border-[#e8dfc8] bg-[#fcfaf6] p-5">
+              <h3 className="text-lg font-semibold text-slate-900">Premium Profile</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-600">Configure sponsorship and enhanced public profile blocks for business listings.</p>
+
+              <div className="mt-5 grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Sponsor Level</label>
+                  <select
+                    value={place.sponsorLevel ?? "bronze"}
+                    onChange={(event) => updateField("sponsorLevel", event.target.value as SponsorLevel)}
+                    className="h-14 w-full rounded-full border border-(--color-pine)/25 bg-white px-4 text-base text-(--color-slate) outline-none transition focus:border-(--color-maple-gold) focus:ring-2 focus:ring-(--color-maple-gold)/20"
+                  >
+                    {sponsorLevels.map((level) => (
+                      <option key={level} value={level}>{level}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Featured Until</label>
+                  <Input type="date" value={(place.premiumExpires ?? "").slice(0, 10)} onChange={(event) => updateField("premiumExpires", event.target.value)} />
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2">
+                <label className="flex items-center gap-3 rounded-full border border-[#e8dfc8] bg-white px-4 py-3 text-sm text-slate-700">
+                  <input type="checkbox" checked={Boolean(place.isPremium)} onChange={(event) => updateField("isPremium", event.target.checked)} />
+                  Premium Enabled
+                </label>
+                <label className="flex items-center gap-3 rounded-full border border-[#e8dfc8] bg-white px-4 py-3 text-sm text-slate-700">
+                  <input type="checkbox" checked={Boolean(place.verifiedBusiness)} onChange={(event) => updateField("verifiedBusiness", event.target.checked)} />
+                  Verified Business
+                </label>
+                <label className="flex items-center gap-3 rounded-full border border-[#e8dfc8] bg-white px-4 py-3 text-sm text-slate-700 md:col-span-2">
+                  <input type="checkbox" checked={Boolean(place.ownerClaimed)} onChange={(event) => updateField("ownerClaimed", event.target.checked)} />
+                  Owner Claimed
+                </label>
+              </div>
+
+              <div className="mt-5 grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Business Video</label>
+                  <Input value={place.businessVideo ?? ""} onChange={(event) => updateField("businessVideo", event.target.value)} placeholder="https://..." />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Business Gallery</label>
+                  <Input value={(place.businessGallery ?? []).join(", ")} onChange={(event) => updateField("businessGallery", parseList(event.target.value))} placeholder="Comma separated image URLs" />
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">CTA Button</label>
+                  <Input value={place.ctaButton ?? ""} onChange={(event) => updateField("ctaButton", event.target.value)} placeholder="Book now" />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">CTA URL</label>
+                  <Input value={place.ctaUrl ?? ""} onChange={(event) => updateField("ctaUrl", event.target.value)} placeholder="https://..." />
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Owner Message</label>
+                <textarea
+                  rows={4}
+                  value={place.ownerMessage ?? ""}
+                  onChange={(event) => updateField("ownerMessage", event.target.value)}
+                  className="w-full rounded-3xl border border-(--color-pine)/25 bg-white px-4 py-4 text-base text-(--color-slate) outline-none transition focus:border-(--color-maple-gold) focus:ring-2 focus:ring-(--color-maple-gold)/20"
+                  placeholder="Share a short owner spotlight message."
+                />
               </div>
             </div>
           </section>

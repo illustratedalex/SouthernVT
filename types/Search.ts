@@ -7,6 +7,7 @@ export interface SearchResult {
   type: SearchResultType;
   url: string;
   keywords: string[];
+  premium?: boolean;
 }
 
 export interface GroupedSearchResults {

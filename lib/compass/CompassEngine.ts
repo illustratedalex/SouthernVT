@@ -1,5 +1,6 @@
 import { mockRelationships } from "@/data/relationships";
 import { calculatePlaceCompleteness } from "@/lib/completeness/placeCompleteness";
+import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getEdges as getKnowledgeEdges } from "@/lib/repositories/KnowledgeGraphRepository";
 import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
@@ -116,6 +117,16 @@ async function relationshipWeight(fromId: string, toId: string): Promise<number>
 
 function reason(message: string, code: RecommendationReason["code"], weight: number): RecommendationReason {
   return { message, code, weight };
+}
+
+let premiumProfilesEnabledPromise: Promise<boolean> | null = null;
+
+async function premiumProfilesEnabled() {
+  if (!premiumProfilesEnabledPromise) {
+    premiumProfilesEnabledPromise = isFeatureEnabled("premiumProfiles");
+  }
+
+  return premiumProfilesEnabledPromise;
 }
 
 function sortRecommendations<T>(items: Recommendation<T>[], limit: number): Recommendation<T>[] {
@@ -253,6 +264,11 @@ export const CompassEngine = {
     if (place.featured) {
       score += 8;
       reasons.push(reason("Featured by SouthernVT editors.", "featured", 8));
+    }
+
+    if ((await premiumProfilesEnabled()) && place.isPremium) {
+      score += 4;
+      reasons.push(reason("Premium partner profile boost.", "featured", 4));
     }
 
     const completeness = calculatePlaceCompleteness(place).percentage;
