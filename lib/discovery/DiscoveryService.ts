@@ -1,4 +1,5 @@
 import { mockRelationships } from "@/data/relationships";
+import { getEdges as getKnowledgeEdges } from "@/lib/repositories/KnowledgeGraphRepository";
 import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
@@ -56,8 +57,30 @@ function distanceMiles(lat1: number, lon1: number, lat2: number, lon2: number): 
   return earthRadiusMiles * c;
 }
 
-function graphBoost(fromType: GraphType, fromId: string, toType: GraphType, toId: string): number {
-  return mockRelationships.reduce((score, relationship) => {
+function graphKey(fromNodeId: string, toNodeId: string): string {
+  return `${fromNodeId}->${toNodeId}`;
+}
+
+let knowledgeGraphIndexPromise: Promise<Map<string, number>> | null = null;
+
+async function getKnowledgeGraphIndex(): Promise<Map<string, number>> {
+  if (knowledgeGraphIndexPromise) {
+    return knowledgeGraphIndexPromise;
+  }
+
+  knowledgeGraphIndexPromise = getKnowledgeEdges().then((edges) => {
+    const map = new Map<string, number>();
+    edges.forEach((edge) => {
+      map.set(graphKey(edge.fromNodeId, edge.toNodeId), (map.get(graphKey(edge.fromNodeId, edge.toNodeId)) ?? 0) + edge.weight);
+    });
+    return map;
+  });
+
+  return knowledgeGraphIndexPromise;
+}
+
+function graphBoost(fromType: GraphType, fromId: string, toType: GraphType, toId: string, graphIndex?: Map<string, number>): number {
+  const relationshipScore = mockRelationships.reduce((score, relationship) => {
     const directMatch =
       relationship.fromType === fromType &&
       relationship.fromId === fromId &&
@@ -88,6 +111,15 @@ function graphBoost(fromType: GraphType, fromId: string, toType: GraphType, toId
         return score + 10;
     }
   }, 0);
+
+  if (!graphIndex) {
+    return relationshipScore;
+  }
+
+  const fromNodeId = `${fromType}:${fromId}`;
+  const toNodeId = `${toType}:${toId}`;
+  const graphScore = (graphIndex.get(graphKey(fromNodeId, toNodeId)) ?? 0) + (graphIndex.get(graphKey(toNodeId, fromNodeId)) ?? 0);
+  return relationshipScore + Math.round(graphScore * 0.6);
 }
 
 function sortScored<T>(entries: Array<Scored<T>>, limit: number): T[] {
@@ -171,6 +203,7 @@ export const DiscoveryService = {
   async getNearbyPlaces(placeId: string, limit = 4): Promise<Place[]> {
     const places = (await getPlaces()).filter((place) => place.status === "published");
     const collections = await loadPublishedCollections();
+    const graphIndex = await getKnowledgeGraphIndex();
     const anchor = places.find((place) => place.id === placeId);
 
     if (!anchor) {
@@ -190,7 +223,7 @@ export const DiscoveryService = {
       const distanceScore = Math.max(0, 40 - Math.min(40, miles));
       const tagScore = overlapCount(anchor.tags, candidate.tags) * 7;
       const categoryScore = overlapCount(anchor.categories, candidate.categories) * 5;
-      const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id);
+      const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id, graphIndex);
       const featuredScore = candidate.featured ? 6 : 0;
       const collectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 10;
       const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
@@ -207,6 +240,7 @@ export const DiscoveryService = {
   async getRelatedPlaces(options: PlaceScopedOptions): Promise<Place[]> {
     const limit = options.limit ?? 4;
     const [places, collections, articles] = await Promise.all([getPlaces(), loadPublishedCollections(), getPublishedArticles()]);
+    const graphIndex = await getKnowledgeGraphIndex();
 
     const anchor = await resolveAnchorPlace(options);
 
@@ -226,7 +260,7 @@ export const DiscoveryService = {
       const [candidateStory, candidateDNA] = await Promise.all([getStoryByPlace(candidate.id), getPlaceDNA(candidate.id)]);
       const tagScore = overlapCount(anchor.tags, candidate.tags) * 9;
       const categoryScore = overlapCount(anchor.categories, candidate.categories) * 6;
-      const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id);
+      const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id, graphIndex);
       const sharedCollectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 12;
       const sharedArticleScore = anchorArticles.filter((article) => article.relatedPlaces.includes(candidate.id)).length * 8;
       const featuredScore = candidate.featured ? 5 : 0;
@@ -245,6 +279,7 @@ export const DiscoveryService = {
   async getRecommendedCollections(options: PlaceScopedOptions): Promise<Collection[]> {
     const limit = options.limit ?? 4;
     const [collections, articles] = await Promise.all([loadPublishedCollections(), getPublishedArticles()]);
+    const graphIndex = await getKnowledgeGraphIndex();
     const anchor = await resolveAnchorPlace(options);
 
     const anchorCollection = options.collectionId ? collections.find((collection) => collection.id === options.collectionId) ?? null : null;
@@ -263,7 +298,7 @@ export const DiscoveryService = {
       if (anchor) {
         score += collection.places.includes(anchor.id) ? 24 : 0;
         score += overlapCount(anchor.tags, collection.tags) * 8;
-        score += graphBoost("place", anchor.id, "collection", collection.id);
+        score += graphBoost("place", anchor.id, "collection", collection.id, graphIndex);
         score += storyKeywordBoost(anchorStory?.summary ?? "", collection.tags);
       }
 
@@ -271,13 +306,13 @@ export const DiscoveryService = {
         score += overlapCount(anchorCollection.tags, collection.tags) * 8;
         score += collection.season === anchorCollection.season ? 8 : 0;
         score += collection.audience === anchorCollection.audience ? 6 : 0;
-        score += graphBoost("collection", anchorCollection.id, "collection", collection.id);
+        score += graphBoost("collection", anchorCollection.id, "collection", collection.id, graphIndex);
       }
 
       if (anchorArticle) {
         score += anchorArticle.relatedCollections.includes(collection.id) ? 20 : 0;
         score += overlapCount(anchorArticle.tags, collection.tags) * 6;
-        score += graphBoost("article", anchorArticle.id, "collection", collection.id);
+        score += graphBoost("article", anchorArticle.id, "collection", collection.id, graphIndex);
       }
 
       score += storySeasonBoost(anchorCollectionStory?.season, collectionStory?.season);
@@ -292,6 +327,7 @@ export const DiscoveryService = {
   async getRecommendedArticles(options: PlaceScopedOptions): Promise<Article[]> {
     const limit = options.limit ?? 4;
     const articles = await getPublishedArticles();
+    const graphIndex = await getKnowledgeGraphIndex();
     const anchor = await resolveAnchorPlace(options);
 
     const anchorArticle = options.articleId ? articles.find((article) => article.id === options.articleId) ?? null : null;
@@ -306,7 +342,7 @@ export const DiscoveryService = {
         if (anchor) {
           score += article.relatedPlaces.includes(anchor.id) ? 25 : 0;
           score += overlapCount(anchor.tags, article.tags) * 8;
-          score += graphBoost("place", anchor.id, "article", article.id);
+          score += graphBoost("place", anchor.id, "article", article.id, graphIndex);
           score += storyKeywordBoost(`${anchorStory?.summary ?? ""} ${anchorStory?.body ?? ""}`, [...article.tags, ...article.categories]);
         }
 
@@ -317,7 +353,7 @@ export const DiscoveryService = {
         if (anchorArticle) {
           score += overlapCount(anchorArticle.tags, article.tags) * 6;
           score += overlapCount(anchorArticle.categories, article.categories) * 4;
-          score += graphBoost("article", anchorArticle.id, "article", article.id);
+          score += graphBoost("article", anchorArticle.id, "article", article.id, graphIndex);
         }
 
         score += article.featured ? 7 : 0;
@@ -331,6 +367,7 @@ export const DiscoveryService = {
   async getRecommendedDeals(options: PlaceScopedOptions): Promise<Deal[]> {
     const limit = options.limit ?? 4;
     const [deals, collections] = await Promise.all([getPublishedDeals(), loadPublishedCollections()]);
+    const graphIndex = await getKnowledgeGraphIndex();
     const anchor = await resolveAnchorPlace(options);
 
     const anchorCollection = options.collectionId ? collections.find((collection) => collection.id === options.collectionId) ?? null : null;
@@ -344,18 +381,18 @@ export const DiscoveryService = {
         score += deal.placeId === anchor.id ? 28 : 0;
         score += overlapCount(anchor.tags, deal.tags) * 8;
         score += overlapCount(anchor.categories, deal.categories) * 5;
-        score += graphBoost("place", anchor.id, "deal", deal.id);
+        score += graphBoost("place", anchor.id, "deal", deal.id, graphIndex);
         score += storyKeywordBoost(`${anchorStory?.summary ?? ""} ${anchorStory?.body ?? ""}`, [...deal.tags, ...deal.categories]);
       }
 
       if (anchorCollection) {
         score += deal.collectionId === anchorCollection.id ? 22 : 0;
         score += overlapCount(anchorCollection.tags, deal.tags) * 5;
-        score += graphBoost("collection", anchorCollection.id, "deal", deal.id);
+        score += graphBoost("collection", anchorCollection.id, "deal", deal.id, graphIndex);
       }
 
       if (options.articleId) {
-        score += graphBoost("article", options.articleId, "deal", deal.id);
+        score += graphBoost("article", options.articleId, "deal", deal.id, graphIndex);
       }
 
       score += deal.featured ? 7 : 0;
@@ -369,6 +406,7 @@ export const DiscoveryService = {
   async getRecommendedEvents(options: PlaceScopedOptions): Promise<Event[]> {
     const limit = options.limit ?? 4;
     const events = await getPublishedEvents();
+    const graphIndex = await getKnowledgeGraphIndex();
     const anchor = await resolveAnchorPlace(options);
 
     const anchorStory = anchor ? await getStoryByPlace(anchor.id) : null;
@@ -382,12 +420,12 @@ export const DiscoveryService = {
         score += event.venuePlaceId === anchor.id ? 20 : 0;
         score += event.city === anchor.city ? 8 : 0;
         score += overlapCount(anchor.tags, event.tags) * 6;
-        score += graphBoost("place", anchor.id, "event", event.id);
+        score += graphBoost("place", anchor.id, "event", event.id, graphIndex);
         score += storyKeywordBoost(`${anchorStory?.summary ?? ""} ${anchorStory?.body ?? ""}`, [...event.tags, ...event.categories]);
       }
 
       if (options.articleId) {
-        score += graphBoost("article", options.articleId, "event", event.id);
+        score += graphBoost("article", options.articleId, "event", event.id, graphIndex);
       }
 
       score += event.featured ? 6 : 0;

@@ -10,6 +10,8 @@ import { useAutosave } from "@/hooks/useAutosave";
 import { useSaveState } from "@/hooks/useSaveState";
 import { addSessionActivityEvent, addSessionWorkflowEvent } from "@/lib/basecamp/sessionEvents";
 import { placeRepository } from "@/lib/repositories/placeRepository";
+import { collectionRepository } from "@/lib/repositories/collectionRepository";
+import { executeWriteWithQueueFallback } from "@/lib/services";
 import { validateCollectionForm } from "@/lib/validation/basecampForms";
 import type { Collection, CollectionAudience, CollectionSeason, CollectionStatus } from "@/types/Collection";
 import type { Place } from "@/types/Place";
@@ -196,6 +198,28 @@ export function CollectionForm({ initialCollection }: CollectionFormProps) {
 
   const sleep = (durationMs: number) => new Promise((resolve) => setTimeout(resolve, durationMs));
 
+  const toCollectionInput = (value: Collection): Omit<Collection, "id" | "createdAt" | "updatedAt"> => {
+    const { id, createdAt, updatedAt, ...input } = value;
+    return input;
+  };
+
+  const persistCollection = async (nextStatus: CollectionStatus) => {
+    const draft = { ...collection, status: nextStatus };
+    const payload = toCollectionInput(draft);
+
+    if (collection.id) {
+      return executeWriteWithQueueFallback("collection.update", { id: collection.id, updates: payload }, async () => {
+        const updated = await collectionRepository.update(collection.id, payload);
+        if (!updated) {
+          throw new Error("Collection update returned no record.");
+        }
+        return updated;
+      });
+    }
+
+    return executeWriteWithQueueFallback("collection.create", payload, () => collectionRepository.create(payload));
+  };
+
   const autosaveEnabled = collection.status === "draft";
 
   const autosave = useAutosave({
@@ -233,14 +257,12 @@ export function CollectionForm({ initialCollection }: CollectionFormProps) {
     saveState.startSaving();
 
     try {
-      // TODO(v0.4-write-path): replace optimistic status transition with repository write + retry queue.
-      setCollection((current) => ({ ...current, status: target }));
-      await sleep(700);
-      setCollection((current) => ({ ...current, updatedAt: new Date().toISOString() }));
+      const persisted = await persistCollection(target);
+      setCollection(persisted);
 
       addSessionWorkflowEvent({
         contentType: "collection",
-        contentId: collection.id || displaySlug || "new-collection",
+        contentId: persisted.id || collection.id || displaySlug || "new-collection",
         fromStatus: fromStatus as ContentStatus,
         toStatus: target as ContentStatus,
         note: actionNote[pendingAction],
@@ -250,8 +272,8 @@ export function CollectionForm({ initialCollection }: CollectionFormProps) {
       addSessionActivityEvent({
         type: target === "published" ? "published" : target === "archived" ? "archived" : "status_changed",
         contentType: "collection",
-        contentId: collection.id || displaySlug || "new-collection",
-        title: `${collection.title || "Untitled collection"} ${target}`,
+        contentId: persisted.id || collection.id || displaySlug || "new-collection",
+        title: `${persisted.title || collection.title || "Untitled collection"} ${target}`,
         description: `${fromStatus} to ${target}. ${actionNote[pendingAction]}`,
         actor: "Alex",
         metadata: { fromStatus, toStatus: target },
@@ -279,12 +301,8 @@ export function CollectionForm({ initialCollection }: CollectionFormProps) {
     setActiveSaveAction(action);
 
     try {
-      setCollection((current) => ({ ...current, status: nextStatus }));
-
-      // TODO(v0.4-write-path): replace simulated save delay with repository write + retry queue.
-      await sleep(700);
-
-      setCollection((current) => ({ ...current, updatedAt: new Date().toISOString() }));
+      const persisted = await persistCollection(nextStatus);
+      setCollection(persisted);
       setIsDirty(false);
       saveState.markSaved();
       pushToast({ tone: "success", title: "Collection saved", description: "Draft changes are up to date." });

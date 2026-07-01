@@ -28,6 +28,7 @@ type ReadinessStats = {
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
   { label: "Content Studio", href: "/basecamp/content", active: true },
+  { label: "Knowledge Graph", href: "/basecamp/graph" },
   { label: "Content Report", href: "/basecamp/content/report" },
   { label: "Places", href: "/basecamp/places" },
   { label: "Import", href: "/basecamp/import" },

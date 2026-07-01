@@ -6,6 +6,8 @@ import { Button, Input, useToasts } from "@/components/ui";
 import { ArticleStatusBadge } from "@/components/basecamp/ArticleStatusBadge";
 import { SaveStatus } from "@/components/basecamp/SaveStatus";
 import { useSaveState } from "@/hooks/useSaveState";
+import { articleRepository } from "@/lib/repositories/articleRepository";
+import { executeWriteWithQueueFallback } from "@/lib/services";
 import { validateArticleForm } from "@/lib/validation/basecampForms";
 import type { Article, ArticleStatus, ArticleType } from "@/types/Article";
 import { BasecampPageHeader } from "./BasecampPageHeader";
@@ -112,7 +114,27 @@ export function ArticleForm({ initialArticle }: ArticleFormProps) {
     setArticle((current) => ({ ...current, [key]: value }));
   };
 
-  const sleep = (durationMs: number) => new Promise((resolve) => setTimeout(resolve, durationMs));
+  const toArticleInput = (value: Article): Omit<Article, "id" | "createdAt" | "updatedAt"> => {
+    const { id, createdAt, updatedAt, ...input } = value;
+    return input;
+  };
+
+  const persistArticle = async () => {
+    const payload = toArticleInput(article);
+
+    if (article.id) {
+      return executeWriteWithQueueFallback("article.update", { id: article.id, updates: payload }, async () => {
+        const updated = await articleRepository.update(article.id, payload);
+        if (!updated) {
+          throw new Error("Article update returned no record.");
+        }
+
+        return updated;
+      });
+    }
+
+    return executeWriteWithQueueFallback("article.create", payload, () => articleRepository.create(payload));
+  };
 
   const handleSave = async () => {
     const validationErrors = validateArticleForm(article);
@@ -125,9 +147,8 @@ export function ArticleForm({ initialArticle }: ArticleFormProps) {
 
     saveState.startSaving();
     try {
-      // TODO(v0.4-write-path): replace simulated save delay with repository write + retry queue.
-      await sleep(650);
-      setArticle((current) => ({ ...current, updatedAt: new Date().toISOString() }));
+      const persisted = await persistArticle();
+      setArticle(persisted);
       setIsDirty(false);
       saveState.markSaved();
       pushToast({ tone: "success", title: "Article saved", description: "Draft changes are up to date." });

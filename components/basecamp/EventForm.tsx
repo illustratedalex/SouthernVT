@@ -6,6 +6,8 @@ import { Button, Input, useToasts } from "@/components/ui";
 import { EventStatusBadge } from "@/components/basecamp/EventStatusBadge";
 import { SaveStatus } from "@/components/basecamp/SaveStatus";
 import { useSaveState } from "@/hooks/useSaveState";
+import { eventRepository } from "@/lib/repositories/eventRepository";
+import { executeWriteWithQueueFallback } from "@/lib/services";
 import { validateEventForm } from "@/lib/validation/basecampForms";
 import type { Event, EventStatus, EventType } from "@/types/Event";
 import { BasecampPageHeader } from "./BasecampPageHeader";
@@ -122,7 +124,27 @@ export function EventForm({ initialEvent }: EventFormProps) {
     setEvent((current) => ({ ...current, [key]: value }));
   };
 
-  const sleep = (durationMs: number) => new Promise((resolve) => setTimeout(resolve, durationMs));
+  const toEventInput = (value: Event): Omit<Event, "id" | "createdAt" | "updatedAt"> => {
+    const { id, createdAt, updatedAt, ...input } = value;
+    return input;
+  };
+
+  const persistEvent = async () => {
+    const payload = toEventInput(event);
+
+    if (event.id) {
+      return executeWriteWithQueueFallback("event.update", { id: event.id, updates: payload }, async () => {
+        const updated = await eventRepository.update(event.id, payload);
+        if (!updated) {
+          throw new Error("Event update returned no record.");
+        }
+
+        return updated;
+      });
+    }
+
+    return executeWriteWithQueueFallback("event.create", payload, () => eventRepository.create(payload));
+  };
 
   const handleSave = async () => {
     const validationErrors = validateEventForm(event);
@@ -135,9 +157,8 @@ export function EventForm({ initialEvent }: EventFormProps) {
 
     saveState.startSaving();
     try {
-      // TODO(v0.4-write-path): replace optimistic save with repository write + retry queue.
-      await sleep(650);
-      setEvent((current) => ({ ...current, updatedAt: new Date().toISOString() }));
+      const persisted = await persistEvent();
+      setEvent(persisted);
       setIsDirty(false);
       saveState.markSaved();
       pushToast({ tone: "success", title: "Event saved", description: "Draft changes are up to date." });

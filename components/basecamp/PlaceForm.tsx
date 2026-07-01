@@ -9,6 +9,8 @@ import { SaveStatus } from "@/components/basecamp/SaveStatus";
 import { useAutosave } from "@/hooks/useAutosave";
 import { useSaveState } from "@/hooks/useSaveState";
 import { addSessionActivityEvent, addSessionWorkflowEvent } from "@/lib/basecamp/sessionEvents";
+import { placeRepository } from "@/lib/repositories/placeRepository";
+import { executeWriteWithQueueFallback } from "@/lib/services";
 import { validatePlaceForm } from "@/lib/validation/basecampForms";
 import type { Place, PlaceMetadata, PlaceStatus, PlaceType } from "@/types/Place";
 import type { ContentStatus } from "@/types/Workflow";
@@ -24,7 +26,7 @@ interface PlaceFormProps {
   initialPlace?: Place;
 }
 
-type TabKey = "basic" | "location" | "media" | "categories" | "details" | "seo" | "preview";
+type TabKey = "basic" | "location" | "media" | "categories" | "details" | "knowledge" | "seo" | "preview";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "basic", label: "Basic" },
@@ -32,6 +34,7 @@ const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "media", label: "Media" },
   { key: "categories", label: "Categories" },
   { key: "details", label: "Details" },
+  { key: "knowledge", label: "Knowledge Graph" },
   { key: "seo", label: "SEO" },
   { key: "preview", label: "Preview" },
 ];
@@ -241,6 +244,28 @@ export function PlaceForm({ initialPlace }: PlaceFormProps) {
 
   const sleep = (durationMs: number) => new Promise((resolve) => setTimeout(resolve, durationMs));
 
+  const toPlaceInput = (value: Place): Omit<Place, "id" | "createdAt" | "updatedAt"> => {
+    const { id, createdAt, updatedAt, ...input } = value;
+    return input;
+  };
+
+  const persistPlace = async (nextStatus: PlaceStatus) => {
+    const draft = { ...place, status: nextStatus };
+    const payload = toPlaceInput(draft);
+
+    if (place.id) {
+      return executeWriteWithQueueFallback("place.update", { id: place.id, updates: payload }, async () => {
+        const updated = await placeRepository.update(place.id, payload);
+        if (!updated) {
+          throw new Error("Place update returned no record.");
+        }
+        return updated;
+      });
+    }
+
+    return executeWriteWithQueueFallback("place.create", payload, () => placeRepository.create(payload));
+  };
+
   const autosaveEnabled = place.status === "draft";
 
   const autosave = useAutosave({
@@ -278,14 +303,12 @@ export function PlaceForm({ initialPlace }: PlaceFormProps) {
     saveState.startSaving();
 
     try {
-      // TODO(v0.4-write-path): replace optimistic status transition with repository write + retry queue.
-      setPlace((current) => ({ ...current, status: target }));
-      await sleep(700);
-      setPlace((current) => ({ ...current, updatedAt: new Date().toISOString() }));
+      const persisted = await persistPlace(target);
+      setPlace(persisted);
 
       addSessionWorkflowEvent({
         contentType: "place",
-        contentId: place.id || displaySlug || "new-place",
+        contentId: persisted.id || place.id || displaySlug || "new-place",
         fromStatus: fromStatus as ContentStatus,
         toStatus: target as ContentStatus,
         note: actionNote[pendingAction],
@@ -295,8 +318,8 @@ export function PlaceForm({ initialPlace }: PlaceFormProps) {
       addSessionActivityEvent({
         type: target === "published" ? "published" : target === "archived" ? "archived" : "status_changed",
         contentType: "place",
-        contentId: place.id || displaySlug || "new-place",
-        title: `${place.name || "Untitled place"} ${target}`,
+        contentId: persisted.id || place.id || displaySlug || "new-place",
+        title: `${persisted.name || place.name || "Untitled place"} ${target}`,
         description: `${fromStatus} to ${target}. ${actionNote[pendingAction]}`,
         actor: "Alex",
         metadata: { fromStatus, toStatus: target },
@@ -324,12 +347,8 @@ export function PlaceForm({ initialPlace }: PlaceFormProps) {
     setActiveSaveAction(action);
 
     try {
-      setPlace((current) => ({ ...current, status: nextStatus }));
-
-      // TODO(v0.4-write-path): replace simulated save delay with repository write + retry queue.
-      await sleep(700);
-
-      setPlace((current) => ({ ...current, updatedAt: new Date().toISOString() }));
+      const persisted = await persistPlace(nextStatus);
+      setPlace(persisted);
       setIsDirty(false);
       saveState.markSaved();
       pushToast({ tone: "success", title: "Place saved", description: "Draft changes are up to date." });
@@ -569,6 +588,70 @@ export function PlaceForm({ initialPlace }: PlaceFormProps) {
                   <p className="text-sm text-slate-500">This place type does not need extra metadata fields.</p>
                 )}
               </div>
+            </div>
+          </section>
+        ) : null}
+
+        {activeTab === "knowledge" ? (
+          <section className="grid gap-6 rounded-4xl border border-[#e8dfc8] bg-white/80 p-6 shadow-[0_20px_80px_rgba(31,59,47,0.08)] backdrop-blur lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Knowledge Graph</p>
+              <h2 className="text-2xl font-semibold text-slate-900">Node wiring for this place</h2>
+              <p className="text-sm leading-7 text-slate-600">
+                This tab tracks how this place connects to collections, guides, events, deals, media, and stories in the Compass graph.
+              </p>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Graph node id</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{`place:${place.id || displaySlug || "new"}`}</p>
+                </div>
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Direct place links</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{place.relatedPlaces.length}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-3xl border border-[#f2e6cb] bg-[#fcfaf6] p-5">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#1f3b2f]">Connection signals</h3>
+              <p className="text-sm text-slate-600">Tags, categories, and explicit relationships all contribute to recommendation weight.</p>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tags</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {place.tags.length ? (
+                    place.tags.map((tag) => (
+                      <span key={tag} className="rounded-full border border-[#d8c6a6] bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                        {tag}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-slate-500">No tags set yet.</span>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Categories</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {place.categories.length ? (
+                    place.categories.map((category) => (
+                      <span key={category} className="rounded-full border border-[#d8c6a6] bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                        {category}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-slate-500">No categories set yet.</span>
+                  )}
+                </div>
+              </div>
+
+              <Link
+                href={`/basecamp/graph?node=${encodeURIComponent(`place:${place.id || displaySlug || "new"}`)}`}
+                className="inline-flex rounded-full bg-[#1f3b2f] px-4 py-2 text-xs font-semibold text-[#f8f2e4]"
+              >
+                Open full graph explorer
+              </Link>
             </div>
           </section>
         ) : null}

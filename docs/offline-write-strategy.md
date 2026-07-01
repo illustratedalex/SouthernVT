@@ -6,15 +6,18 @@ Prepare Basecamp save flows for real Supabase writes with retry/offline queueing
 
 ## Current State
 
-The following Basecamp flows still use optimistic local save simulation:
+All current Basecamp editor save/toggle flows now use repository-backed writes with queue fallback.
 
-- Places (`components/basecamp/PlaceForm.tsx`)
-- Collections (`components/basecamp/CollectionForm.tsx`)
-- Articles (`components/basecamp/ArticleForm.tsx`)
-- Events (`components/basecamp/EventForm.tsx`)
-- Deals (`components/basecamp/DealForm.tsx`)
-- Media uploads (`components/basecamp/MediaLibraryClient.tsx`)
-- Feature flags panel (`components/basecamp/FeatureFlagsSettings.tsx`)
+Places and Collections now use repository-backed save and transition writes with queue fallback:
+
+- `components/basecamp/PlaceForm.tsx`
+- `components/basecamp/CollectionForm.tsx`
+- `components/basecamp/ArticleForm.tsx`
+- `components/basecamp/EventForm.tsx`
+- `components/basecamp/DealForm.tsx`
+- `components/basecamp/MediaLibraryClient.tsx`
+- `components/basecamp/FeatureFlagsSettings.tsx`
+- `lib/services/WriteQueueService.ts`
 
 ## Queue Strategy
 

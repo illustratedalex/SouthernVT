@@ -1,5 +1,6 @@
 import { mockRelationships } from "@/data/relationships";
 import { calculatePlaceCompleteness } from "@/lib/completeness/placeCompleteness";
+import { getEdges as getKnowledgeEdges } from "@/lib/repositories/KnowledgeGraphRepository";
 import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
@@ -65,21 +66,52 @@ function seasonFromMonth(month: number): string {
   return "Fall";
 }
 
-function relationshipWeight(fromId: string, toId: string): number {
-  return mockRelationships.reduce((sum, relation) => {
+function graphKey(fromNodeId: string, toNodeId: string): string {
+  return `${fromNodeId}->${toNodeId}`;
+}
+
+let knowledgeWeightMapPromise: Promise<Map<string, number>> | null = null;
+
+async function getKnowledgeWeightMap(): Promise<Map<string, number>> {
+  if (knowledgeWeightMapPromise) {
+    return knowledgeWeightMapPromise;
+  }
+
+  knowledgeWeightMapPromise = getKnowledgeEdges().then((edges) => {
+    const map = new Map<string, number>();
+    edges.forEach((edge) => {
+      map.set(graphKey(edge.fromNodeId, edge.toNodeId), (map.get(graphKey(edge.fromNodeId, edge.toNodeId)) ?? 0) + edge.weight);
+    });
+    return map;
+  });
+
+  return knowledgeWeightMapPromise;
+}
+
+function relationshipWeightFromRelationships(fromId: string, toId: string): number {
+  return mockRelationships.reduce((score, relation) => {
     const direct = relation.fromId === fromId && relation.toId === toId;
     const reverse = relation.toId === fromId && relation.fromId === toId;
     if (!direct && !reverse) {
-      return sum;
+      return score;
     }
     if (relation.relationshipType === "nearby") {
-      return sum + 12;
+      return score + 12;
     }
     if (relation.relationshipType === "featured_in" || relation.relationshipType === "contains") {
-      return sum + 10;
+      return score + 10;
     }
-    return sum + 8;
+    return score + 8;
   }, 0);
+}
+
+async function relationshipWeight(fromId: string, toId: string): Promise<number> {
+  const baseWeight = relationshipWeightFromRelationships(fromId, toId);
+  const weightMap = await getKnowledgeWeightMap();
+  const fromNodeId = `place:${fromId}`;
+  const toNodeId = `place:${toId}`;
+  const graphWeight = (weightMap.get(graphKey(fromNodeId, toNodeId)) ?? 0) + (weightMap.get(graphKey(toNodeId, fromNodeId)) ?? 0);
+  return baseWeight + Math.round(graphWeight * 0.6);
 }
 
 function reason(message: string, code: RecommendationReason["code"], weight: number): RecommendationReason {
@@ -157,7 +189,7 @@ export const CompassEngine = {
         reasons.push(reason("Great nearby match.", "distance", distanceScore));
       }
 
-      const relationshipScore = relationshipWeight(context.anchorPlace.id, place.id);
+      const relationshipScore = await relationshipWeight(context.anchorPlace.id, place.id);
       score += relationshipScore;
       if (relationshipScore > 0) {
         reasons.push(reason("Connected through local relationship mapping.", "relationships", relationshipScore));

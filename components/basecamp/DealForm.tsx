@@ -7,7 +7,9 @@ import { DealStatusBadge } from "@/components/basecamp/DealStatusBadge";
 import { SaveStatus } from "@/components/basecamp/SaveStatus";
 import { useSaveState } from "@/hooks/useSaveState";
 import { getCollections } from "@/lib/repositories/collectionRepository";
+import { dealRepository } from "@/lib/repositories/dealRepository";
 import { placeRepository } from "@/lib/repositories/placeRepository";
+import { executeWriteWithQueueFallback } from "@/lib/services";
 import { validateDealForm } from "@/lib/validation/basecampForms";
 import type { Collection } from "@/types/Collection";
 import type { Deal, DealRedemptionMethod, DealStatus, DealType } from "@/types/Deal";
@@ -130,7 +132,27 @@ export function DealForm({ initialDeal }: DealFormProps) {
     setDeal((current) => ({ ...current, [key]: value }));
   };
 
-  const sleep = (durationMs: number) => new Promise((resolve) => setTimeout(resolve, durationMs));
+  const toDealInput = (value: Deal): Omit<Deal, "id" | "createdAt" | "updatedAt"> => {
+    const { id, createdAt, updatedAt, ...input } = value;
+    return input;
+  };
+
+  const persistDeal = async () => {
+    const payload = toDealInput(deal);
+
+    if (deal.id) {
+      return executeWriteWithQueueFallback("deal.update", { id: deal.id, updates: payload }, async () => {
+        const updated = await dealRepository.update(deal.id, payload);
+        if (!updated) {
+          throw new Error("Deal update returned no record.");
+        }
+
+        return updated;
+      });
+    }
+
+    return executeWriteWithQueueFallback("deal.create", payload, () => dealRepository.create(payload));
+  };
 
   const handleSave = async () => {
     const validationErrors = validateDealForm(deal);
@@ -143,9 +165,8 @@ export function DealForm({ initialDeal }: DealFormProps) {
 
     saveState.startSaving();
     try {
-      // TODO(v0.4-write-path): replace simulated save delay with repository write + retry queue.
-      await sleep(650);
-      setDeal((current) => ({ ...current, updatedAt: new Date().toISOString() }));
+      const persisted = await persistDeal();
+      setDeal(persisted);
       setIsDirty(false);
       saveState.markSaved();
       pushToast({ tone: "success", title: "Deal saved", description: "Draft changes are up to date." });

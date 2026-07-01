@@ -1,5 +1,6 @@
 import { mockExplorerResults } from "@/data/explorer";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
+import { recommendConnections } from "@/lib/repositories/KnowledgeGraphRepository";
 import { getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollectionById } from "@/lib/repositories/collectionRepository";
 import { getArticleById } from "@/repositories/ArticleRepository";
@@ -12,6 +13,14 @@ import type { Deal } from "@/types/Deal";
 import type { Event } from "@/types/Event";
 import type { ExplorerMood, ExplorerResult } from "@/types/Explorer";
 import type { Place } from "@/types/Place";
+
+function graphIdByType(nodeIds: string[], type: string): string | null {
+  const match = nodeIds.find((nodeId) => nodeId.startsWith(`${type}:`));
+  if (!match) {
+    return null;
+  }
+  return match.split(":")[1] ?? null;
+}
 
 export type ExplorerResultDetails = {
   result: ExplorerResult;
@@ -56,6 +65,16 @@ export const ExplorerService = {
     ]);
 
     const primaryDNA = primaryPlace ? await getPlaceDNA(primaryPlace.id) : null;
+    const graphRecommendations = primaryPlace ? await recommendConnections(`place:${primaryPlace.id}`, 8) : [];
+    const graphRecommendationIds = graphRecommendations.map((node) => node.id);
+
+    const [graphFoodPlace, graphCollection, graphArticle, graphDeal, graphEvent] = await Promise.all([
+      graphIdByType(graphRecommendationIds, "place") ? getPlaceById(graphIdByType(graphRecommendationIds, "place") as string) : Promise.resolve(null),
+      graphIdByType(graphRecommendationIds, "collection") ? getCollectionById(graphIdByType(graphRecommendationIds, "collection") as string) : Promise.resolve(null),
+      graphIdByType(graphRecommendationIds, "article") ? getArticleById(graphIdByType(graphRecommendationIds, "article") as string) : Promise.resolve(null),
+      graphIdByType(graphRecommendationIds, "deal") ? getDealById(graphIdByType(graphRecommendationIds, "deal") as string) : Promise.resolve(null),
+      graphIdByType(graphRecommendationIds, "event") ? getEventById(graphIdByType(graphRecommendationIds, "event") as string) : Promise.resolve(null),
+    ]);
 
     const [fallbackCollections, fallbackArticles, fallbackDeals, fallbackEvents] = primaryPlace
       ? await Promise.all([
@@ -71,11 +90,11 @@ export const ExplorerService = {
         ? { ...result, mood: primaryDNA.moods[0] as ExplorerMood }
         : result,
       primaryPlace,
-      foodPlace,
-      collection: collection ?? fallbackCollections[0] ?? null,
-      article: article ?? fallbackArticles[0] ?? null,
-      deal: deal ?? fallbackDeals[0] ?? null,
-      event: event ?? fallbackEvents[0] ?? null,
+      foodPlace: foodPlace ?? graphFoodPlace,
+      collection: collection ?? graphCollection ?? fallbackCollections[0] ?? null,
+      article: article ?? graphArticle ?? fallbackArticles[0] ?? null,
+      deal: deal ?? graphDeal ?? fallbackDeals[0] ?? null,
+      event: event ?? graphEvent ?? fallbackEvents[0] ?? null,
     };
   },
 };

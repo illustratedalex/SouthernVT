@@ -11,6 +11,9 @@ import { MediaUploadModal, type MediaUploadFormValues } from "@/components/basec
 import { MediaUploadZone } from "@/components/basecamp/MediaUploadZone";
 import { useToasts } from "@/components/ui";
 import { useSaveState } from "@/hooks/useSaveState";
+import type { MediaAssetInput } from "@/lib/repositories/mediaRepository.mock";
+import { mediaRepository } from "@/lib/repositories/mediaRepository";
+import { executeWriteWithQueueFallback } from "@/lib/services";
 import { validateMediaUploadForm } from "@/lib/validation/basecampForms";
 import type { MediaAsset, MediaAssetType } from "@/types/MediaAsset";
 
@@ -34,10 +37,6 @@ function parseList(value: string) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-}
-
-function sleep(durationMs: number) {
-  return new Promise((resolve) => setTimeout(resolve, durationMs));
 }
 
 export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
@@ -130,10 +129,7 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
     saveState.startSaving();
 
     try {
-      // TODO(v0.4-write-path): replace optimistic media insert with repository write + retry queue.
-      const now = new Date().toISOString();
-      const nextAsset: MediaAsset = {
-        id: `media-local-${Date.now().toString(36)}`,
+      const payload: MediaAssetInput = {
         title: uploadForm.title || "Untitled Asset",
         altText: uploadForm.altText || "Uploaded media",
         type: uploadForm.mediaType,
@@ -149,11 +145,11 @@ export function MediaLibraryClient({ initialAssets }: MediaLibraryClientProps) {
         height: uploadForm.mediaType === "image" ? 1066 : undefined,
         usageCount: 0,
         status: "active",
-        createdAt: now,
       };
 
+      const nextAsset = await executeWriteWithQueueFallback("media.create", payload, () => mediaRepository.create(payload));
+
       setAssets((current) => [nextAsset, ...current]);
-      await sleep(700);
       setIsDirty(false);
       saveState.markSaved();
       pushToast({ tone: "success", title: "Media saved", description: `${nextAsset.title} is now available in the library.` });

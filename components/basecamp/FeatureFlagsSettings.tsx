@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SaveStatus } from "@/components/basecamp/SaveStatus";
 import { useSaveState } from "@/hooks/useSaveState";
+import { updateFeatureFlag } from "@/lib/featureFlags";
+import { executeWriteWithQueueFallback } from "@/lib/services";
 import type { FeatureFlag } from "@/types/FeatureFlag";
 
 type FeatureFlagsSettingsProps = {
@@ -21,10 +23,6 @@ const navItems = [
   { label: "Events", href: "/basecamp/events" },
   { label: "Feature Flags", href: "/basecamp/settings/features", active: true },
 ];
-
-function sleep(durationMs: number) {
-  return new Promise((resolve) => setTimeout(resolve, durationMs));
-}
 
 function FeatureFlagRow({
   flag,
@@ -91,14 +89,17 @@ export function FeatureFlagsSettings({ initialFlags }: FeatureFlagsSettingsProps
   const sortedFlags = useMemo(() => [...flags].sort((a, b) => a.label.localeCompare(b.label)), [flags]);
 
   const handleToggle = async (flagKey: FeatureFlag["key"], nextEnabled: boolean) => {
-    // TODO(v0.4-write-path): replace optimistic update with repository write + retry queue.
-    setFlags((current) =>
-      current.map((item) =>
-        item.key === flagKey ? { ...item, enabled: nextEnabled, updatedAt: new Date().toISOString() } : item,
-      ),
+    const updated = await executeWriteWithQueueFallback(
+      "featureFlag.update",
+      { key: flagKey, enabled: nextEnabled },
+      () => updateFeatureFlag(flagKey, nextEnabled),
     );
 
-    await sleep(500);
+    if (!updated) {
+      throw new Error("Unable to update this flag.");
+    }
+
+    setFlags((current) => current.map((item) => (item.key === flagKey ? updated : item)));
   };
 
   return (

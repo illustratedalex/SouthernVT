@@ -22,6 +22,7 @@ type ReportItem = {
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
   { label: "Content Studio", href: "/basecamp/content" },
+  { label: "Knowledge Graph", href: "/basecamp/graph" },
   { label: "Content Report", href: "/basecamp/content/report", active: true },
   { label: "Places", href: "/basecamp/places" },
   { label: "Collections", href: "/basecamp/collections" },
