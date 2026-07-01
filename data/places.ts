@@ -268,7 +268,7 @@ export const mockPlaces: Place[] = [
     ],
     ctaButton: "Book Your Stay",
     ctaUrl: "https://graftoninnvermont.com",
-    status: "draft",
+    status: "published",
     metadata: {
       hotel: {
         rooms: "45 rooms and suites",
