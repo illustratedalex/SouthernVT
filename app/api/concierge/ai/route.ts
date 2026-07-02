@@ -1,21 +1,19 @@
+import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { buildConciergeAIPrompt } from "@/lib/concierge/buildConciergeAIPrompt";
 import { fallbackConciergeNarrative } from "@/lib/concierge/fallbackConciergeNarrative";
+import { parseConciergeAIResponse } from "@/lib/concierge/parseConciergeAIResponse";
 import { isFeatureEnabled } from "@/lib/featureFlags";
-import type { ConciergeAINarrative, ConciergePreferences, ConciergeTrip } from "@/types/Concierge";
+import type { ConciergePreferences, ConciergeTrip } from "@/types/Concierge";
 
 type ConciergeAIRequestBody = {
   preferences?: unknown;
   compassTrip?: unknown;
 };
 
-type OpenAIChatResponse = {
-  choices?: Array<{
-    message?: {
-      content?: string | null;
-    };
-  }>;
-};
+function createOpenAIClient(apiKey: string): OpenAI {
+  return new OpenAI({ apiKey });
+}
 
 const allowedMoods = new Set([
   "adventure",
@@ -90,42 +88,6 @@ function isConciergeTrip(value: unknown): value is ConciergeTrip {
   );
 }
 
-function extractJsonObject(text: string): string {
-  const fenced = text.match(/```json\s*([\s\S]*?)```/i);
-  if (fenced && fenced[1]) {
-    return fenced[1].trim();
-  }
-  return text.trim();
-}
-
-function parseNarrative(content: string): ConciergeAINarrative | null {
-  try {
-    const parsed = JSON.parse(extractJsonObject(content)) as Partial<ConciergeAINarrative>;
-    if (
-      typeof parsed.summary !== "string" ||
-      typeof parsed.whyThisTrip !== "string" ||
-      !Array.isArray(parsed.localTips) ||
-      parsed.localTips.some((tip) => typeof tip !== "string")
-    ) {
-      return null;
-    }
-
-    const tips = parsed.localTips.slice(0, 3);
-    if (tips.length < 3) {
-      return null;
-    }
-
-    return {
-      summary: parsed.summary.trim(),
-      whyThisTrip: parsed.whyThisTrip.trim(),
-      localTips: tips.map((tip) => tip.trim()),
-      fallbackUsed: false,
-    };
-  } catch {
-    return null;
-  }
-}
-
 export async function POST(request: Request) {
   let body: ConciergeAIRequestBody;
   try {
@@ -151,45 +113,38 @@ export async function POST(request: Request) {
   }
 
   const prompt = buildConciergeAIPrompt(preferences, compassTrip);
+  const requestFallback = fallbackConciergeNarrative(preferences, compassTrip, "request-failed");
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        temperature: 0.2,
-        messages: [
-          { role: "system", content: prompt.systemPrompt },
-          { role: "user", content: prompt.userPrompt },
-        ],
-      }),
+    const response = await createOpenAIClient(apiKey).responses.create({
+      model: "gpt-5.5",
+      input: [
+        {
+          role: "system",
+          content:
+            "You are SouthernVT’s editorial trip assistant. Use only the provided SouthernVT data. Do not invent places, hours, restaurants, events, or facts. If data is missing, say so briefly.",
+        },
+        {
+          role: "user",
+          content: prompt.userPrompt,
+        },
+      ],
     });
 
-    if (!response.ok) {
-      console.error(`Concierge AI request failed: ${response.status} ${response.statusText}`);
-      return NextResponse.json(fallbackConciergeNarrative(preferences, compassTrip, "request-failed"));
-    }
-
-    const data = (await response.json()) as OpenAIChatResponse;
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) {
+    const outputText = response.output_text?.trim();
+    if (!outputText) {
       console.error("Concierge AI response missing message content.");
-      return NextResponse.json(fallbackConciergeNarrative(preferences, compassTrip, "request-failed"));
+      return NextResponse.json(requestFallback);
     }
 
-    const parsedNarrative = parseNarrative(content);
-    if (!parsedNarrative) {
-      console.error("Concierge AI response was not valid structured narrative JSON.");
-      return NextResponse.json(fallbackConciergeNarrative(preferences, compassTrip, "request-failed"));
-    }
-
-    return NextResponse.json(parsedNarrative);
+    return NextResponse.json(
+      parseConciergeAIResponse(outputText, {
+        whyThisTrip: requestFallback.whyThisTrip,
+        localTips: requestFallback.localTips,
+      }),
+    );
   } catch (error) {
     console.error("Concierge AI request errored.", error);
-    return NextResponse.json(fallbackConciergeNarrative(preferences, compassTrip, "request-failed"));
+    return NextResponse.json(requestFallback);
   }
 }

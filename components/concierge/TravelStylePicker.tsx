@@ -24,6 +24,7 @@ export function TravelStylePicker({ options }: TravelStylePickerProps) {
           <Link
             key={option.value}
             href={option.href}
+            scroll={false}
             className={`inline-flex rounded-full border px-4 py-2 text-sm font-semibold transition ${
               option.active
                 ? "border-(--color-forest-green) bg-(--color-forest-green) text-(--color-cream)"
@@ -37,4 +38,3 @@ export function TravelStylePicker({ options }: TravelStylePickerProps) {
     </EditorialSection>
   );
 }
-

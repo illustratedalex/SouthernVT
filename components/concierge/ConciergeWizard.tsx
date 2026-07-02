@@ -83,6 +83,7 @@ export function ConciergeWizard({
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href={buildHref({ generate: "1" })}
+            scroll={false}
             className="inline-flex h-12 items-center justify-center rounded-full bg-(--color-forest-green) px-6 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
           >
             Generate Concierge Plan
@@ -95,4 +96,3 @@ export function ConciergeWizard({
     </>
   );
 }
-
