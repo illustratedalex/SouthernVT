@@ -196,6 +196,12 @@ export default async function Home() {
               >
                 I&apos;m Feeling Adventurous
               </Link>
+              <Link
+                href="/concierge"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-(--color-maple-gold)/60 bg-(--color-maple-gold)/18 px-6 text-sm font-semibold uppercase tracking-[0.12em] text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-maple-gold)/28"
+              >
+                Plan My Day
+              </Link>
             </div>
           </div>
 

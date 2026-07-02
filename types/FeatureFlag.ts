@@ -1,5 +1,6 @@
 export type FeatureFlagKey =
   | "aiPlanner"
+  | "aiConcierge"
   | "passport"
   | "reviews"
   | "weather"

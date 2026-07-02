@@ -11,6 +11,15 @@ export const mockFeatureFlags: FeatureFlag[] = [
     updatedAt: "2026-06-28T09:00:00.000Z",
   },
   {
+    key: "aiConcierge",
+    label: "AI Concierge Narration",
+    description: "Enables optional AI-written itinerary narration while Compass keeps recommendation control.",
+    enabled: false,
+    environment: "development",
+    createdAt: "2026-06-28T09:00:00.000Z",
+    updatedAt: "2026-06-28T09:00:00.000Z",
+  },
+  {
     key: "passport",
     label: "Passport",
     description: "Enables destination passport progress and reward tracking.",
