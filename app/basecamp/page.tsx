@@ -14,6 +14,7 @@ const navItems = [
   { label: "Content Studio", href: "/basecamp/content" },
   { label: "Knowledge Graph", href: "/basecamp/graph" },
   { label: "Places", href: "/basecamp/places" },
+  { label: "Place Builder", href: "/basecamp/place-builder" },
   { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },
   { label: "Media Library", href: "/basecamp/media" },
