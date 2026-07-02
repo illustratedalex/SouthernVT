@@ -11,6 +11,7 @@ export const navigationItems = [
 
 export const footerLinks = [
   { label: "About", href: "/about" },
+  { label: "Why Trust SouthernVT?", href: "/why-trust-southernvt" },
   { label: "Contact", href: "/contact" },
   { label: "Updates", href: "/updates" },
   { label: "Partner Portal", href: "/partner-portal" },
