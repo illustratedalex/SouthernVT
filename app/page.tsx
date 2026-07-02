@@ -148,14 +148,18 @@ export default async function Home() {
       <Navbar />
 
       <section className="relative overflow-hidden border-b border-[#d7cbb3] bg-[#10261e] text-[#f8f2e4]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(214,180,99,0.18),transparent_35%),linear-gradient(150deg,rgba(6,17,13,0.82),rgba(16,38,30,0.68)),url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=80')] bg-cover bg-center" />
-        <div className="relative mx-auto grid max-w-7xl gap-8 px-6 py-14 sm:px-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)] lg:px-10 lg:py-20">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=80')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(7,18,14,0.22),rgba(8,22,17,0.08))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_44%,rgba(4,12,9,0.3)_100%)]" />
+        <div className="absolute inset-y-0 left-0 w-full bg-[linear-gradient(95deg,rgba(6,17,13,0.84),rgba(6,17,13,0.68)_42%,rgba(6,17,13,0.2)_72%,transparent)] lg:w-[62%]" />
+
+        <div className="relative mx-auto grid max-w-7xl gap-8 px-6 py-14 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:px-10 lg:py-20">
           <div className="space-y-6">
             <MetaText as="p" variant="eyebrow" className="text-(--color-maple-gold)">
               Southern Vermont Travel Magazine
             </MetaText>
-            <h1 className="max-w-4xl text-4xl font-semibold leading-tight md:text-6xl">Discover Southern Vermont Like a Local</h1>
-            <Prose size="lg" className="max-w-2xl text-[#e8dfcf]">
+            <h1 className="max-w-5xl text-4xl font-semibold leading-tight text-[#fff9ee] md:text-6xl">Discover Southern Vermont Like a Local</h1>
+            <Prose size="lg" className="max-w-3xl text-[#f1e8d9]">
               <p>Hidden waterfalls.</p>
               <p>Historic villages.</p>
               <p>Scenic drives.</p>
@@ -171,9 +175,9 @@ export default async function Home() {
                   id="home-search"
                   name="q"
                   placeholder="Search waterfalls, scenic drives, villages..."
-                  className="h-14 border-white/30 bg-white/95 text-slate-900 placeholder:text-slate-500"
+                  className="h-16 border-white/35 bg-white/96 text-slate-900 placeholder:text-slate-500"
                 />
-                <Button type="submit" size="lg" className="h-14 px-7 uppercase tracking-[0.12em]">
+                <Button type="submit" size="lg" className="h-16 bg-(--color-forest-green) px-8 uppercase tracking-[0.12em] text-(--color-cream) shadow-lg motion-safe:hover:bg-(--color-pine)">
                   Search
                 </Button>
               </div>
@@ -182,28 +186,31 @@ export default async function Home() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/places"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-(--color-maple-gold) px-6 text-sm font-semibold uppercase tracking-[0.12em] text-(--color-forest-green) motion-safe:transition motion-safe:hover:opacity-90"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-(--color-forest-green) px-6 text-sm font-semibold uppercase tracking-[0.12em] text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
               >
                 Explore Places
               </Link>
               <Link
                 href="/planner/new"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-white/35 bg-white/10 px-6 text-sm font-semibold uppercase tracking-[0.12em] text-(--color-cream) motion-safe:transition motion-safe:hover:bg-white/15"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-white/40 bg-transparent px-6 text-sm font-semibold uppercase tracking-[0.12em] text-(--color-cream) motion-safe:transition motion-safe:hover:bg-white/12"
               >
                 I&apos;m Feeling Adventurous
               </Link>
             </div>
           </div>
 
-          <div className="flex items-end">
-            <Card variant="hero" className="w-full bg-black/25 p-5 text-(--color-cream) backdrop-blur-sm">
-              <MetaText as="p" variant="eyebrow" className="text-(--color-maple-gold)">
+          <div className="flex items-start pt-6 lg:justify-end lg:pt-8">
+            <Card
+              variant="hero"
+              className="w-full max-w-xl border border-[#d9ceb7] bg-white/97 p-6 shadow-xl backdrop-blur-sm sm:p-7"
+            >
+              <MetaText as="p" variant="eyebrow" className="text-(--color-forest-green)">
                 Today&apos;s Adventure
               </MetaText>
-              <h2 className="mt-2 text-2xl font-semibold">
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">
                 {todaysAdventure ? `Route anchored at ${todaysAdventure.name}` : "Build your day from local signals"}
               </h2>
-              <p className="mt-3 text-sm leading-7 text-slate-100">
+              <p className="mt-3 max-w-[34ch] text-base leading-7 text-slate-700">
                 {todaysAdventure
                   ? todaysAdventure.description
                   : "Start with the strongest recommendation, then add food, views, and an evening stop nearby."}
@@ -211,7 +218,7 @@ export default async function Home() {
               {todaysAdventure ? (
                 <Link
                   href={`/places/${todaysAdventure.slug}`}
-                  className="mt-4 inline-flex text-sm font-semibold text-(--color-maple-gold) underline underline-offset-4"
+                  className="mt-4 inline-flex rounded-full bg-(--color-maple-gold) px-4 py-2 text-sm font-semibold text-(--color-forest-green) motion-safe:transition motion-safe:hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-maple-gold) focus-visible:ring-offset-2"
                 >
                   Open today&apos;s route
                 </Link>
