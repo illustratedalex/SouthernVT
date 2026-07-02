@@ -7,7 +7,7 @@ interface CollectionCardProps {
 
 export function CollectionCard({ collection }: CollectionCardProps) {
   return (
-    <article className="overflow-hidden rounded-[26px] border border-[#e8dfc8] bg-white shadow-[0_14px_48px_rgba(31,59,47,0.1)] transition hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(31,59,47,0.14)]">
+    <article className="overflow-hidden rounded-[26px] border border-[#e8dfc8] bg-white shadow-[0_14px_48px_rgba(31,59,47,0.1)] motion-safe:transition-all motion-safe:duration-200 motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-[0_18px_55px_rgba(31,59,47,0.14)]">
       <div className="relative h-48 overflow-hidden">
         <img src={collection.featuredImage} alt={collection.title} className="h-full w-full object-cover" />
         <div className="absolute left-4 top-4 rounded-full bg-(--color-cream)/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-(--color-forest-green)">
@@ -23,7 +23,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
           <span className="rounded-full bg-[#f7efe1] px-3 py-1 text-xs font-semibold text-[#1f3b2f]">{collection.audience}</span>
           {collection.featured ? <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Featured</span> : null}
         </div>
-        <Link href={`/collections/${collection.slug}`} className="inline-flex rounded-full bg-(--color-forest-green) px-4 py-2 text-sm font-semibold text-(--color-cream) transition hover:bg-(--color-pine)">
+        <Link href={`/collections/${collection.slug}`} className="inline-flex rounded-full bg-(--color-forest-green) px-4 py-2 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-maple-gold) focus-visible:ring-offset-2">
           View guide
         </Link>
       </div>

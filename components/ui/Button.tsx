@@ -3,23 +3,28 @@ import { cn } from "./cn";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "ghost";
-  size?: "sm" | "md" | "lg";
+  /**
+   * "icon" renders a square touch-target for icon-only buttons.
+   * Pair with an aria-label for accessibility.
+   */
+  size?: "sm" | "md" | "lg" | "icon";
   children: ReactNode;
 };
 
 const baseStyles =
-  "inline-flex items-center justify-center rounded-full font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60";
+  "inline-flex items-center justify-center rounded-full font-semibold motion-safe:transition-all motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-maple-gold) focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60";
 
 const variantStyles = {
-  primary: "bg-(--color-maple-gold) text-(--color-forest-green) hover:opacity-90",
-  secondary: "bg-(--color-forest-green) text-(--color-cream) hover:bg-(--color-pine)",
-  ghost: "bg-transparent text-(--color-slate) hover:bg-[rgba(31,59,47,0.06)]",
+  primary: "bg-(--color-maple-gold) text-(--color-forest-green) motion-safe:hover:opacity-90",
+  secondary: "bg-(--color-forest-green) text-(--color-cream) motion-safe:hover:bg-(--color-pine)",
+  ghost: "bg-transparent text-(--color-slate) motion-safe:hover:bg-[rgba(31,59,47,0.06)]",
 };
 
 const sizeStyles = {
   sm: "h-10 px-4 text-sm",
   md: "h-12 px-5 text-sm",
   lg: "h-14 px-6 text-base",
+  icon: "h-10 w-10 p-0 text-base",
 };
 
 export function Button({ className, variant = "primary", size = "md", children, ...props }: ButtonProps) {
