@@ -18,6 +18,7 @@ import { PlaceGallery } from "./PlaceGallery";
 import { PlacePreview } from "./PlacePreview";
 import { PlaceStatusBadge } from "./PlaceStatusBadge";
 import { PlaceTypeBadge } from "./PlaceTypeBadge";
+import { VerificationEditor } from "./VerificationEditor";
 import { BasecampPageHeader } from "./BasecampPageHeader";
 import { BasecampPreviewPanel } from "./BasecampPreviewPanel";
 import { BasecampTabs } from "./BasecampTabs";
@@ -26,7 +27,7 @@ interface PlaceFormProps {
   initialPlace?: Place;
 }
 
-type TabKey = "basic" | "location" | "media" | "categories" | "details" | "knowledge" | "seo" | "preview";
+type TabKey = "basic" | "location" | "media" | "categories" | "details" | "verification" | "knowledge" | "seo" | "preview";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "basic", label: "Basic" },
@@ -34,6 +35,7 @@ const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "media", label: "Media" },
   { key: "categories", label: "Categories" },
   { key: "details", label: "Details" },
+  { key: "verification", label: "Verification" },
   { key: "knowledge", label: "Knowledge Graph" },
   { key: "seo", label: "SEO" },
   { key: "preview", label: "Preview" },
@@ -590,6 +592,10 @@ export function PlaceForm({ initialPlace }: PlaceFormProps) {
               </div>
             </div>
           </section>
+        ) : null}
+
+        {activeTab === "verification" ? (
+          <VerificationEditor placeId={place.id} placeName={place.name} />
         ) : null}
 
         {activeTab === "knowledge" ? (

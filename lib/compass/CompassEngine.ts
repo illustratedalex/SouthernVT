@@ -3,6 +3,7 @@ import { calculatePlaceCompleteness } from "@/lib/completeness/placeCompleteness
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getEdges as getKnowledgeEdges } from "@/lib/repositories/KnowledgeGraphRepository";
 import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
+import { getVerificationByPlaceId } from "@/lib/repositories/VerificationRepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
 import { getPublishedArticles } from "@/repositories/ArticleRepository";
@@ -186,6 +187,24 @@ function dnaWeatherBoost(preference: "sunny" | "cloudy" | "rainy" | "snowy" | "a
   return normalizeWeather(weather) === preference ? 8 : 0;
 }
 
+function verificationBoost(levels: Array<"location_verified" | "photo_verified" | "personally_visited" | "southernvt_recommended">): number {
+  return levels.reduce((score, level) => {
+    if (level === "southernvt_recommended") {
+      return score + 6;
+    }
+    if (level === "personally_visited") {
+      return score + 4;
+    }
+    if (level === "photo_verified") {
+      return score + 3;
+    }
+    if (level === "location_verified") {
+      return score + 2;
+    }
+    return score;
+  }, 0);
+}
+
 export const CompassEngine = {
   async scorePlace(place: Place, context: CompassContext = {}): Promise<Recommendation<Place>> {
     const reasons: RecommendationReason[] = [];
@@ -269,6 +288,15 @@ export const CompassEngine = {
     if ((await premiumProfilesEnabled()) && place.isPremium) {
       score += 4;
       reasons.push(reason("Premium partner profile boost.", "featured", 4));
+    }
+
+    const verification = await getVerificationByPlaceId(place.id);
+    if (verification) {
+      const trustScore = verificationBoost(verification.levels);
+      if (trustScore > 0) {
+        score += trustScore;
+        reasons.push(reason("Verified by SouthernVT trust signals.", "verification", trustScore));
+      }
     }
 
     const completeness = calculatePlaceCompleteness(place).percentage;

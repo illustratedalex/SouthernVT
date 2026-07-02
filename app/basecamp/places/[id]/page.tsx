@@ -7,6 +7,7 @@ import {
   PlaceForm,
   PublishingPanel,
   RelationshipEditor,
+  VerificationEditor,
   VersionHistory,
   WorkflowTimeline,
 } from "@/components/basecamp";
@@ -93,6 +94,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               </div>
             </section>
             <CompletenessMeter score={completeness} />
+            <VerificationEditor placeId={place.id} placeName={place.name} />
             <PublishingPanel currentStatus={currentStatus} />
             <WorkflowTimeline events={workflowEvents} />
             <VersionHistory versions={versions} />

@@ -18,6 +18,7 @@ export type RecommendationReasonCode =
   | "adventure"
   | "photography"
   | "hidden_gem"
+  | "verification"
   | "dna_mood"
   | "dna_visit_length"
   | "dna_energy"

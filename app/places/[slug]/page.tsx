@@ -45,6 +45,9 @@ import type { Place } from "@/types/Place";
 import type { Story } from "@/types/Story";
 import { PlacePassportCTA } from "@/components/public/PlacePassportCTA";
 import { PlacePlanningCTA } from "@/components/public/PlacePlanningCTA";
+import { VerificationBadge } from "@/components/public/VerificationBadge";
+import { VerificationPanel } from "@/components/public/VerificationPanel";
+import { getVerificationByPlaceId } from "@/lib/repositories/VerificationRepository";
 
 interface PlaceDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -97,6 +100,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     reviewsEnabled,
     businessPortalEnabled,
     premiumProfilesEnabled,
+    verificationRecord,
     approvedReviews,
     storyRecord,
     relatedPlaces,
@@ -117,6 +121,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     isFeatureEnabled("reviews"),
     isFeatureEnabled("businessPortal"),
     isFeatureEnabled("premiumProfiles"),
+    getVerificationByPlaceId(place.id),
     getApprovedReviewsByPlaceId(place.id),
     getStoryByPlace(place.id),
     DiscoveryService.getRelatedPlaces({ placeId: place.id, limit: 8 }),
@@ -230,6 +235,8 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     return true;
   });
   const showPremiumProfile = premiumProfilesEnabled && Boolean(place.isPremium);
+  const isRecommendedBySouthernVT = Boolean(verificationRecord?.levels.includes("southernvt_recommended"));
+  const isUnverified = verificationRecord?.status === "unverified";
   const premiumGallery = (place.businessGallery?.length ? place.businessGallery : place.gallery).slice(0, 8);
   const premiumEvents = allEvents.filter((event) => event.venuePlaceId === place.id).slice(0, 3);
   const premiumDeals = allDeals.filter((deal) => deal.placeId === place.id).slice(0, 3);
@@ -251,10 +258,12 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
         badges={[
           place.featured ? "Flagship" : "Featured",
           ...layoutProfile.heroBadges,
+          ...(isRecommendedBySouthernVT ? ["SouthernVT Recommended"] : []),
           ...(showPremiumProfile ? ["Premium Partner"] : []),
         ]}
       >
         <div className="space-y-4">
+          {isRecommendedBySouthernVT ? <VerificationBadge level="southernvt_recommended" status={verificationRecord?.status ?? "verified"} emphasize /> : null}
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-(--color-maple-gold)">Flagship Place Experience</p>
           <div className="space-y-2 text-sm leading-7 text-slate-200">
             <p>{place.address}</p>
@@ -329,6 +338,12 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               </div>
             </div>
           </ContentSection>
+        ) : null}
+
+        <VerificationPanel record={verificationRecord} />
+
+        {isUnverified ? (
+          <div className="rounded-2xl border border-[#e8dfc8] bg-white px-4 py-3 text-sm text-slate-600">Details are being reviewed by SouthernVT.</div>
         ) : null}
 
         <QuickFacts facts={layoutProfile.quickFacts} />

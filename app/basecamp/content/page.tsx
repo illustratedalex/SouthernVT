@@ -8,11 +8,17 @@ import {
   QuickActionsPanel,
   SeasonPlanner,
   TodaysPriorities,
+  VerificationHealthCard,
   WeeklyGoalCard,
   WritingQueue,
 } from "@/components/basecamp/content-studio";
 import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { getVaultEntries } from "@/lib/content/knowledgeVault";
+import {
+  getPlacesNeedingReview as getPlacesNeedingVerificationReview,
+  getRecommendedPlaces as getRecommendedVerifiedPlaces,
+  getVerifiedPlaces,
+} from "@/lib/repositories/VerificationRepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getMediaAssets } from "@/lib/repositories/mediaRepository";
 import { getArticles } from "@/repositories/ArticleRepository";
@@ -96,16 +102,20 @@ function buildLandscapeImage(date: Date): string {
 }
 
 export default async function BasecampContentStudioPage() {
-  const [places, collections, articles, events, deals, mediaAssets] = await Promise.all([
+  const [places, collections, articles, events, deals, mediaAssets, verifiedPlaces, recommendedPlaces, placesNeedingVerificationReview] = await Promise.all([
     getPlaces(),
     getCollections(),
     getArticles(),
     getEvents(),
     getDeals(),
     getMediaAssets(),
+    getVerifiedPlaces(),
+    getRecommendedVerifiedPlaces(),
+    getPlacesNeedingVerificationReview(),
   ]);
 
   const vaultEntries = getVaultEntries();
+  const expiredVerificationsCount = placesNeedingVerificationReview.filter((record) => record.status === "expired").length;
 
   const placeStories = await Promise.all(places.map((place) => getStoryByPlace(place.id)));
   const collectionStories = await Promise.all(collections.map((collection) => getStoryByCollection(collection.id)));
@@ -374,6 +384,13 @@ export default async function BasecampContentStudioPage() {
               ))}
             </div>
           </section>
+
+          <VerificationHealthCard
+            verifiedPlacesCount={verifiedPlaces.length}
+            recommendedPlacesCount={recommendedPlaces.length}
+            placesNeedingReviewCount={placesNeedingVerificationReview.length}
+            expiredVerificationsCount={expiredVerificationsCount}
+          />
 
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-slate-900">Photography Missions</h2>

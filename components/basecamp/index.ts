@@ -73,5 +73,8 @@ export * from "./RelationshipPanel";
 export * from "./RelationshipSelector";
 export * from "./SelectedPlacesList";
 export * from "./VersionHistory";
+export * from "./VerificationEditor";
+export * from "./VerificationHistory";
+export * from "./VerificationStatusBadge";
 export * from "./WorkflowTimeline";
 export * from "./place-builder/PlaceBuilderWizard";

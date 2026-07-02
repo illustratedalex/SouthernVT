@@ -2,6 +2,7 @@ import { mockRelationships } from "@/data/relationships";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getEdges as getKnowledgeEdges } from "@/lib/repositories/KnowledgeGraphRepository";
 import { getAllPlaceDNA, getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
+import { getVerificationByPlaceId } from "@/lib/repositories/VerificationRepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getStoryByCollection, getStoryByPlace } from "@/repositories/StoryRepository";
 import { getPublishedArticles } from "@/repositories/ArticleRepository";
@@ -174,6 +175,24 @@ function dnaMoodBoost(anchorMoods: PlaceMood[], candidateMoods: PlaceMood[]): nu
   return overlapCount(anchorMoods, candidateMoods) * 7;
 }
 
+function verificationBoost(levels: Array<"location_verified" | "photo_verified" | "personally_visited" | "southernvt_recommended">): number {
+  return levels.reduce((score, level) => {
+    if (level === "southernvt_recommended") {
+      return score + 6;
+    }
+    if (level === "personally_visited") {
+      return score + 4;
+    }
+    if (level === "photo_verified") {
+      return score + 3;
+    }
+    if (level === "location_verified") {
+      return score + 2;
+    }
+    return score;
+  }, 0);
+}
+
 async function loadPublishedCollections(): Promise<Collection[]> {
   const collections = await getCollections();
   return collections.filter((collection) => collection.status === "published");
@@ -229,7 +248,7 @@ export const DiscoveryService = {
     const scored: Array<Scored<Place>> = [];
 
     for (const candidate of places.filter((entry) => entry.id !== anchor.id)) {
-      const candidateStory = await getStoryByPlace(candidate.id);
+      const [candidateStory, verification] = await Promise.all([getStoryByPlace(candidate.id), getVerificationByPlaceId(candidate.id)]);
       const miles = distanceMiles(anchor.latitude, anchor.longitude, candidate.latitude, candidate.longitude);
       const distanceScore = Math.max(0, 40 - Math.min(40, miles));
       const tagScore = overlapCount(anchor.tags, candidate.tags) * 7;
@@ -239,10 +258,11 @@ export const DiscoveryService = {
       const premiumScore = premiumEnabled && candidate.isPremium ? 4 : 0;
       const collectionScore = anchorCollections.filter((collection) => collection.places.includes(candidate.id)).length * 10;
       const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
+      const trustScore = verification ? verificationBoost(verification.levels) : 0;
 
       scored.push({
         item: candidate,
-        score: distanceScore + tagScore + categoryScore + relationshipScore + featuredScore + premiumScore + collectionScore + storyScore,
+        score: distanceScore + tagScore + categoryScore + relationshipScore + featuredScore + premiumScore + collectionScore + storyScore + trustScore,
       });
     }
 
@@ -270,7 +290,7 @@ export const DiscoveryService = {
 
     const scored: Array<Scored<Place>> = [];
     for (const candidate of places.filter((entry) => entry.status === "published" && entry.id !== anchor.id)) {
-      const [candidateStory, candidateDNA] = await Promise.all([getStoryByPlace(candidate.id), getPlaceDNA(candidate.id)]);
+      const [candidateStory, candidateDNA, verification] = await Promise.all([getStoryByPlace(candidate.id), getPlaceDNA(candidate.id), getVerificationByPlaceId(candidate.id)]);
       const tagScore = overlapCount(anchor.tags, candidate.tags) * 9;
       const categoryScore = overlapCount(anchor.categories, candidate.categories) * 6;
       const relationshipScore = graphBoost("place", anchor.id, "place", candidate.id, graphIndex);
@@ -280,10 +300,11 @@ export const DiscoveryService = {
       const premiumScore = premiumEnabled && candidate.isPremium ? 4 : 0;
       const storyScore = storySeasonBoost(anchorStory?.season, candidateStory?.season) + storyDifficultyBoost(anchorStory?.difficulty, candidateStory?.difficulty);
       const dnaScore = anchorDNA && candidateDNA ? dnaMoodBoost(anchorDNA.moods, candidateDNA.moods) : 0;
+      const trustScore = verification ? verificationBoost(verification.levels) : 0;
 
       scored.push({
         item: candidate,
-        score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore + premiumScore + storyScore + dnaScore,
+        score: tagScore + categoryScore + relationshipScore + sharedCollectionScore + sharedArticleScore + featuredScore + premiumScore + storyScore + dnaScore + trustScore,
       });
     }
 
