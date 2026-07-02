@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/admin";
 import {
   ContentScoreGauge,
   DiscoveryOpportunityCard,
+  KnowledgeVaultCard,
   PhotoMissionCard,
   QuickActionsPanel,
   SeasonPlanner,
@@ -11,6 +12,7 @@ import {
   WritingQueue,
 } from "@/components/basecamp/content-studio";
 import { calculateHealth } from "@/lib/content/ContentHealthService";
+import { getVaultEntries } from "@/lib/content/knowledgeVault";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { getMediaAssets } from "@/lib/repositories/mediaRepository";
 import { getArticles } from "@/repositories/ArticleRepository";
@@ -102,6 +104,8 @@ export default async function BasecampContentStudioPage() {
     getDeals(),
     getMediaAssets(),
   ]);
+
+  const vaultEntries = getVaultEntries();
 
   const placeStories = await Promise.all(places.map((place) => getStoryByPlace(place.id)));
   const collectionStories = await Promise.all(collections.map((collection) => getStoryByCollection(collection.id)));
@@ -428,6 +432,8 @@ export default async function BasecampContentStudioPage() {
             articlesMissingSummary={articlesMissingSummary}
             collectionsMissingIntroduction={collectionsMissingIntroduction}
           />
+
+          <KnowledgeVaultCard entries={vaultEntries} />
 
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-slate-900">Discovery Opportunities</h2>

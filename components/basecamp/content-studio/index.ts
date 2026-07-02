@@ -1,5 +1,6 @@
 export * from "./ContentScoreGauge";
 export * from "./DiscoveryOpportunityCard";
+export * from "./KnowledgeVaultCard";
 export * from "./PhotoMissionCard";
 export * from "./QuickActionsPanel";
 export * from "./SeasonPlanner";
