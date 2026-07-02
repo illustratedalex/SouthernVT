@@ -586,6 +586,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             <RecommendedEventsRail events={nearbyEvents} title="Nearby Events" />
             <RecommendedCollectionsRail collections={relatedCollections} title="Related Collections" />
             <RecommendationRail
+              variant="sidebar"
               title="Compass Nearby Picks"
               recommendations={compassNearby}
               emptyMessage="Compass nearby picks will appear here."
@@ -600,6 +601,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               })}
             />
             <RecommendationRail
+              variant="sidebar"
               title="Compass Collection Picks"
               recommendations={compassCollections}
               emptyMessage="Compass collection picks will appear here."
@@ -614,6 +616,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               })}
             />
             <RecommendationRail
+              variant="sidebar"
               title="Compass Event Picks"
               recommendations={compassEvents}
               emptyMessage="Compass event picks will appear here."

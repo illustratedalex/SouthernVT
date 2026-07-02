@@ -9,11 +9,12 @@ type RecommendationCardProps = {
   score: number;
   badge?: string;
   reasons: RecommendationReason[];
+  variant?: "sidebar";
 };
 
-export function RecommendationCard({ title, subtitle, href, score, badge, reasons }: RecommendationCardProps) {
+export function RecommendationCard({ title, subtitle, href, score, badge, reasons, variant }: RecommendationCardProps) {
   return (
-    <article className="rounded-[22px] border border-[#e8dfc8] bg-white p-4 shadow-sm">
+    <article className={`rounded-[22px] border border-[#e8dfc8] bg-white p-4 shadow-sm${variant === "sidebar" ? " w-full min-w-0" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-base font-semibold text-slate-900">{title}</h3>
         {badge ? <span className="rounded-full bg-[#f7efe1] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#1f3b2f]">{badge}</span> : null}

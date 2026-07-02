@@ -17,9 +17,10 @@ type RecommendationRailProps<T> = {
   recommendations: Recommendation<T>[];
   mapItem: (recommendation: Recommendation<T>) => RecommendationRailItem;
   emptyMessage: string;
+  variant?: "sidebar";
 };
 
-export function RecommendationRail<T>({ title, recommendations, mapItem, emptyMessage }: RecommendationRailProps<T>) {
+export function RecommendationRail<T>({ title, recommendations, mapItem, emptyMessage, variant }: RecommendationRailProps<T>) {
   if (!recommendations.length) {
     return (
       <section className="rounded-[26px] border border-[#e8dfc8] bg-white p-5 shadow-sm">
@@ -29,10 +30,15 @@ export function RecommendationRail<T>({ title, recommendations, mapItem, emptyMe
     );
   }
 
+  const listClass =
+    variant === "sidebar"
+      ? "mt-4 flex flex-col gap-4"
+      : "mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3";
+
   return (
     <section className="rounded-[26px] border border-[#e8dfc8] bg-white p-5 shadow-sm">
       <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
-      <div className="mt-4 flex flex-col gap-3">
+      <div className={listClass}>
         {recommendations.map((recommendation) => {
           const item = mapItem(recommendation);
           return (
@@ -44,6 +50,7 @@ export function RecommendationRail<T>({ title, recommendations, mapItem, emptyMe
               score={item.score}
               badge={item.badge}
               reasons={item.reasons}
+              variant={variant}
             />
           );
         })}
