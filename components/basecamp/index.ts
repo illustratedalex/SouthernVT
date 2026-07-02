@@ -74,4 +74,4 @@ export * from "./RelationshipSelector";
 export * from "./SelectedPlacesList";
 export * from "./VersionHistory";
 export * from "./WorkflowTimeline";
-export * from "./PlaceBuilderWizard";
+export * from "./place-builder/PlaceBuilderWizard";
