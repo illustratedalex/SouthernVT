@@ -85,6 +85,17 @@ export async function generateMetadata({ params }: PlaceDetailPageProps): Promis
     });
   }
 
+  if (place.slug === "jamaica-state-park") {
+    return createPageMetadata({
+      title: "Jamaica State Park, Vermont: Camping, Swimming & River Guide | SouthernVT",
+      description:
+        "Discover Jamaica State Park's riverside basecamp: camping, swimming holes, picnic areas, West River trails, and direct access to Hamilton Falls for complete Southern Vermont family days.",
+      path: `/places/${place.slug}`,
+      image: place.featuredImage,
+      type: "article",
+    });
+  }
+
   return createPlaceMetadata(place, story?.summary);
 }
 
@@ -174,8 +185,11 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
   const layoutProfile = getPlaceLayoutProfile(place);
   const isWaterfallLayout = layoutProfile.layoutType === "waterfall";
+  const isParkLayout = layoutProfile.layoutType === "park";
 
-  const preferredNearby = ["jamaica-state-park", "mount-equinox-skyline-drive", "windham-brewing-co", "brattleboro-farmers-market", "grafton-inn"];
+  const preferredNearby = place.slug === "jamaica-state-park" 
+    ? ["hamilton-falls", "mount-equinox-skyline-drive", "windham-brewing-co", "brattleboro-farmers-market", "grafton-inn"]
+    : ["jamaica-state-park", "mount-equinox-skyline-drive", "windham-brewing-co", "brattleboro-farmers-market", "grafton-inn"];
   const featuredNearbyAdventures = preferredNearby
     .map((slugItem) => relatedPlaces.find((candidate) => candidate.slug === slugItem) || null)
     .filter((candidate): candidate is Place => Boolean(candidate && candidate.status === "published"));
@@ -190,6 +204,15 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
           seoTitle: "Hamilton Falls, Vermont: Hidden Waterfall Hike, Swimming Notes, and Day Trip Guide",
           seoDescription:
             "Explore Hamilton Falls with clear trailhead details, parking strategy, seasonal water flow guidance, safety notes, nearby food and lodging, and a complete Southern Vermont day-trip plan.",
+          gallery: scoringGallery.length >= 8 ? scoringGallery : [...scoringGallery, ...Array.from({ length: 8 - scoringGallery.length }, () => place.featuredImage)],
+          relatedPlaces: Array.from(new Set([...place.relatedPlaces, ...nearbyAdventureFeed.map((candidate) => candidate.id)])).slice(0, 8),
+        }
+      : place.slug === "jamaica-state-park"
+      ? {
+          ...place,
+          seoTitle: "Jamaica State Park, Vermont: Camping, Swimming, Trails & River Guide",
+          seoDescription:
+            "Plan Jamaica State Park for camping, swimming, riverside picnics, West River trails, and family-friendly access to Hamilton Falls and nearby adventures.",
           gallery: scoringGallery.length >= 8 ? scoringGallery : [...scoringGallery, ...Array.from({ length: 8 - scoringGallery.length }, () => place.featuredImage)],
           relatedPlaces: Array.from(new Set([...place.relatedPlaces, ...nearbyAdventureFeed.map((candidate) => candidate.id)])).slice(0, 8),
         }
@@ -213,6 +236,29 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             "Best drone launch area placeholder: open shoulder near the trailhead clearing.",
             "Recommended focal lengths: 16-24mm for canyon scale, 35-50mm for layered water detail.",
             "Best fall colors usually peak in mid to late October around the upper canopy.",
+          ],
+        }
+      : place.slug === "jamaica-state-park"
+      ? {
+          ...story,
+          summary:
+            "A flexible riverside basecamp where families find swimming, camping, picnicking, and trail access without choosing just one activity.",
+          visitorTips: [
+            "Bring water shoes for rocky river entries—smooth river stones create easy paths but require grip.",
+            "Check posted river conditions after storms; water levels can rise quickly and change swimming safety.",
+            "Plan a picnic window before noon for best table options and shade positioning.",
+            "Arrive early on summer weekends for preferred parking spots closer to river access.",
+            "Bug spray is essential in spring and early summer near the water.",
+            "Stay on marked trails—the forest here contains private property boundaries.",
+            "Leave No Trace is the local ethic; pack out everything you carry in.",
+          ],
+          photographyTips: [
+            "Morning light on the riverbank is softer and easier for portraits and family scenes.",
+            "Use shoreline foreground stones and fallen trees to frame wider scenic shots.",
+            "Cloudy weather often brings cleaner color and less glare off the water surface.",
+            "Fall colors peak in early to mid-October; reflections in calm pool sections are excellent.",
+            "River bridges and covered areas create natural framing for composition.",
+            "Best drone launch area placeholder: open areas near the parking lot and picnic zone.",
           ],
         }
       : story;
@@ -352,18 +398,24 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="space-y-6">
-            <StoryHero story={story} eyebrow={isWaterfallLayout ? "Flagship Story" : layoutProfile.contentLabels.storyEyebrow} />
+            <StoryHero story={story} eyebrow={isWaterfallLayout || isParkLayout ? "Flagship Story" : layoutProfile.contentLabels.storyEyebrow} />
             <StorySummary story={scoringStory} />
             <ContentSection
               title={`Why Visit ${place.name}`}
-              eyebrow={isWaterfallLayout ? "Flagship Standard" : "Destination Highlights"}
-              description={isWaterfallLayout ? "This is the benchmark destination experience for future SouthernVT place pages." : layoutProfile.contentLabels.storyDescription}
+              eyebrow={isWaterfallLayout || isParkLayout ? "Flagship Standard" : "Destination Highlights"}
+              description={isWaterfallLayout || isParkLayout ? "This is the benchmark destination experience for future SouthernVT place pages." : layoutProfile.contentLabels.storyDescription}
             >
               {isWaterfallLayout ? (
                 <ul className="space-y-3 text-sm leading-7 text-slate-700">
                   <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Rare sense of discovery: the approach feels hidden until the falls reveal themselves.</span></li>
                   <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Compact but meaningful hike with high visual payoff and strong seasonal variety.</span></li>
                   <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Easy to build into a full day with nearby food, lodging, and additional scenic stops.</span></li>
+                </ul>
+              ) : isParkLayout ? (
+                <ul className="space-y-3 text-sm leading-7 text-slate-700">
+                  <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Flexible riverside basecamp that accommodates swimming, camping, picnicking, and hiking without demanding a single choice.</span></li>
+                  <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Gateway access to Hamilton Falls and the West River Trail network, with family-friendly swimming holes and picnic areas.</span></li>
+                  <li className="flex gap-3"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-(--color-forest-green)" /><span>Seasonal variety from summer camping to fall foliage to quiet winter snowshoeing, with locals returning year-round.</span></li>
                 </ul>
               ) : (
                 <ul className="space-y-3 text-sm leading-7 text-slate-700">
@@ -376,7 +428,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             <ContentSection
               title="Story"
               eyebrow="Editorial Field Notes"
-              description={isWaterfallLayout ? "Hamilton Falls is the benchmark for how Southern Vermont stories should feel: grounded, specific, and useful in the field." : layoutProfile.contentLabels.storyDescription}
+              description={isWaterfallLayout ? "Hamilton Falls is the benchmark for how Southern Vermont stories should feel: grounded, specific, and useful in the field." : isParkLayout ? "Jamaica State Park is the benchmark for flexibility and accessibility in destination planning." : layoutProfile.contentLabels.storyDescription}
             >
               {isWaterfallLayout ? (
                 <div className="space-y-4 text-base leading-8 text-slate-700">
@@ -393,6 +445,18 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                     Hamilton Falls changes by season rather than by trend: bright green walls in June, golden canopy in October, and a quieter, colder mood when days shorten.
                     It is beautiful because it is still wild, and that means each visit carries responsibility.
                     Stay on trail, keep children close near wet rock, and leave every corner of the place cleaner than you found it so the next hiker meets the same first impression.
+                  </p>
+                </div>
+              ) : isParkLayout ? (
+                <div className="space-y-4 text-base leading-8 text-slate-700">
+                  <p>
+                    Jamaica State Park is where many Southern Vermont weekends settle into rhythm. The West River corridor gives you shade, water access, and enough room to spread out without feeling remote. It is the kind of place locals return to each season because the day can stay flexible: swim in the morning, walk a trail at midday, picnic when you're hungry, then head into nearby towns for dinner.
+                  </p>
+                  <p>
+                    The park sits in a fold of the West River Valley where the water moves at a pace that feels negotiable—fast enough for visual interest, slow enough for swimming and riverside exploration. The campground and day-use picnic areas give you multiple anchors, which means you can plan a full day without choosing just one activity. Families come for the sandy entry points and shallow pools. Photographers find morning light on the water and fall foliage reflected in quiet sections. Hikers use it as a basecamp for nearby trails, especially the short walk to nearby Hamilton Falls or longer routes through the river corridor.
+                  </p>
+                  <p>
+                    Winter brings a different kind of solitude. When snow covers the picnic areas and the river slows beneath winter light, locals return for quiet walks, snowshoeing in the surrounding woods, and the strange peace of a state park with few visitors. Spring brings rushing water and mud season trails. Fall turns the surrounding hillsides into layers of color that deepen by week, making October weekends the busiest season and late September mornings some of the most peaceful.
                   </p>
                 </div>
               ) : (
