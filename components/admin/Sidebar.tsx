@@ -16,7 +16,10 @@ type SidebarProps = {
   items: SidebarItem[];
 };
 
-const alwaysVisibleItems: SidebarItem[] = [{ label: "Founding Partners", href: "/basecamp/founding-partners" }];
+const alwaysVisibleItems: SidebarItem[] = [
+  { label: "Founding Partners", href: "/basecamp/founding-partners" },
+  { label: "Partner Outreach", href: "/basecamp/partner-outreach" },
+];
 
 const conditionalModuleMap: Array<{ label: string; href: string; flag: BasecampFeatureKey }> = [
   { label: "AI Planner", href: "/trips/new", flag: "aiPlanner" },
