@@ -43,6 +43,7 @@ const navItems = [
   { label: "Dashboard", href: "/basecamp" },
   { label: "Newsroom", href: "/basecamp/content", active: true },
   { label: "Editorial Studio", href: "/basecamp/content" },
+  { label: "Editorial Issue", href: "/basecamp/editorial-issue" },
   { label: "Knowledge Graph", href: "/basecamp/graph" },
   { label: "Content Report", href: "/basecamp/content/report" },
   { label: "Places", href: "/basecamp/places" },
@@ -365,14 +366,34 @@ export default async function BasecampContentStudioPage() {
 
           <TodaysPriorities items={priorityItems} />
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <PublicationQueue />
-            <CopyDesk />
-          </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="grid gap-6 lg:grid-cols-2">
+                <PublicationQueue />
+                <CopyDesk />
+              </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <PhotoDesk />
-            <EditorialCalendar />
+              <div className="grid gap-6 lg:grid-cols-2">
+                <PhotoDesk />
+                <EditorialCalendar />
+              </div>
+            </div>
+            <div>
+              <Link
+                href="/basecamp/editorial-issue"
+                className="block rounded-[28px] border border-[#d7a663] bg-gradient-to-br from-[#d5b766] to-[#c79b4a] p-6 shadow-sm hover:shadow-md transition text-white h-full"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">Plan Your Issue</p>
+                <h3 className="mt-2 text-2xl font-semibold">Editorial Issue Planner</h3>
+                <p className="mt-3 text-sm leading-6 text-white/85">
+                  Design this week&apos;s content theme, assign photography, curate places, and plan publication workflow like a professional magazine.
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-sm font-semibold">
+                  Open Planner
+                  <span>→</span>
+                </div>
+              </Link>
+            </div>
           </div>
 
           <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
