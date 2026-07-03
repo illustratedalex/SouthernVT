@@ -1,17 +1,12 @@
-import {
-  EditorialIssueHeader,
-  EditorialIssueCard,
-  AssignmentBoard,
-  IssueChecklist,
-  CoverStoryCard,
-  PhotoNeedsPanel,
-} from "@/components/basecamp/editorial";
+import Link from "next/link";
 import { Sidebar } from "@/components/admin";
-import { getActiveEditorialIssue, getEditorialIssues } from "@/lib/repositories/EditorialIssueRepository";
+import { BasecampPageHeader, BasecampSection, BasecampStatCard } from "@/components/basecamp";
+import { Badge, Prose } from "@/components/ui";
+import { weeklyIssue } from "@/data/weeklyIssue";
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
-  { label: "Newsroom", href: "/basecamp/content", active: false },
+  { label: "Newsroom", href: "/basecamp/content" },
   { label: "Editorial Studio", href: "/basecamp/content" },
   { label: "Editorial Issue", href: "/basecamp/editorial-issue", active: true },
   { label: "Knowledge Graph", href: "/basecamp/graph" },
@@ -22,161 +17,269 @@ const navItems = [
   { label: "Photo Desk", href: "/basecamp/media" },
   { label: "Activity", href: "/basecamp/activity" },
   { label: "Feature Flags", href: "/basecamp/settings/features" },
+  { label: "Founding Partners", href: "/basecamp/founding-partners" },
 ];
 
+const statusTone: Record<string, string> = {
+  Idea: "border-slate-200 bg-slate-100 text-slate-700",
+  Assigned: "border-blue-200 bg-blue-100 text-blue-800",
+  Draft: "border-violet-200 bg-violet-100 text-violet-800",
+  "Copy Desk": "border-amber-200 bg-amber-100 text-amber-800",
+  "Photo Desk": "border-cyan-200 bg-cyan-100 text-cyan-800",
+  Ready: "border-emerald-200 bg-emerald-100 text-emerald-800",
+  Published: "border-green-200 bg-green-100 text-green-800",
+};
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
 export default function EditorialIssuePlannerPage() {
-  const activeIssue = getActiveEditorialIssue();
-  const allIssues = getEditorialIssues();
-  const upcomingIssues = allIssues.filter((i) => i.status === "planning" || i.status === "active");
-
-  const currentDate = new Date();
-  const landscapeImages = [
-    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1400&q=80",
-    "https://images.unsplash.com/photo-1455849318169-8d779cb6676f?auto=format&fit=crop&w=1400&q=80",
-    "https://images.unsplash.com/photo-1554080221-cbf01cb2d51d?auto=format&fit=crop&w=1400&q=80",
-  ];
-  const landscapeImage = landscapeImages[currentDate.getDate() % landscapeImages.length];
-
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(213,183,102,0.16),transparent_32%),linear-gradient(135deg,#f7efe1_0%,#fcfaf6_100%)] text-slate-800">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-4 sm:px-6 lg:flex-row lg:px-8 lg:py-6">
         <Sidebar items={navItems} />
 
         <main className="flex-1 space-y-6">
-          {/* Hero Section */}
-          <section className="overflow-hidden rounded-[30px] border border-[#e8dfc8] bg-white shadow-sm">
-            <div className="relative grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="space-y-4 p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#1f3b2f]">Editorial Management</p>
-                <h1 className="text-4xl font-semibold text-slate-900">Editorial Issue Planner</h1>
-                <p className="text-sm leading-7 text-slate-600">
-                  {currentDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </p>
-                <p className="max-w-2xl text-sm leading-8 text-slate-600">
-                  Plan weekly SouthernVT stories, photography, assignments, and featured destinations like a professional digital magazine.
-                </p>
-              </div>
-              <div className="h-64 lg:h-full">
-                <img src={landscapeImage} alt="Editorial inspiration" className="h-full w-full object-cover" />
-              </div>
-            </div>
+          <BasecampPageHeader
+            eyebrow="Editorial Management"
+            title={`Issue #${weeklyIssue.issueNumber} · ${weeklyIssue.title}`}
+            description="SouthernVT is centered on one weekly editorial issue that moves from idea to publication through a single newsroom workflow."
+            meta={`Publication date ${formatDate(weeklyIssue.publicationDate)}`}
+            statusPill={weeklyIssue.currentStage}
+            primaryAction={{ label: "Open Newsroom", href: "/basecamp/content" }}
+            secondaryAction={{ label: "Read the feature", href: weeklyIssue.coverStory.href }}
+          />
+
+          <section className="grid gap-4 md:grid-cols-4">
+            {[
+              { label: "Stories in progress", value: String(weeklyIssue.metrics.storiesInProgress), detail: "Supporting stories moving through the newsroom." },
+              { label: "Stories published", value: String(weeklyIssue.metrics.storiesPublished), detail: "Pieces already ready for readers." },
+              { label: "Average Content Health", value: `${weeklyIssue.metrics.averageContentHealth}%`, detail: "Mock editorial quality average for the issue." },
+              { label: "Assignments complete", value: String(weeklyIssue.metrics.assignmentsComplete), detail: "Tasks checked off in the weekly workflow." },
+            ].map((stat) => (
+              <BasecampStatCard key={stat.label} label={stat.label} value={stat.value} detail={stat.detail} />
+            ))}
           </section>
 
-          {/* Active Issue */}
-          {activeIssue && (
-            <>
-              <EditorialIssueHeader issue={activeIssue} />
+          <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+            <BasecampSection
+              eyebrow="Publication Status"
+              title="Issue flow"
+              description="Issue #1 moves through the weekly publication pipeline in order."
+              className="p-6"
+            >
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+                {weeklyIssue.publicationStages.map((stage) => (
+                  <div
+                    key={stage.label}
+                    className={`rounded-2xl border px-3 py-4 text-center ${
+                      stage.complete ? "border-[#cde8d6] bg-[#ecf8f0]" : "border-[#ece3cf] bg-[#fcfaf6]"
+                    }`}
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{stage.label}</p>
+                    <div
+                      className={`mt-3 inline-flex rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${
+                        stage.label === weeklyIssue.currentStage ? "border-[#1f5a3d] bg-[#1f5a3d] text-white" : stage.complete ? "border-[#1f5a3d] bg-white text-[#1f5a3d]" : "border-slate-200 bg-white text-slate-500"
+                      }`}
+                    >
+                      {stage.label === weeklyIssue.currentStage ? "Current" : stage.complete ? "Complete" : "Queued"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </BasecampSection>
 
-              <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2">
-                  <AssignmentBoard assignments={activeIssue.assignments} />
-                </div>
-                <div className="space-y-6">
-                  <PhotoNeedsPanel assignments={activeIssue.assignments} />
-                  <IssueChecklist issue={activeIssue} />
+            <BasecampSection
+              eyebrow="Cover Story"
+              title={weeklyIssue.coverStory.title}
+              description={weeklyIssue.coverStory.summary}
+              className="p-6"
+            >
+              <div className="overflow-hidden rounded-[28px] border border-[#e8dfc8] bg-[#10261e] text-[#f8f2e4]">
+                <div className="bg-[linear-gradient(135deg,rgba(20,49,38,0.84),rgba(216,177,93,0.36)),radial-gradient(circle_at_top_right,rgba(255,255,255,0.16),transparent_30%)] p-6">
+                  <Badge variant="featured" className="w-fit text-[10px] tracking-[0.18em]">
+                    Lead photo placeholder
+                  </Badge>
+                  <div className="mt-6 flex min-h-48 flex-col justify-end">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#d8b15d]">Hamilton Falls</p>
+                    <h3 className="mt-2 text-3xl font-semibold text-[#fff9ee]">{weeklyIssue.coverStory.title}</h3>
+                    <p className="mt-3 max-w-2xl text-sm leading-7 text-[#efe4d1]">{weeklyIssue.coverStory.summary}</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-2">
-                <CoverStoryCard
-                  storyTitle={activeIssue.title}
-                  theme={activeIssue.theme}
-                  description={activeIssue.notes}
-                />
-                <article className="rounded-3xl border border-[#e8dfc8] bg-white p-6 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Featured Content</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-slate-900">Curated for This Issue</h2>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <article className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Editorial summary</p>
+                  <Prose size="sm" className="mt-2 text-slate-600">
+                    <p>{weeklyIssue.editorialNotes}</p>
+                  </Prose>
+                </article>
+                <article className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Completion</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{weeklyIssue.completionPercent}%</p>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-full rounded-full bg-[linear-gradient(90deg,#d8b15d,#1f5a3d)]" style={{ width: `${weeklyIssue.completionPercent}%` }} />
+                  </div>
+                  <p className="mt-2 text-sm text-slate-600">The issue is in copy desk with photography and verification still moving.</p>
+                </article>
+              </div>
+            </BasecampSection>
+          </section>
 
-                  <div className="mt-6 space-y-4">
+          <BasecampSection
+            eyebrow="Supporting Stories"
+            title="Companion pieces inside the issue"
+            description="Each story supports the cooling-off theme while adding a distinct place, route, or safety angle."
+            className="p-6"
+          >
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {weeklyIssue.supportingStories.map((story) => (
+                <article key={story.title} className="rounded-3xl border border-[#e8dfc8] bg-[#fcfaf6] p-5">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-600 mb-2">Featured Places</p>
-                      <p className="text-lg font-bold text-slate-900">{activeIssue.featuredPlaces.length} destinations</p>
+                      <h3 className="text-lg font-semibold text-slate-900">{story.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-slate-600">{story.summary}</p>
                     </div>
-                    <div className="border-t border-[#ece3cf] pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-600 mb-2">Collections</p>
-                      <p className="text-lg font-bold text-slate-900">{activeIssue.featuredCollections.length} curated</p>
+                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${statusTone[story.status]}`}>
+                      {story.status}
+                    </span>
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Content health</p>
+                    <p className="mt-1 text-2xl font-semibold text-slate-900">{story.contentHealth}%</p>
+                  </div>
+
+                  <Link href={story.href} className="mt-4 inline-flex text-sm font-semibold text-[#1f5a3d] underline underline-offset-4">
+                    Open link
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </BasecampSection>
+
+          <section className="grid gap-6 lg:grid-cols-2">
+            <BasecampSection
+              eyebrow="Featured Collections"
+              title="Collections tied to the issue"
+              description="Mock collection support for the weekly publication package."
+              className="p-6"
+            >
+              <div className="space-y-3">
+                {weeklyIssue.featuredCollections.map((collection) => (
+                  <article key={collection.title} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <p className="text-lg font-semibold text-slate-900">{collection.title}</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-600">{collection.summary}</p>
+                    <Link href={collection.href} className="mt-3 inline-flex text-sm font-semibold text-[#1f5a3d] underline underline-offset-4">
+                      Open collection
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            </BasecampSection>
+
+            <BasecampSection
+              eyebrow="Photography Assignments"
+              title="Photo desk checklist"
+              description="The weekly issue needs a hero, gallery, drone, winter reference, and a short vertical reel."
+              className="p-6"
+            >
+              <div className="space-y-3">
+                {weeklyIssue.photographyAssignments.map((task) => (
+                  <article key={task.title} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-slate-900">{task.title}</p>
+                        <p className="mt-1 text-sm leading-7 text-slate-600">{task.detail}</p>
+                      </div>
+                      <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${task.status === "complete" ? "border-emerald-200 bg-emerald-100 text-emerald-800" : task.status === "in_progress" ? "border-amber-200 bg-amber-100 text-amber-800" : "border-slate-200 bg-slate-100 text-slate-700"}`}>
+                        {task.status.replace("_", " ")}
+                      </span>
                     </div>
-                    <div className="border-t border-[#ece3cf] pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-widest text-slate-600 mb-2">Deals & Events</p>
-                      <p className="text-lg font-bold text-slate-900">
-                        {activeIssue.featuredDeals.length + activeIssue.featuredEvents.length} total
-                      </p>
+                  </article>
+                ))}
+              </div>
+            </BasecampSection>
+          </section>
+
+          <section className="grid gap-6 lg:grid-cols-2">
+            <BasecampSection
+              eyebrow="Copy Desk"
+              title="Readability, SEO, verification, and content health"
+              description="The copy desk keeps the issue readable, searchable, and credible before publication."
+              className="p-6"
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { label: "Readability", value: "Easy", detail: "Straightforward summer language and short paragraphs." },
+                  { label: "SEO", value: "88%", detail: "Strong swim-hole and waterfall search coverage." },
+                  { label: "Verification", value: "79%", detail: "Safety notes and access details are still being checked." },
+                  { label: "Content Health", value: "88%", detail: "The package is healthy across copy, links, and structure." },
+                ].map((metric) => (
+                  <article key={metric.label} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">{metric.label}</p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-900">{metric.value}</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-600">{metric.detail}</p>
+                  </article>
+                ))}
+              </div>
+
+              <article className="mt-4 rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Editorial notes</p>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  {weeklyIssue.editorialNotes} The copy desk is keeping a close eye on the balance between useful river safety guidance and the broader summer story package.
+                </p>
+              </article>
+            </BasecampSection>
+
+            <BasecampSection
+              eyebrow="Verification Tasks"
+              title="What still needs checking"
+              description="A short list of the facts and safety details that should be confirmed before release."
+              className="p-6"
+            >
+              <div className="space-y-3">
+                {weeklyIssue.verificationTasks.map((task) => (
+                  <article key={task.title} className="flex items-start justify-between gap-3 rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <div>
+                      <p className="font-semibold text-slate-900">{task.title}</p>
+                      <p className="mt-1 text-sm leading-7 text-slate-600">{task.detail}</p>
+                    </div>
+                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${task.status === "complete" ? "border-emerald-200 bg-emerald-100 text-emerald-800" : task.status === "in_progress" ? "border-blue-200 bg-blue-100 text-blue-800" : "border-slate-200 bg-slate-100 text-slate-700"}`}>
+                      {task.status.replace("_", " ")}
+                    </span>
+                  </article>
+                ))}
+              </div>
+            </BasecampSection>
+          </section>
+
+          <BasecampSection
+            eyebrow="Publication Checklist"
+            title="Final readiness before publish"
+            description="Use the checklist to keep the issue moving in a single, understandable workflow."
+            className="p-6"
+          >
+            <div className="grid gap-3 md:grid-cols-2">
+              {weeklyIssue.publicationChecklist.map((item) => (
+                <article key={item.title} className={`rounded-2xl border p-4 ${item.complete ? "border-[#cde8d6] bg-[#ecf8f0]" : "border-[#ece3cf] bg-[#fcfaf6]"}`}>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">{item.complete ? "✓" : "☐"}</span>
+                    <div>
+                      <p className={`font-semibold ${item.complete ? "text-[#1f5a3d]" : "text-slate-900"}`}>{item.title}</p>
+                      <p className="mt-1 text-sm leading-7 text-slate-600">{item.detail}</p>
                     </div>
                   </div>
                 </article>
-              </div>
-            </>
-          )}
-
-          {/* Upcoming Issues */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Publication Pipeline</p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-900">Upcoming Issues</h2>
-              </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {upcomingIssues.map((issue) => (
-                <EditorialIssueCard
-                  key={issue.id}
-                  issue={issue}
-                  isActive={activeIssue?.id === issue.id}
-                />
               ))}
             </div>
-          </section>
-
-          {/* All Issues */}
-          <section className="rounded-3xl border border-[#e8dfc8] bg-white p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Archive</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-900">All Editorial Issues</h2>
-            <p className="mt-1 text-sm text-slate-600">Browse planning, active, published, and archived issues</p>
-
-            <div className="mt-6 space-y-2">
-              {allIssues.map((issue) => {
-                const completedAssignments = issue.assignments.filter((a) => a.status === "complete").length;
-                const weekOfDate = new Date(issue.weekOf);
-
-                return (
-                  <div
-                    key={issue.id}
-                    className="flex items-center justify-between p-3 border border-[#ece3cf] rounded-lg hover:bg-[#fcfaf6] transition"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm text-slate-900 truncate">{issue.title}</h3>
-                      <p className="text-xs text-slate-600 mt-1">
-                        {weekOfDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} · {issue.assignments.length} assignments ·{" "}
-                        {completedAssignments} complete
-                      </p>
-                    </div>
-                    <span className="ml-2 inline-block text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-1 rounded whitespace-nowrap">
-                      {issue.status}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Quick Tips */}
-          <section className="rounded-3xl border border-[#e8dfc8] bg-[#fcfaf6] p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900">💡 Editorial Planning Tips</h3>
-            <ul className="mt-4 space-y-2 text-sm text-slate-700">
-              <li>• Plan issues 2-4 weeks in advance to allow time for photography and editing</li>
-              <li>• Create a cover story that ties together the theme and featured destinations</li>
-              <li>• Assign all photography upfront so photographers can plan shoots</li>
-              <li>• Include at least 3 featured places and 2 collections per issue</li>
-              <li>• Use the checklist to ensure all content requirements are met before publishing</li>
-              <li>• Review assignment board regularly to keep work flowing through the workflow</li>
-            </ul>
-          </section>
+          </BasecampSection>
         </main>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { createPageMetadata } from "@/lib/seo";
 import { getPlaces } from "@/repositories/PlaceRepository";
+import { weeklyIssue } from "@/data/weeklyIssue";
 
 export const metadata = createPageMetadata({
   title: "Southern Vermont | Travel & Adventure",
@@ -236,6 +237,63 @@ export default async function Home() {
 
       <section className="mx-auto max-w-7xl space-y-9 px-6 py-10 sm:px-8 lg:px-10">
         <EditorialSection
+          eyebrow="Current Issue"
+          title={weeklyIssue.title}
+          description={weeklyIssue.theme}
+        >
+          <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+            <Card variant="compact" className="p-5">
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge variant="featured">Weekly Issue</Badge>
+                <span className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
+                  {weeklyIssue.currentStage}
+                </span>
+              </div>
+              <h3 className="mt-4 text-2xl font-semibold text-slate-900">Help build a guide to cooler summer days.</h3>
+              <Prose size="sm" className="mt-3">
+                <p>
+                  Hamilton Falls leads the issue with a large summer feature, while Jamaica State Park, Lye Brook Falls,
+                  West River recreation, and a river safety guide round out the week.
+                </p>
+              </Prose>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link
+                  href={weeklyIssue.coverStory.href}
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-forest-green) px-5 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+                >
+                  Read the Feature
+                </Link>
+                <Link
+                  href="/basecamp/editorial-issue"
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-5 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
+                >
+                  Open Issue Board
+                </Link>
+              </div>
+            </Card>
+
+            <Card variant="compact" className="p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Newsletter Preview</p>
+                  <h3 className="mt-2 text-2xl font-semibold text-slate-900">{weeklyIssue.newsletterPreview.subject}</h3>
+                </div>
+                <Badge variant="forest">Mock</Badge>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {weeklyIssue.newsletterPreview.sections.map((section) => (
+                  <div key={section.title} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">{section.title}</p>
+                    <p className="mt-2 text-sm leading-7 text-slate-600">{section.summary}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </EditorialSection>
+
+        <EditorialSection
           eyebrow="Magazine Grid"
           title="Editorial highlights from around Southern Vermont"
           description="An alternating visual grid of standout places and stories."
@@ -244,7 +302,7 @@ export default async function Home() {
             {magazineGrid.map((item) => (
               <Link key={item.key} href={item.href} className={`group relative overflow-hidden rounded-[26px] ${item.layoutClass}`}>
                 <div className={`absolute inset-0 bg-cover bg-center motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105 ${item.imageClass}`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
                 <div className="relative flex h-full flex-col justify-end p-5 text-(--color-cream)">
                   <Badge variant="featured" className="w-fit text-[10px] tracking-[0.16em]">
                     {item.badge}
@@ -260,7 +318,7 @@ export default async function Home() {
         {hamiltonFalls ? (
           <EditorialSection eyebrow="Featured Destination" title="Hamilton Falls" description="A flagship Southern Vermont destination in a full magazine-style feature.">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-              <div className="overflow-hidden rounded-[24px]">
+              <div className="overflow-hidden rounded-3xl">
                 <div className="h-80 w-full bg-[linear-gradient(135deg,rgba(20,49,38,0.82),rgba(216,177,93,0.34)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center" />
               </div>
               <Card variant="compact" className="p-5">

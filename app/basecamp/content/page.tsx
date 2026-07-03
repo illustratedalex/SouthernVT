@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Sidebar } from "@/components/admin";
+import { BasecampStatCard } from "@/components/basecamp";
 import {
   ContentScoreGauge,
   DiscoveryOpportunityCard,
@@ -20,6 +21,7 @@ import {
 } from "@/components/basecamp/editorial";
 import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { getVaultEntries } from "@/lib/content/knowledgeVault";
+import { weeklyIssue } from "@/data/weeklyIssue";
 import {
   getPlacesNeedingReview as getPlacesNeedingVerificationReview,
   getRecommendedPlaces as getRecommendedVerifiedPlaces,
@@ -366,6 +368,69 @@ export default async function BasecampContentStudioPage() {
 
           <TodaysPriorities items={priorityItems} />
 
+          <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+            <article className="rounded-[30px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">
+                  Current Issue
+                </span>
+                <span className="rounded-full bg-[#ecf8f0] px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#1f5a3d]">
+                  {weeklyIssue.currentStage}
+                </span>
+                <span className="text-sm font-medium text-slate-500">
+                  Publication date {new Date(weeklyIssue.publicationDate).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+
+              <h2 className="mt-4 text-3xl font-semibold text-slate-900">{weeklyIssue.title}</h2>
+              <p className="mt-2 text-lg text-slate-700">{weeklyIssue.theme}</p>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Cover Story</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-900">{weeklyIssue.coverStory.title}</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">{weeklyIssue.coverStory.summary}</p>
+                </div>
+                <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Completion</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{weeklyIssue.completionPercent}%</p>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-full rounded-full bg-[linear-gradient(90deg,#d8b15d,#1f5a3d)]" style={{ width: `${weeklyIssue.completionPercent}%` }} />
+                  </div>
+                  <p className="mt-2 text-sm text-slate-600">Publication is moving through the newsroom as copy and photography are checked off.</p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  href="/basecamp/editorial-issue"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-[#1f3b2f] px-5 text-sm font-semibold text-white motion-safe:transition motion-safe:hover:bg-[#2a4a3f]"
+                >
+                  Open Editorial Issue
+                </Link>
+                <Link
+                  href={weeklyIssue.coverStory.href}
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-5 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
+                >
+                  Read Hamilton Falls
+                </Link>
+              </div>
+            </article>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+              <BasecampStatCard label="Stories in progress" value={String(weeklyIssue.metrics.storiesInProgress)} detail="Supporting stories moving through draft and copy desk." />
+              <BasecampStatCard label="Stories published" value={String(weeklyIssue.metrics.storiesPublished)} detail="Completed stories already ready for readers." />
+              <BasecampStatCard label="Average Content Health" value={`${weeklyIssue.metrics.averageContentHealth}%`} detail="Average quality signal across the weekly issue package." />
+              <BasecampStatCard label="Assignments complete" value={String(weeklyIssue.metrics.assignmentsComplete)} detail="Editorial tasks already checked off in the mock workflow." />
+              <BasecampStatCard label="Photos outstanding" value={String(weeklyIssue.metrics.photosOutstanding)} detail="Hero, gallery, drone, and vertical assets still needed." />
+              <BasecampStatCard label="Verification outstanding" value={String(weeklyIssue.metrics.verificationOutstanding)} detail="Safety and access checks still in motion." />
+            </div>
+          </section>
+
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-6">
               <div className="grid gap-6 lg:grid-cols-2">
@@ -381,7 +446,7 @@ export default async function BasecampContentStudioPage() {
             <div>
               <Link
                 href="/basecamp/editorial-issue"
-                className="block rounded-[28px] border border-[#d7a663] bg-gradient-to-br from-[#d5b766] to-[#c79b4a] p-6 shadow-sm hover:shadow-md transition text-white h-full"
+                className="block rounded-[28px] border border-[#d7a663] bg-linear-to-br from-[#d5b766] to-[#c79b4a] p-6 text-white transition h-full shadow-sm hover:shadow-md"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90">Plan Your Issue</p>
                 <h3 className="mt-2 text-2xl font-semibold">Editorial Issue Planner</h3>
