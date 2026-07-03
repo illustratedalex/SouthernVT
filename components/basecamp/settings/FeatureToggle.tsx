@@ -1,39 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useToasts } from "@/components/ui";
 import { FeatureFlags } from "@/types/Settings";
-
-interface FeatureToggleProps {
-  flags: FeatureFlags;
-}
-
-const FEATURE_TOGGLE_STORAGE_KEY = "basecamp.settings.feature-flags";
-
-const basecampFeatureDefaults: Pick<
-  FeatureFlags,
-  | "aiConcierge"
-  | "aiPlanner"
-  | "weather"
-  | "passport"
-  | "partnerPortal"
-  | "businessClaims"
-  | "knowledgeGraph"
-  | "mapbox"
-  | "analytics"
-  | "premiumProfiles"
-> = {
-  aiConcierge: true,
-  aiPlanner: true,
-  weather: true,
-  passport: true,
-  partnerPortal: true,
-  businessClaims: true,
-  knowledgeGraph: true,
-  mapbox: false,
-  analytics: true,
-  premiumProfiles: false,
-};
+import { useFeatureFlags } from "../../../hooks/useFeatureFlags";
 
 const featureList = [
   { key: "aiConcierge" as const, label: "AI Concierge", description: "Smart travel assistant and recommendations" },
@@ -59,45 +29,18 @@ const groupedFeatures = [
   },
 ];
 
-export function FeatureToggle({ flags }: FeatureToggleProps) {
+export function FeatureToggle() {
   const { pushToast } = useToasts();
-  const [toggles, setToggles] = useState<FeatureFlags>(() => ({
-    ...flags,
-    ...basecampFeatureDefaults,
-    futureFeatures: flags.futureFeatures,
-  }));
-
-  useEffect(() => {
-    const savedFlags = window.localStorage.getItem(FEATURE_TOGGLE_STORAGE_KEY);
-    if (!savedFlags) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(savedFlags) as Partial<FeatureFlags>;
-      setToggles((current) => ({ ...current, ...parsed }));
-    } catch {
-      // Ignore invalid local mock state and keep defaults from props.
-    }
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(FEATURE_TOGGLE_STORAGE_KEY, JSON.stringify(toggles));
-  }, [toggles]);
+  const { featureFlags, setFeatureEnabled } = useFeatureFlags();
 
   const featuresByKey = useMemo(
     () => new Map(featureList.map((feature) => [feature.key, feature])),
     [],
   );
 
-  const trackedFeatureKeys = useMemo(
-    () => Object.keys(basecampFeatureDefaults) as Array<keyof typeof basecampFeatureDefaults>,
-    [],
-  );
-
   const handleToggle = (key: keyof FeatureFlags) => {
-    const nextEnabled = !toggles[key];
-    setToggles((current) => ({ ...current, [key]: nextEnabled }));
+    const nextEnabled = !featureFlags[key];
+    setFeatureEnabled(key, nextEnabled);
     const featureLabel = featuresByKey.get(key as (typeof featureList)[number]["key"])?.label ?? "Feature";
     pushToast({
       tone: "success",
@@ -105,8 +48,8 @@ export function FeatureToggle({ flags }: FeatureToggleProps) {
     });
   };
 
-  const enabledCount = trackedFeatureKeys.filter((key) => toggles[key]).length;
-  const totalCount = trackedFeatureKeys.length;
+  const enabledCount = featureList.filter(({ key }) => featureFlags[key]).length;
+  const totalCount = featureList.length;
 
   return (
     <div className="space-y-6">
@@ -131,10 +74,10 @@ export function FeatureToggle({ flags }: FeatureToggleProps) {
                 <span className="text-sm font-medium text-slate-700">{label}</span>
                 <span
                   className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
-                    toggles[key] ? "bg-green-100 text-green-700" : "bg-rose-100 text-rose-700"
+                    featureFlags[key] ? "bg-green-100 text-green-700" : "bg-rose-100 text-rose-700"
                   }`}
                 >
-                  {toggles[key] ? "ON" : "DISABLED"}
+                  {featureFlags[key] ? "ON" : "DISABLED"}
                 </span>
               </div>
             ))}
@@ -161,24 +104,24 @@ export function FeatureToggle({ flags }: FeatureToggleProps) {
                           <p className="mt-1 text-xs text-slate-600">{feature.description}</p>
                           <p
                             className={`mt-3 text-xs font-semibold uppercase tracking-[0.2em] ${
-                              toggles[feature.key] ? "text-green-700" : "text-rose-700"
+                              featureFlags[feature.key] ? "text-green-700" : "text-rose-700"
                             }`}
                           >
-                            {toggles[feature.key] ? "ON" : "OFF"}
+                            {featureFlags[feature.key] ? "ON" : "OFF"}
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleToggle(feature.key)}
-                          aria-pressed={toggles[feature.key]}
-                          aria-label={`${toggles[feature.key] ? "Disable" : "Enable"} ${feature.label}`}
+                          aria-pressed={featureFlags[feature.key]}
+                          aria-label={`${featureFlags[feature.key] ? "Disable" : "Enable"} ${feature.label}`}
                           className={`ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors ${
-                            toggles[feature.key] ? "bg-green-600" : "bg-slate-300"
+                            featureFlags[feature.key] ? "bg-green-600" : "bg-slate-300"
                           }`}
                         >
                           <span
                             className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                              toggles[feature.key] ? "translate-x-5" : "translate-x-0"
+                              featureFlags[feature.key] ? "translate-x-5" : "translate-x-0"
                             }`}
                           />
                         </button>
