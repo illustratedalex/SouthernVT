@@ -1,0 +1,54 @@
+export type Theme = "light" | "dark" | "auto";
+
+export type ApiStatus = "connected" | "missing" | "configured" | "error";
+
+export type EnvironmentType = "development" | "preview" | "production";
+
+export interface GeneralSettings {
+  siteName: string;
+  theme: Theme;
+  editorial: {
+    defaultVerificationRequired: boolean;
+    defaultPublicationWindow: number;
+  };
+  verification: {
+    autoApprovePhotos: boolean;
+    requireVerificationBadge: boolean;
+  };
+}
+
+export interface FeatureFlags {
+  aiConcierge: boolean;
+  weather: boolean;
+  aiPlanner: boolean;
+  passport: boolean;
+  partnerPortal: boolean;
+  knowledgeGraph: boolean;
+  businessClaims: boolean;
+  premiumProfiles: boolean;
+  mapbox: boolean;
+  analytics: boolean;
+  futureFeatures: boolean;
+}
+
+export interface ApiIntegration {
+  name: string;
+  status: ApiStatus;
+  lastChecked?: Date;
+  description?: string;
+}
+
+export interface ApiStatusConfig {
+  openai: ApiIntegration;
+  microsoftClarity: ApiIntegration;
+  vercelAnalytics: ApiIntegration;
+  mapbox: ApiIntegration;
+  supabase: ApiIntegration;
+}
+
+export interface SettingsContext {
+  general: GeneralSettings;
+  features: FeatureFlags;
+  apis: ApiStatusConfig;
+  environment: EnvironmentType;
+}
