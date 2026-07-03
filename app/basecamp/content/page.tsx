@@ -12,6 +12,12 @@ import {
   WeeklyGoalCard,
   WritingQueue,
 } from "@/components/basecamp/content-studio";
+import {
+  EditorialCalendar,
+  PhotoDesk,
+  CopyDesk,
+  PublicationQueue,
+} from "@/components/basecamp/editorial";
 import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { getVaultEntries } from "@/lib/content/knowledgeVault";
 import {
@@ -35,13 +41,14 @@ type ReadinessStats = {
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
-  { label: "Content Studio", href: "/basecamp/content", active: true },
+  { label: "Newsroom", href: "/basecamp/content", active: true },
+  { label: "Editorial Studio", href: "/basecamp/content" },
   { label: "Knowledge Graph", href: "/basecamp/graph" },
   { label: "Content Report", href: "/basecamp/content/report" },
   { label: "Places", href: "/basecamp/places" },
   { label: "Import", href: "/basecamp/import" },
   { label: "Collections", href: "/basecamp/collections" },
-  { label: "Media Library", href: "/basecamp/media" },
+  { label: "Photo Desk", href: "/basecamp/media" },
   { label: "Activity", href: "/basecamp/activity" },
   { label: "Feature Flags", href: "/basecamp/settings/features" },
   { label: "Articles", href: "/basecamp/articles" },
@@ -341,13 +348,13 @@ export default async function BasecampContentStudioPage() {
           <section className="overflow-hidden rounded-[30px] border border-[#e8dfc8] bg-white shadow-sm">
             <div className="relative grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-4 p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#1f3b2f]">Content Studio</p>
-                <h1 className="text-4xl font-semibold text-slate-900">Good Morning Alex</h1>
+                <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#1f3b2f]">Editorial Management</p>
+                <h1 className="text-4xl font-semibold text-slate-900">Newsroom</h1>
                 <p className="text-sm leading-7 text-slate-600">
                   {currentDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })} · {season}
                 </p>
                 <p className="max-w-2xl text-sm leading-8 text-slate-600">
-                  Your editorial production studio for today. Focus on readiness, close gaps, and ship the next SouthernVT stories.
+                  Today&apos;s editorial assignments and publishing workflow. Stay on top of content readiness, photography missions, copy review, and publication schedule.
                 </p>
               </div>
               <div className="h-64 lg:h-full">
@@ -358,23 +365,33 @@ export default async function BasecampContentStudioPage() {
 
           <TodaysPriorities items={priorityItems} />
 
+          <div className="grid gap-6 lg:grid-cols-2">
+            <PublicationQueue />
+            <CopyDesk />
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <PhotoDesk />
+            <EditorialCalendar />
+          </div>
+
           <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-2xl font-semibold text-slate-900">Content Health Buckets</h2>
+              <h2 className="text-2xl font-semibold text-slate-900">Editorial Health</h2>
               <Link href="/basecamp/content/report" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-white">
-                Open Content Report
+                View Full Report
               </Link>
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
-                { label: "Content Ready For Launch", count: launchReadyCount, detail: `${allHealth.length} tracked` },
-                { label: "Needs Photos", count: needsPhotosCount, detail: "Photography health < 60" },
+                { label: "Ready to Publish", count: launchReadyCount, detail: `${allHealth.length} tracked` },
+                { label: "Needs Photography", count: needsPhotosCount, detail: "Photography health < 60" },
                 { label: "Needs Story", count: needsStoryCount, detail: "Story health < 60" },
-                { label: "Needs Relationships", count: needsRelationshipsCount, detail: "Discovery health < 60" },
+                { label: "Needs Links", count: needsRelationshipsCount, detail: "Discovery health < 60" },
                 { label: "Needs SEO", count: needsSEOCount, detail: "SEO health < 60" },
-                { label: "Needs Review", count: needsReviewCount, detail: "Review date due" },
-                { label: "Average Place Health", count: readiness.places.average, detail: `${readiness.places.completed} ready` },
-                { label: "Average Collection Health", count: readiness.collections.average, detail: `${readiness.collections.completed} ready` },
+                { label: "Review Due", count: needsReviewCount, detail: "Review date passed" },
+                { label: "Avg Place Score", count: readiness.places.average, detail: `${readiness.places.completed} ready` },
+                { label: "Avg Collection Score", count: readiness.collections.average, detail: `${readiness.collections.completed} ready` },
               ].map((entry) => (
                 <article key={entry.label} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1f3b2f]">{entry.label}</p>
@@ -393,14 +410,14 @@ export default async function BasecampContentStudioPage() {
           />
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-900">Photography Missions</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">Photo Assignments</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {photoMissions.length ? (
                 photoMissions.map((mission) => (
                   <PhotoMissionCard key={mission.place.id} placeName={mission.place.name} missions={mission.missions} href={`/basecamp/places/${mission.place.id}`} />
                 ))
               ) : (
-                <article className="rounded-2xl border border-[#ece3cf] bg-white p-5 text-sm text-slate-600">No urgent photography missions right now.</article>
+                <article className="rounded-2xl border border-[#ece3cf] bg-white p-5 text-sm text-slate-600">No urgent photo assignments at this time.</article>
               )}
             </div>
           </section>
@@ -408,12 +425,12 @@ export default async function BasecampContentStudioPage() {
           <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Editorial Needs Spotlight</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Assignment Priority</p>
                 <h2 className="mt-2 text-2xl font-semibold text-slate-900">Hamilton Falls</h2>
                 <p className="mt-1 text-sm leading-7 text-slate-600">Waterfall · Outdoor Recreation · Jamaica, Vermont</p>
               </div>
               <Link href="/basecamp/places/place-hamilton-falls" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-white">
-                Open Place
+                Open Assignment
               </Link>
             </div>
 
@@ -428,8 +445,8 @@ export default async function BasecampContentStudioPage() {
           </section>
 
           <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold text-slate-900">Editorial Tasks</h2>
-            <p className="mt-1 text-sm text-slate-600">Auto-generated from content health gaps. Open any item to jump into its editor.</p>
+            <h2 className="text-2xl font-semibold text-slate-900">Editorial Queue</h2>
+            <p className="mt-1 text-sm text-slate-600">Auto-generated assignments from content health gaps. Click any item to jump into its editor.</p>
             {editorialTasks.length ? (
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {editorialTasks.slice(0, 12).map((task) => (
@@ -440,7 +457,7 @@ export default async function BasecampContentStudioPage() {
                 ))}
               </div>
             ) : (
-              <p className="mt-4 text-sm text-slate-600">No open editorial tasks detected.</p>
+              <p className="mt-4 text-sm text-slate-600">No assignments in the queue.</p>
             )}
           </section>
 
@@ -458,38 +475,38 @@ export default async function BasecampContentStudioPage() {
               <DiscoveryOpportunityCard
                 title="Places not in Collections"
                 count={placesNotInCollections.length}
-                description="Increase discoverability by attaching standalone places to at least one collection."
+                description="Increase discoverability by assigning standalone places to at least one collection."
                 href="/basecamp/collections"
               />
               <DiscoveryOpportunityCard
                 title="Places without Deals"
                 count={placesWithoutDeals.length}
-                description="Coordinate partner offers to improve conversion opportunities from place pages."
+                description="Coordinate partner offers to improve conversion from destination pages."
                 href="/basecamp/deals"
               />
               <DiscoveryOpportunityCard
-                title="Places without Articles"
-                count={placesWithoutArticles.length}
-                description="Fill editorial gaps so each key place has guide coverage."
+                title="Places without Stories"
+                count={placesMissingStory.length}
+                description="Fill editorial gaps so each key destination has editorial coverage."
                 href="/basecamp/articles"
               />
               <DiscoveryOpportunityCard
                 title="Places without Events"
                 count={placesWithoutEvents.length}
-                description="Add event ties so destination pages reflect seasonality and urgency."
+                description="Add event ties so destination pages reflect seasonality and relevance."
                 href="/basecamp/events"
               />
               <DiscoveryOpportunityCard
-                title="Collections with fewer than 5 Places"
+                title="Underfunded Collections"
                 count={collectionsUnderFivePlaces.length}
-                description="Grow light collections to improve route depth and itinerary value."
+                description="Build light collections to improve route depth and itinerary value."
                 href="/basecamp/collections"
               />
             </div>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-900">Today&apos;s Goal</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">Daily Goals</h2>
             <div className="grid gap-4 md:grid-cols-3">
               {todayGoals.map((goal) => (
                 <WeeklyGoalCard key={goal.title} title={goal.title} current={goal.current} target={goal.target} />
