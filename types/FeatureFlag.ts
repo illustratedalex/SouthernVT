@@ -11,7 +11,9 @@ export type FeatureFlagKey =
   | "premiumProfiles"
   | "events"
   | "publicCollections"
-  | "publicPlaces";
+  | "publicPlaces"
+  | "partnerFeatures"
+  | "billing";
 
 export type FeatureFlagEnvironment = "development" | "staging" | "production";
 

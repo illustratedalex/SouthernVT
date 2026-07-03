@@ -109,4 +109,22 @@ export const mockFeatureFlags: FeatureFlag[] = [
     createdAt: "2026-06-28T09:00:00.000Z",
     updatedAt: "2026-06-28T09:00:00.000Z",
   },
+  {
+    key: "partnerFeatures",
+    label: "Partner Infrastructure",
+    description: "Enables partner insights, readiness scoring, and value summary components without payment.",
+    enabled: true,
+    environment: "development",
+    createdAt: "2026-06-28T09:00:00.000Z",
+    updatedAt: "2026-06-28T09:00:00.000Z",
+  },
+  {
+    key: "billing",
+    label: "Billing",
+    description: "Controls pricing, plans, subscriptions, and Stripe integration. Disabled during beta.",
+    enabled: false,
+    environment: "development",
+    createdAt: "2026-06-28T09:00:00.000Z",
+    updatedAt: "2026-06-28T09:00:00.000Z",
+  },
 ];

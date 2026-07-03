@@ -30,6 +30,12 @@ export default async function PartnerPortalDashboardPage() {
       previewMode={!previewEnabled}
       active="dashboard"
     >
+      <section className="rounded-2xl border border-[#e8dfc8] bg-[#fff7e4] p-4">
+        <p className="text-sm font-medium text-[#6b5a30]">
+          ✓ Partner tools are currently available at no charge during the SouthernVT beta. Thank you for helping us build a better guide to Southern Vermont.
+        </p>
+      </section>
+
       <PartnerStats stats={stats} />
 
       {showPremiumPanel ? (

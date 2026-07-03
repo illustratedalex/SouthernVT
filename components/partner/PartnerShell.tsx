@@ -5,7 +5,7 @@ interface PartnerShellProps {
   title: string;
   description: string;
   previewMode: boolean;
-  active: "dashboard" | "place" | "deals" | "events";
+  active: "dashboard" | "place" | "deals" | "events" | "insights";
   children: ReactNode;
 }
 
@@ -14,6 +14,7 @@ const tabs: Array<{ key: PartnerShellProps["active"]; label: string; href: strin
   { key: "place", label: "Place", href: "/partner-portal/place" },
   { key: "deals", label: "Deals", href: "/partner-portal/deals" },
   { key: "events", label: "Events", href: "/partner-portal/events" },
+  { key: "insights", label: "Insights", href: "/partner-portal/insights" },
 ];
 
 export function PartnerShell({ title, description, previewMode, active, children }: PartnerShellProps) {
