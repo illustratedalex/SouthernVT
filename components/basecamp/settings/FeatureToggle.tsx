@@ -10,6 +10,31 @@ interface FeatureToggleProps {
 
 const FEATURE_TOGGLE_STORAGE_KEY = "basecamp.settings.feature-flags";
 
+const basecampFeatureDefaults: Pick<
+  FeatureFlags,
+  | "aiConcierge"
+  | "aiPlanner"
+  | "weather"
+  | "passport"
+  | "partnerPortal"
+  | "businessClaims"
+  | "knowledgeGraph"
+  | "mapbox"
+  | "analytics"
+  | "premiumProfiles"
+> = {
+  aiConcierge: true,
+  aiPlanner: true,
+  weather: true,
+  passport: true,
+  partnerPortal: true,
+  businessClaims: true,
+  knowledgeGraph: true,
+  mapbox: false,
+  analytics: true,
+  premiumProfiles: false,
+};
+
 const featureList = [
   { key: "aiConcierge" as const, label: "AI Concierge", description: "Smart travel assistant and recommendations" },
   { key: "aiPlanner" as const, label: "AI Planner", description: "Intelligent trip planning suggestions" },
@@ -23,10 +48,22 @@ const featureList = [
   { key: "premiumProfiles" as const, label: "Premium Profiles", description: "Enhanced business profiles" },
 ];
 
+const groupedFeatures = [
+  {
+    title: "Services",
+    keys: ["aiConcierge", "weather", "mapbox", "analytics"] as const,
+  },
+  {
+    title: "Features",
+    keys: ["aiPlanner", "passport", "partnerPortal", "businessClaims", "knowledgeGraph", "premiumProfiles"] as const,
+  },
+];
+
 export function FeatureToggle({ flags }: FeatureToggleProps) {
   const { pushToast } = useToasts();
   const [toggles, setToggles] = useState<FeatureFlags>(() => ({
     ...flags,
+    ...basecampFeatureDefaults,
     futureFeatures: flags.futureFeatures,
   }));
 
@@ -48,12 +85,20 @@ export function FeatureToggle({ flags }: FeatureToggleProps) {
     window.localStorage.setItem(FEATURE_TOGGLE_STORAGE_KEY, JSON.stringify(toggles));
   }, [toggles]);
 
-  const trackedFeatureKeys = useMemo(() => featureList.map((feature) => feature.key), []);
+  const featuresByKey = useMemo(
+    () => new Map(featureList.map((feature) => [feature.key, feature])),
+    [],
+  );
+
+  const trackedFeatureKeys = useMemo(
+    () => Object.keys(basecampFeatureDefaults) as Array<keyof typeof basecampFeatureDefaults>,
+    [],
+  );
 
   const handleToggle = (key: keyof FeatureFlags) => {
     const nextEnabled = !toggles[key];
     setToggles((current) => ({ ...current, [key]: nextEnabled }));
-    const featureLabel = featureList.find((feature) => feature.key === key)?.label ?? "Feature";
+    const featureLabel = featuresByKey.get(key as (typeof featureList)[number]["key"])?.label ?? "Feature";
     pushToast({
       tone: "success",
       title: `${featureLabel} ${nextEnabled ? "enabled" : "disabled"}`,
@@ -97,31 +142,52 @@ export function FeatureToggle({ flags }: FeatureToggleProps) {
         </aside>
 
         {/* Feature Toggles Grid */}
-        <div className="grid gap-4 md:grid-cols-2">
-          {featureList.map(({ key, label, description }) => (
-            <div key={key} className="rounded-2xl border border-[#e8dfc8] bg-white p-4 shadow-sm">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900">{label}</h3>
-                  <p className="mt-1 text-xs text-slate-600">{description}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleToggle(key)}
-                  aria-pressed={toggles[key]}
-                  aria-label={`${toggles[key] ? "Disable" : "Enable"} ${label}`}
-                  className={`ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors ${
-                    toggles[key] ? "bg-green-600" : "bg-slate-300"
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                      toggles[key] ? "translate-x-5" : "translate-x-0"
-                    }`}
-                  />
-                </button>
+        <div className="space-y-6">
+          {groupedFeatures.map((group) => (
+            <section key={group.title} className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{group.title}</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                {group.keys.map((key) => {
+                  const feature = featuresByKey.get(key);
+                  if (!feature) {
+                    return null;
+                  }
+
+                  return (
+                    <div key={feature.key} className="rounded-2xl border border-[#e8dfc8] bg-white p-4 shadow-sm">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-slate-900">{feature.label}</h3>
+                          <p className="mt-1 text-xs text-slate-600">{feature.description}</p>
+                          <p
+                            className={`mt-3 text-xs font-semibold uppercase tracking-[0.2em] ${
+                              toggles[feature.key] ? "text-green-700" : "text-rose-700"
+                            }`}
+                          >
+                            {toggles[feature.key] ? "ON" : "OFF"}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleToggle(feature.key)}
+                          aria-pressed={toggles[feature.key]}
+                          aria-label={`${toggles[feature.key] ? "Disable" : "Enable"} ${feature.label}`}
+                          className={`ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors ${
+                            toggles[feature.key] ? "bg-green-600" : "bg-slate-300"
+                          }`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                              toggles[feature.key] ? "translate-x-5" : "translate-x-0"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            </section>
           ))}
         </div>
       </div>
