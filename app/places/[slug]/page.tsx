@@ -450,7 +450,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               ) : isParkLayout ? (
                 <div className="space-y-4 text-base leading-8 text-slate-700">
                   <p>
-                    Jamaica State Park is where many Southern Vermont weekends settle into rhythm. The West River corridor gives you shade, water access, and enough room to spread out without feeling remote. It is the kind of place locals return to each season because the day can stay flexible: swim in the morning, walk a trail at midday, picnic when you're hungry, then head into nearby towns for dinner.
+                    Jamaica State Park is where many Southern Vermont weekends settle into rhythm. The West River corridor gives you shade, water access, and enough room to spread out without feeling remote. It is the kind of place locals return to each season because the day can stay flexible: swim in the morning, walk a trail at midday, picnic when you&apos;re hungry, then head into nearby towns for dinner.
                   </p>
                   <p>
                     The park sits in a fold of the West River Valley where the water moves at a pace that feels negotiable—fast enough for visual interest, slow enough for swimming and riverside exploration. The campground and day-use picnic areas give you multiple anchors, which means you can plan a full day without choosing just one activity. Families come for the sandy entry points and shallow pools. Photographers find morning light on the water and fall foliage reflected in quiet sections. Hikers use it as a basecamp for nearby trails, especially the short walk to nearby Hamilton Falls or longer routes through the river corridor.

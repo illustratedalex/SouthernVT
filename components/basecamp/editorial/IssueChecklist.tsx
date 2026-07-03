@@ -74,7 +74,7 @@ export function IssueChecklist({ issue }: IssueChecklistProps) {
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Publication Readiness</p>
         <h2 className="mt-2 text-2xl font-semibold text-slate-900">Pre-Publication Checklist</h2>
-        <p className="mt-1 text-sm text-slate-600">Track completion status for this week's issue</p>
+        <p className="mt-1 text-sm text-slate-600">Track completion status for this week&apos;s issue</p>
       </div>
 
       <div className="mb-6">

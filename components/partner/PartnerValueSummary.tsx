@@ -29,7 +29,7 @@ export function PartnerValueSummary({ businessName, insights }: PartnerValueSumm
     <section className="rounded-3xl border border-[#e8dfc8] bg-white p-6 shadow-sm">
       <h2 className="text-2xl font-semibold text-slate-900">Your Value on SouthernVT</h2>
       <p className="mt-2 text-sm text-slate-600">
-        {businessName} is already helping visitors discover your business. Here's how you're performing.
+        {businessName} is already helping visitors discover your business. Here&apos;s how you&apos;re performing.
       </p>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

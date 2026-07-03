@@ -38,7 +38,7 @@ export function GeneralSettingsForm({ settings }: GeneralSettingsFormProps) {
             <label className="block text-sm font-semibold text-slate-800">Theme</label>
             <select
               value={formData.theme}
-              onChange={(e) => setFormData({ ...formData, theme: e.target.value as any })}
+              onChange={(e) => setFormData({ ...formData, theme: e.target.value as typeof formData.theme })}
               className="mt-2 w-full rounded-lg border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm text-slate-900 focus:border-[#1f3b2f] focus:outline-none focus:ring-1 focus:ring-[#1f3b2f]"
             >
               <option value="light">Light</option>
