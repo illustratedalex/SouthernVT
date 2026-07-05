@@ -19,6 +19,36 @@ const categoryIcons: Record<string, string> = {
   Winery: "🍷",
 };
 
+const requiredBusinessFilters = [
+  "Lodging",
+  "Restaurant",
+  "Cafe",
+  "Brewery",
+  "Shopping",
+  "Gallery",
+  "Campground",
+  "Attraction",
+  "Services",
+  "Stays",
+] as const;
+
+const stayCategories = new Set([
+  "Lodging",
+  "Campground",
+  "Inn",
+  "Motel",
+  "Bed & Breakfast",
+  "Cabin",
+  "Vacation Rental",
+  "Unique Stay",
+  "Stays",
+]);
+
+const directFilterCategories = new Set<string>(
+  requiredBusinessFilters.filter((category) => category !== "Services" && category !== "Stays"),
+);
+const serviceCategories = new Set(["Bakery", "Distillery", "Farm Stand", "General Store", "Museum", "Outdoor Recreation", "Winery"]);
+
 export function getBusinessListings() {
   return basicBusinessListings;
 }
@@ -35,6 +65,18 @@ export function getBusinessListingCategories() {
   return [...new Set(basicBusinessListings.map((listing) => listing.category))].sort((left, right) => left.localeCompare(right));
 }
 
+export function getBusinessListingFilterCategories() {
+  const discoveredCategories = getBusinessListingCategories();
+  const extras = discoveredCategories.filter(
+    (category) =>
+      !requiredBusinessFilters.includes(category as (typeof requiredBusinessFilters)[number]) &&
+      !stayCategories.has(category) &&
+      !serviceCategories.has(category),
+  );
+
+  return [...requiredBusinessFilters, ...extras];
+}
+
 export function getBusinessListingCategoryIcon(category: string) {
   return categoryIcons[category] ?? "📌";
 }
@@ -46,9 +88,31 @@ export function filterBusinessListings(listings: BusinessListing[], filters: {
   verified?: string;
   foundingPartner?: string;
 }) {
+  const selectedCategory = filters.category?.trim() ?? "";
+
+  const matchesFilterCategory = (listing: BusinessListing) => {
+    if (!selectedCategory || selectedCategory === "All") {
+      return true;
+    }
+
+    if (selectedCategory === "Stays") {
+      return stayCategories.has(listing.category);
+    }
+
+    if (selectedCategory === "Services") {
+      return serviceCategories.has(listing.category);
+    }
+
+    if (directFilterCategories.has(selectedCategory)) {
+      return listing.category === selectedCategory;
+    }
+
+    return listing.category === selectedCategory;
+  };
+
   return listings.filter((listing) => {
     const matchesTown = !filters.town || filters.town === "All" || listing.town === filters.town;
-    const matchesCategory = !filters.category || filters.category === "All" || listing.category === filters.category;
+    const matchesCategory = matchesFilterCategory(listing);
     const matchesClaimed = filters.claimed !== "true" || listing.claimStatus === "claimed";
     const matchesVerified = filters.verified !== "true" || listing.isVerified;
     const matchesFoundingPartner = filters.foundingPartner !== "true" || listing.isFoundingPartner;

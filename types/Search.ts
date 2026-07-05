@@ -1,4 +1,4 @@
-export type SearchResultType = "place" | "collection" | "media" | "basecamp";
+export type SearchResultType = "place" | "business" | "stay" | "guide" | "collection" | "event";
 
 export interface SearchResult {
   id: string;
@@ -12,7 +12,9 @@ export interface SearchResult {
 
 export interface GroupedSearchResults {
   places: SearchResult[];
+  businesses: SearchResult[];
+  stays: SearchResult[];
+  guides: SearchResult[];
   collections: SearchResult[];
-  media: SearchResult[];
-  basecamp: SearchResult[];
+  events: SearchResult[];
 }

@@ -1,44 +1,13 @@
 import { getCollections } from "@/lib/repositories/collectionRepository";
-import { getMediaAssets } from "@/lib/repositories/mediaRepository";
+import { basicBusinessListings } from "@/data/basicBusinessListings";
+import { getArticles } from "@/repositories/ArticleRepository";
+import { getEvents } from "@/repositories/EventRepository";
 import { getPlaces } from "@/repositories/PlaceRepository";
 import type { GroupedSearchResults, SearchResult } from "@/types/Search";
 
 let cachedIndexPromise: Promise<SearchResult[]> | null = null;
 
-const basecampActions: SearchResult[] = [
-  {
-    id: "basecamp-dashboard",
-    title: "Open Basecamp Dashboard",
-    subtitle: "Jump to content operations home",
-    type: "basecamp",
-    url: "/basecamp",
-    keywords: ["dashboard", "basecamp", "overview"],
-  },
-  {
-    id: "basecamp-new-place",
-    title: "Create New Place",
-    subtitle: "Add a new place entry",
-    type: "basecamp",
-    url: "/basecamp/places/new",
-    keywords: ["new", "place", "create", "basecamp"],
-  },
-  {
-    id: "basecamp-new-collection",
-    title: "Create New Collection",
-    subtitle: "Build a curated guide",
-    type: "basecamp",
-    url: "/basecamp/collections/new",
-    keywords: ["new", "collection", "guide", "basecamp"],
-  },
-  {
-    id: "basecamp-media-library",
-    title: "Open Media Library",
-    subtitle: "Manage uploaded media assets",
-    type: "basecamp",
-    url: "/basecamp/media",
-    keywords: ["media", "assets", "library", "basecamp"],
-  },
-];
+const stayCategories = new Set(["Lodging", "Campground", "Inn", "Motel", "Bed & Breakfast", "Cabin", "Vacation Rental", "Unique Stay", "Stays"]);
 
 export async function getSearchIndex(): Promise<SearchResult[]> {
   if (!cachedIndexPromise) {
@@ -54,7 +23,12 @@ export async function searchAll(query: string): Promise<GroupedSearchResults> {
 }
 
 async function buildSearchIndex(): Promise<SearchResult[]> {
-  const [places, collections, media] = await Promise.all([getPlaces(), getCollections(), getMediaAssets()]);
+  const [places, collections, articles, events] = await Promise.all([
+    getPlaces(),
+    getCollections(),
+    getArticles(),
+    getEvents(),
+  ]);
 
   const placeResults: SearchResult[] = places
     .filter((place) => place.status === "published")
@@ -92,16 +66,62 @@ async function buildSearchIndex(): Promise<SearchResult[]> {
       ],
     }));
 
-  const mediaResults: SearchResult[] = media.map((asset) => ({
-    id: asset.id,
-    title: asset.title,
-    subtitle: `Media · ${asset.type}`,
-    type: "media",
-    url: "/basecamp/media",
-    keywords: [asset.title, asset.altText, asset.type, ...asset.tags],
+  const businessResults: SearchResult[] = basicBusinessListings.map((business) => ({
+    id: business.id,
+    title: business.name,
+    subtitle: `${business.category} · ${business.town}, ${business.county}`,
+    type: stayCategories.has(business.category) ? "stay" : "business",
+    url: `/businesses/${business.slug}`,
+    keywords: [
+      business.name,
+      business.category,
+      business.town,
+      business.county,
+      business.description,
+      "restaurant",
+      "attraction",
+      "stay",
+      "lodging",
+    ],
   }));
 
-  return [...placeResults, ...collectionResults, ...mediaResults, ...basecampActions];
+  const guideResults: SearchResult[] = articles
+    .filter((article) => article.status === "published")
+    .map((article) => ({
+      id: article.id,
+      title: article.title,
+      subtitle: `${article.articleType} guide · ${article.author}`,
+      type: "guide",
+      url: `/guides/${article.slug}`,
+      keywords: [
+        article.title,
+        article.subtitle,
+        article.excerpt,
+        article.articleType,
+        ...article.tags,
+        ...article.categories,
+      ],
+    }));
+
+  const eventResults: SearchResult[] = events
+    .filter((event) => event.status === "published" || event.status === "scheduled")
+    .map((event) => ({
+      id: event.id,
+      title: event.title,
+      subtitle: `${event.city}, ${event.state} · ${event.eventType}`,
+      type: "event",
+      url: `/events/${event.slug}`,
+      keywords: [
+        event.title,
+        event.description,
+        event.eventType,
+        event.city,
+        ...event.tags,
+        ...event.categories,
+      ],
+    }));
+
+  return [...placeResults, ...businessResults, ...guideResults, ...collectionResults, ...eventResults];
 }
 
 function filterAndGroupResults(query: string, index: SearchResult[]): GroupedSearchResults {
@@ -109,9 +129,11 @@ function filterAndGroupResults(query: string, index: SearchResult[]): GroupedSea
   if (!trimmed) {
     return {
       places: [],
+      businesses: [],
+      stays: [],
+      guides: [],
       collections: [],
-      media: [],
-      basecamp: basecampActions,
+      events: [],
     };
   }
 
@@ -123,9 +145,11 @@ function filterAndGroupResults(query: string, index: SearchResult[]): GroupedSea
 
   return {
     places: ranked.filter((item) => item.type === "place").slice(0, 6),
+    businesses: ranked.filter((item) => item.type === "business").slice(0, 6),
+    stays: ranked.filter((item) => item.type === "stay").slice(0, 6),
+    guides: ranked.filter((item) => item.type === "guide").slice(0, 6),
     collections: ranked.filter((item) => item.type === "collection").slice(0, 6),
-    media: ranked.filter((item) => item.type === "media").slice(0, 6),
-    basecamp: ranked.filter((item) => item.type === "basecamp").slice(0, 6),
+    events: ranked.filter((item) => item.type === "event").slice(0, 6),
   };
 }
 

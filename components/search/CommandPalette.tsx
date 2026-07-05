@@ -5,9 +5,21 @@ import { useSearch } from "./SearchProvider";
 
 const groupConfig = [
   { key: "places", label: "Places" },
+  { key: "businesses", label: "Businesses" },
+  { key: "stays", label: "Stays" },
+  { key: "guides", label: "Guides" },
   { key: "collections", label: "Collections" },
-  { key: "media", label: "Media" },
-  { key: "basecamp", label: "Basecamp" },
+  { key: "events", label: "Events" },
+] as const;
+
+const searchSuggestions = [
+  "Waterfalls",
+  "Stays",
+  "Restaurants",
+  "Bellows Falls",
+  "Manchester",
+  "Family friendly",
+  "Rainy day",
 ] as const;
 
 export function CommandPalette() {
@@ -17,7 +29,6 @@ export function CommandPalette() {
     selectedIndex,
     groupedResults,
     recentSearches,
-    quickActions,
     flatResults,
     setQuery,
     setSelectedIndex,
@@ -55,7 +66,7 @@ export function CommandPalette() {
               autoFocus
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search places, collections, media, or Basecamp actions"
+              placeholder="Search places, businesses, stays, guides, collections, events"
               className="w-full bg-transparent text-base text-slate-800 outline-none"
             />
             <span className="rounded-md border border-[#d8c9ad] bg-white px-2 py-1 text-[11px] font-semibold text-slate-600">Esc</span>
@@ -88,8 +99,16 @@ export function CommandPalette() {
                 </div>
               ) : (
                 <div className="rounded-2xl border border-[#e2d5bd] bg-white/80 p-6 text-center">
-                  <p className="text-sm font-semibold text-slate-700">No results found</p>
-                  <p className="mt-2 text-sm text-slate-600">Try a different phrase or a broader keyword.</p>
+                  <p className="text-sm font-semibold text-slate-700">No results yet. Try a broader search or suggest a place.</p>
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => activateResult({ id: "suggest-place", title: "Suggest a Place", subtitle: "Share a destination we should add", type: "guide", url: "/feedback?category=Missing%20Place", keywords: ["suggest", "place"] })}
+                      className="inline-flex h-10 items-center justify-center rounded-full bg-[#1f3b2f] px-4 text-sm font-semibold text-[#f8f2e4]"
+                    >
+                      Suggest a Place
+                    </button>
+                  </div>
                 </div>
               )
             ) : (
@@ -115,16 +134,17 @@ export function CommandPalette() {
                 </section>
 
                 <section>
-                  <p className="px-2 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Quick actions</p>
-                  <div className="mt-1 space-y-1">
-                    {quickActions.map((action) => (
-                      <ResultRow
-                        key={action.id}
-                        item={action}
-                        active={false}
-                        onMouseEnter={() => undefined}
-                        onClick={() => activateResult(action)}
-                      />
+                  <p className="px-2 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Try searching for</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {searchSuggestions.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => setQuery(suggestion)}
+                        className="rounded-full border border-[#d8c9ad] bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-[#fcfaf6]"
+                      >
+                        {suggestion}
+                      </button>
                     ))}
                   </div>
                 </section>
@@ -175,7 +195,14 @@ function ResultRow({
           <p className="mt-1 text-sm text-slate-600">{item.subtitle}</p>
         </div>
         <span className="rounded-full bg-[#f1e8d5] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#1f3b2f]">
-          {item.type}
+          {{
+            place: "Place",
+            business: "Business",
+            stay: "Stay",
+            guide: "Guide",
+            collection: "Collection",
+            event: "Event",
+          }[item.type]}
         </span>
       </div>
     </button>

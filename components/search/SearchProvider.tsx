@@ -25,9 +25,11 @@ const RECENT_KEY = "southernvt-command-palette-recent";
 
 const emptyResults: GroupedSearchResults = {
   places: [],
+  businesses: [],
+  stays: [],
+  guides: [],
   collections: [],
-  media: [],
-  basecamp: [],
+  events: [],
 };
 
 const SearchContext = createContext<SearchContextValue | null>(null);
@@ -41,11 +43,18 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const flatResults = useMemo(
-    () => [...groupedResults.places, ...groupedResults.collections, ...groupedResults.media, ...groupedResults.basecamp],
+    () => [
+      ...groupedResults.places,
+      ...groupedResults.businesses,
+      ...groupedResults.stays,
+      ...groupedResults.guides,
+      ...groupedResults.collections,
+      ...groupedResults.events,
+    ],
     [groupedResults],
   );
 
-  const quickActions = useMemo(() => groupedResults.basecamp.slice(0, 4), [groupedResults.basecamp]);
+  const quickActions = useMemo(() => groupedResults.places.slice(0, 4), [groupedResults.places]);
 
   const closePalette = useCallback(() => {
     setOpen(false);

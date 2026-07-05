@@ -74,7 +74,7 @@ export default function Navbar() {
           </details>
           <SearchButton />
           <Link
-            href="/planner/new"
+            href="/concierge"
             className="hidden rounded-full bg-(--color-forest-green) px-4 py-2 text-sm font-semibold whitespace-nowrap text-(--color-cream) transition hover:bg-(--color-pine) sm:inline-flex"
           >
             Plan a trip

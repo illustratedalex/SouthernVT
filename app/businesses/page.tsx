@@ -5,7 +5,7 @@ import { BusinessListingCard } from "@/components/public/BusinessListingCard";
 import { Badge } from "@/components/ui";
 import {
   filterBusinessListings,
-  getBusinessListingCategories,
+  getBusinessListingFilterCategories,
   getBusinessListingTowns,
 } from "@/lib/businessListings";
 import { getBusinessListingsWithLiveClaimStatus } from "@/lib/businessListings.server";
@@ -31,7 +31,7 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
   const params = await searchParams;
   const listings = await getBusinessListingsWithLiveClaimStatus();
   const towns = getBusinessListingTowns();
-  const categories = getBusinessListingCategories();
+  const categories = getBusinessListingFilterCategories();
   const filteredListings = filterBusinessListings(listings, params);
   const claimedOnly = params.claimed === "true";
   const verifiedOnly = params.verified === "true";

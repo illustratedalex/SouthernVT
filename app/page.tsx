@@ -187,7 +187,7 @@ export default async function Home() {
             </div>
 
             <form
-              action="/explorer"
+              action="/search"
               method="get"
               data-ga-event="search"
               data-ga-source="home_hero_search"
@@ -217,7 +217,7 @@ export default async function Home() {
                 Explore Places
               </Link>
               <Link
-                href="/planner/new"
+                href="/concierge"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-white/40 bg-transparent px-6 text-sm font-semibold uppercase tracking-[0.12em] text-(--color-cream) motion-safe:transition motion-safe:hover:bg-white/12"
               >
                 I&apos;m Feeling Adventurous
