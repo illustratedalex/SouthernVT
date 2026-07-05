@@ -15,7 +15,7 @@ interface PassportCheckInPageProps {
 
 export const metadata: Metadata = createPageMetadata({
   title: "Adventure Passport Check-In",
-  description: "Collect a mock Adventure Passport stamp for a participating SouthernVT place.",
+  description: "Collect an Adventure Passport stamp for a participating SouthernVT place.",
   path: "/passport/check-in",
 });
 

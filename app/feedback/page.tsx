@@ -16,7 +16,9 @@ export default function FeedbackPage() {
         <div className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Feedback</p>
           <h1 className="mt-2 text-3xl font-semibold text-slate-900">Help Improve SouthernVT</h1>
-          <p className="mt-2 text-sm leading-7 text-slate-600">This form currently uses mock submit handling. Future release: Supabase-backed feedback inbox.</p>
+          <p className="mt-2 text-sm leading-7 text-slate-600">
+            Feedback submissions are reviewed manually during beta. We use this queue to improve listings, coverage, and planning tools.
+          </p>
 
           {submitted ? (
             <div className="mt-6 rounded-2xl border border-[#cde8d6] bg-[#ecf8f0] p-4 text-sm text-[#1f5a3d]">

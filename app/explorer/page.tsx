@@ -37,7 +37,7 @@ export default async function ExplorerPage() {
             key={rail.key}
             title={rail.title}
             recommendations={rail.recommendations}
-            emptyMessage="Explorer rail is warming up with mock feed data."
+            emptyMessage="Explorer recommendations are updating. Check back in a moment."
             mapItem={(recommendation) => ({
               id: recommendation.item.id,
               title: recommendation.item.name,

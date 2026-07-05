@@ -95,7 +95,7 @@ export default async function PlannerTripDetailPage({ params }: PlannerTripDetai
           </section>
 
           <section className="rounded-[28px] border border-dashed border-[#d7cbb3] bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-900">Map preview placeholder</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Map preview</h2>
             <p className="mt-2 text-sm leading-7 text-slate-600">A route-aware map canvas will appear here in a future iteration. For now, drive-time hints are included in each itinerary item.</p>
           </section>
 
@@ -121,17 +121,17 @@ export default async function PlannerTripDetailPage({ params }: PlannerTripDetai
 
         <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
           <section className="rounded-3xl border border-dashed border-[#d7cbb3] bg-white p-5 text-sm text-slate-600 shadow-sm">
-            <h2 className="text-base font-semibold text-slate-900">Save trip placeholder</h2>
+            <h2 className="text-base font-semibold text-slate-900">Save trip (coming soon)</h2>
             <p className="mt-2">Trip persistence controls will connect to authenticated profiles in a future release.</p>
           </section>
 
           <section className="rounded-3xl border border-dashed border-[#d7cbb3] bg-white p-5 text-sm text-slate-600 shadow-sm">
-            <h2 className="text-base font-semibold text-slate-900">Export PDF placeholder</h2>
+            <h2 className="text-base font-semibold text-slate-900">Export PDF (coming soon)</h2>
             <p className="mt-2">A printable PDF export will appear once formatting templates are finalized.</p>
           </section>
 
           <section className="rounded-3xl border border-dashed border-[#d7cbb3] bg-white p-5 text-sm text-slate-600 shadow-sm">
-            <h2 className="text-base font-semibold text-slate-900">Share link placeholder</h2>
+            <h2 className="text-base font-semibold text-slate-900">Share link (coming soon)</h2>
             <p className="mt-2">Sharing controls will support private and public itinerary links later.</p>
           </section>
         </aside>

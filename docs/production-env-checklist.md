@@ -52,7 +52,10 @@ The API Status page at `/basecamp/settings/api` reads real env vars at runtime a
 | `RESEND_API_KEY` | `re_...` | From resend.com API Keys |
 | `CONTACT_EMAIL_FROM` | `SouthernVT <hello@southernvt.com>` | Sender for contact form emails |
 | `CLAIMS_EMAIL_FROM` | `SouthernVT <partners@southernvt.com>` | Sender for claim notification emails |
-| `CLAIMS_ADMIN_EMAIL` | `partners@southernvt.com` | Inbox that receives new claim notifications |
+| `GENERAL_EMAIL_TO` | `hello@southernvt.com` | Destination for general inquiries, corrections, and suggestions |
+| `PARTNERS_EMAIL_TO` | `partners@southernvt.com` | Destination for partner inquiries and claim notifications |
+| `PRESS_EMAIL_TO` | `press@southernvt.com` | Destination for press/media inquiries |
+| `CLAIMS_ADMIN_EMAIL` | `partners@southernvt.com` | Backward-compatible claim inbox fallback |
 
 **Required Resend setup before going live:**
 1. Verify `southernvt.com` as a sending domain in Resend → Domains.
@@ -119,6 +122,7 @@ Stripe is not required for launch. Leave these blank until paid upgrades are imp
 - [ ] Resend API key set
 - [ ] `southernvt.com` verified as Resend sending domain
 - [ ] `CONTACT_EMAIL_FROM` and `CLAIMS_EMAIL_FROM` set
+- [ ] `GENERAL_EMAIL_TO`, `PARTNERS_EMAIL_TO`, and `PRESS_EMAIL_TO` set
 - [ ] `BASECAMP_ADMIN_EMAILS` set
 - [ ] Google Analytics Measurement ID set
 - [ ] Microsoft Clarity Project ID set

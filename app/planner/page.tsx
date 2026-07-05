@@ -11,7 +11,7 @@ import { getTrips } from "@/repositories/TripRepository";
 
 export const metadata: Metadata = {
   title: "Southern Vermont Trip Planner",
-  description: "Build and preview Southern Vermont itinerary plans using curated mock places, collections, events, and guides.",
+  description: "Build and preview Southern Vermont itinerary plans using curated places, collections, events, and guides.",
 };
 
 export default async function PlannerLandingPage() {
@@ -78,7 +78,7 @@ export default async function PlannerLandingPage() {
               key={rail.key}
               title={rail.title}
               recommendations={rail.recommendations}
-              emptyMessage="Planner rail is warming up with mock feed data."
+              emptyMessage="Planner recommendations are updating. Check back shortly."
               mapItem={(recommendation) => ({
                 id: recommendation.item.id,
                 title: recommendation.item.name,

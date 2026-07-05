@@ -147,7 +147,6 @@ export default async function PartnerPortalLandingPage() {
                   Verified by SouthernVT, SouthernVT Recommended, editorial review, coverage region, and editorial ranking are managed by the SouthernVT editorial team and cannot be changed by owners.
                 </p>
               </div>
-              {/* TODO: Photos, Events, and Deals management — coming in next sprint */}
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {["Photos", "Events", "Deals"].map((feature) => (
                   <div key={feature} className="rounded-xl border border-dashed border-[#d7cbb3] bg-[#fcfaf6] p-4 text-center">
