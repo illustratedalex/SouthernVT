@@ -1,4 +1,5 @@
-import { GeneralSettings, FeatureFlags, ApiStatusConfig, EnvironmentType, ApiStatus } from "@/types/Settings";
+import { GeneralSettings, FeatureFlags, ApiStatusConfig, EnvironmentType, ApiStatus, RepositoryModeInfo } from "@/types/Settings";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 
 const generalSettings: GeneralSettings = {
   siteName: "SouthernVT",
@@ -113,6 +114,19 @@ export function getFeatureFlags(): FeatureFlags {
 
 export function getApiStatus(): ApiStatusConfig {
   return buildApiStatus();
+}
+
+export function getRepositoryModeInfo(): RepositoryModeInfo {
+  const envVar = process.env.NEXT_PUBLIC_REPOSITORY_MODE?.trim().toLowerCase() ?? "";
+  const supabaseEnvPresent = hasSupabaseConfig();
+  const envVarSet = envVar === "supabase" || envVar === "mock";
+
+  let mode: RepositoryModeInfo["mode"] = "mock";
+  if (envVar === "supabase" && supabaseEnvPresent) {
+    mode = "supabase";
+  }
+
+  return { mode, envVarSet, supabaseEnvPresent };
 }
 
 export function getCurrentEnvironment(): EnvironmentType {

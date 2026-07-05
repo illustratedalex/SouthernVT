@@ -4,6 +4,8 @@ export type ApiStatus = "connected" | "missing" | "configured" | "error";
 
 export type EnvironmentType = "development" | "preview" | "production";
 
+export type RepositoryMode = "mock" | "supabase";
+
 export interface GeneralSettings {
   siteName: string;
   theme: Theme;
@@ -47,6 +49,12 @@ export interface ApiStatusConfig {
   vercelAnalytics: ApiIntegration;
   stripe: ApiIntegration;
   mapbox: ApiIntegration;
+}
+
+export interface RepositoryModeInfo {
+  mode: RepositoryMode;
+  envVarSet: boolean;
+  supabaseEnvPresent: boolean;
 }
 
 export interface SettingsContext {

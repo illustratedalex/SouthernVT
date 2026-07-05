@@ -1,6 +1,6 @@
 import { Sidebar } from "@/components/admin";
 import { ApiStatusPanel, SettingsSidebar } from "@/components/basecamp/settings";
-import { getApiStatus, getCurrentEnvironment } from "@/lib/repositories/SettingsRepository";
+import { getApiStatus, getCurrentEnvironment, getRepositoryModeInfo } from "@/lib/repositories/SettingsRepository";
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
@@ -23,6 +23,7 @@ const navItems = [
 export default function ApiStatusPage() {
   const apiStatus = getApiStatus();
   const environment = getCurrentEnvironment();
+  const repoModeInfo = getRepositoryModeInfo();
 
   const totalApis = Object.keys(apiStatus).length;
   const configuredCount = Object.values(apiStatus).filter((a) => a.status === "configured").length;
@@ -74,6 +75,60 @@ export default function ApiStatusPage() {
             {/* Main Content */}
             <div className="space-y-6">
               <ApiStatusPanel apiStatus={apiStatus} />
+
+              {/* Repository Mode */}
+              <div className="rounded-2xl border border-[#e8dfc8] bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-900">Repository Mode</h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Controls whether data is served from mock arrays or live Supabase.
+                </p>
+
+                <div className="mt-6 grid gap-4 md:grid-cols-3">
+                  <div className="rounded-lg border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-600">Active Mode</p>
+                    <p className={`mt-2 text-2xl font-bold capitalize ${repoModeInfo.mode === "supabase" ? "text-green-700" : "text-slate-900"}`}>
+                      {repoModeInfo.mode}
+                    </p>
+                    <p className="mt-3 text-xs text-slate-500">
+                      {repoModeInfo.mode === "supabase" ? "Serving live Supabase data" : "Serving mock data"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-600">Env Var</p>
+                    <p className={`mt-2 text-sm font-bold ${repoModeInfo.envVarSet ? "text-green-700" : "text-orange-700"}`}>
+                      {repoModeInfo.envVarSet ? "Set" : "Not set"}
+                    </p>
+                    <p className="mt-2 text-xs text-slate-500 font-mono">NEXT_PUBLIC_REPOSITORY_MODE</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {repoModeInfo.envVarSet
+                        ? `Value: ${process.env.NEXT_PUBLIC_REPOSITORY_MODE}`
+                        : 'Set to "supabase" in Vercel to activate live data'}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-600">Supabase Env</p>
+                    <p className={`mt-2 text-sm font-bold ${repoModeInfo.supabaseEnvPresent ? "text-green-700" : "text-orange-700"}`}>
+                      {repoModeInfo.supabaseEnvPresent ? "Configured" : "Missing"}
+                    </p>
+                    <p className="mt-2 text-xs text-slate-500">
+                      {repoModeInfo.supabaseEnvPresent
+                        ? "NEXT_PUBLIC_SUPABASE_URL + ANON_KEY present"
+                        : "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY"}
+                    </p>
+                  </div>
+                </div>
+
+                {repoModeInfo.mode === "mock" && (
+                  <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <strong>Using mock repositories.</strong> To switch to live Supabase data: set{" "}
+                    <code className="font-mono text-xs">NEXT_PUBLIC_REPOSITORY_MODE=supabase</code> in Vercel and ensure
+                    Supabase env vars are configured. See{" "}
+                    <span className="font-semibold">docs/supabase-live-mode.md</span> for migration steps.
+                  </div>
+                )}
+              </div>
 
               {/* Environment Info */}
               <div className="rounded-2xl border border-[#e8dfc8] bg-white p-6 shadow-sm">
