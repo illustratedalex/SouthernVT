@@ -117,7 +117,7 @@ export async function POST(request: Request) {
 
   try {
     const response = await createOpenAIClient(apiKey).responses.create({
-      model: "gpt-5.5",
+      model: "gpt-4o",
       input: [
         {
           role: "system",
