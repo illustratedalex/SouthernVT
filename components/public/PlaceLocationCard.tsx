@@ -21,7 +21,18 @@ export function PlaceLocationCard({ place }: PlaceLocationCardProps) {
         <Link href={mapsUrl} target="_blank" rel="noreferrer" className="rounded-full bg-[#1f3b2f] px-4 py-2 text-sm font-semibold text-[#f8f2e4]">
           Open in Maps
         </Link>
-        <Link href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${place.latitude},${place.longitude}`)}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-700">
+        <Link
+          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${place.latitude},${place.longitude}`)}`}
+          target="_blank"
+          rel="noreferrer"
+          data-ga-event="directions_click"
+          data-ga-source="place_location_card"
+          data-ga-label="Get directions"
+          data-ga-place-slug={place.slug}
+          data-ga-place-name={place.name}
+          data-ga-href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${place.latitude},${place.longitude}`)}`}
+          className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-700"
+        >
           Get directions
         </Link>
       </div>

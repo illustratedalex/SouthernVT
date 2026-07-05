@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { NextAdventureCard } from "@/components/discovery/NextAdventureCard";
 import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
@@ -292,6 +293,11 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
+      <AnalyticsTrackOnRender
+        event="place_viewed"
+        onceKey={`place:${place.id}`}
+        params={{ place_id: place.id, place_slug: place.slug, place_name: place.name }}
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
 
@@ -637,6 +643,14 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                   <Link
                     key={action.label}
                     href={action.href}
+                    data-ga-event={action.label.toLowerCase().includes("directions") ? "directions_click" : action.href.startsWith("tel:") ? "phone_click" : undefined}
+                    data-ga-source="place_quick_actions"
+                    data-ga-label={action.label}
+                    data-ga-place-slug={place.slug}
+                    data-ga-place-name={place.name}
+                    data-ga-entity-slug={place.slug}
+                    data-ga-entity-name={place.name}
+                    data-ga-href={action.href}
                     className="inline-flex rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
                   >
                     {action.label}

@@ -1,3 +1,4 @@
+import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import { EditorialSection } from "@/components/ui";
 import type { ConciergeTrip } from "@/types/Concierge";
 import { AITripNarrative } from "./AITripNarrative";
@@ -12,6 +13,18 @@ type ConciergeResultsProps = {
 export function ConciergeResults({ trip, aiConciergeEnabled }: ConciergeResultsProps) {
   return (
     <section className="space-y-6">
+      <AnalyticsTrackOnRender
+        event="concierge_completed"
+        onceKey={`concierge:${trip.recommendations.featuredPlace.id}:${trip.preferences.mood}:${trip.preferences.timeAvailable}:${trip.preferences.travelStyle}:${trip.preferences.radius}`}
+        params={{
+          featured_place_id: trip.recommendations.featuredPlace.id,
+          featured_place_slug: trip.recommendations.featuredPlace.slug,
+          mood: trip.preferences.mood,
+          time_available: trip.preferences.timeAvailable,
+          travel_style: trip.preferences.travelStyle,
+          radius: trip.preferences.radius,
+        }}
+      />
       <TripSummaryCard
         featuredPlace={trip.recommendations.featuredPlace}
         collection={trip.recommendations.collection}

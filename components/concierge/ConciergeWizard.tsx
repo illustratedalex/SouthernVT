@@ -84,6 +84,14 @@ export function ConciergeWizard({
           <Link
             href={buildHref({ generate: "1" })}
             scroll={false}
+            data-ga-event="concierge_started"
+            data-ga-source="concierge_wizard"
+            data-ga-label="Generate Concierge Plan"
+            data-ga-mood={selectedMood}
+            data-ga-time={selectedTime}
+            data-ga-style={selectedStyle}
+            data-ga-radius={selectedRadius}
+            data-ga-href={buildHref({ generate: "1" })}
             className="inline-flex h-12 items-center justify-center rounded-full bg-(--color-forest-green) px-6 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
           >
             Generate Concierge Plan

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { TripDayCard } from "@/components/planner/TripDayCard";
@@ -60,6 +61,11 @@ export default async function PlannerTripDetailPage({ params }: PlannerTripDetai
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
+      <AnalyticsTrackOnRender
+        event="saved_trip_viewed"
+        onceKey={`saved-trip:${trip.id}`}
+        params={{ trip_id: trip.id, trip_title: trip.title, status: trip.status }}
+      />
       <Navbar />
 
       <section className="relative overflow-hidden border-b border-(--color-pine)/20 bg-linear-to-br from-[#12241d] via-[#1f3b2f] to-[#3d5d4b] text-(--color-cream)">

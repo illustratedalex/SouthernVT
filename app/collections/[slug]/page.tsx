@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { RecommendedArticlesRail } from "@/components/discovery/RecommendedArticlesRail";
 import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
@@ -81,6 +82,11 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
+      <AnalyticsTrackOnRender
+        event="collection_viewed"
+        onceKey={`collection:${collection.id}`}
+        params={{ collection_id: collection.id, collection_slug: collection.slug, collection_title: collection.title }}
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
 

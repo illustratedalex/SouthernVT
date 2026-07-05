@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { RecommendedCollectionsRail } from "@/components/discovery/RecommendedCollectionsRail";
 import { RecommendedDealsRail } from "@/components/discovery/RecommendedDealsRail";
@@ -71,6 +72,16 @@ export default async function GuideDetailPage({ params }: GuideDetailPageProps) 
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
+      <AnalyticsTrackOnRender
+        event="guide_viewed"
+        onceKey={`guide:${article.id}`}
+        params={{ guide_id: article.id, guide_slug: article.slug, guide_title: article.title }}
+      />
+      <AnalyticsTrackOnRender
+        event="story_viewed"
+        onceKey={`story:guide:${article.id}`}
+        params={{ story_id: story.id, story_title: story.title, story_type: "guide" }}
+      />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
 

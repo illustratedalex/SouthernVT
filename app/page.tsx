@@ -176,7 +176,13 @@ export default async function Home() {
               <p>Original stories.</p>
             </Prose>
 
-            <form action="/explorer" method="get" className="max-w-2xl space-y-3">
+            <form
+              action="/explorer"
+              method="get"
+              data-ga-event="search_submitted"
+              data-ga-source="home_hero_search"
+              className="max-w-2xl space-y-3"
+            >
               <label htmlFor="home-search" className="sr-only">
                 Search places, guides, and collections
               </label>

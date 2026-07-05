@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { Badge } from "@/components/ui";
@@ -67,6 +68,11 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
+      <AnalyticsTrackOnRender
+        event="business_viewed"
+        onceKey={`business:${listing.id}`}
+        params={{ business_id: listing.id, business_slug: listing.slug, business_name: listing.name }}
+      />
       <Navbar />
 
       <section className="border-b border-[#dccfb8] bg-[#f7efe1]">
@@ -108,10 +114,38 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Contact</p>
                 <div className="mt-1 space-y-1 text-sm text-slate-800">
-                  <p>{listing.phone || "Phone not yet provided"}</p>
+                  <p>
+                    {listing.phone ? (
+                      <a
+                        href={`tel:${listing.phone.replace(/[^+\d]/g, "")}`}
+                        data-ga-event="phone_click"
+                        data-ga-source="business_contact"
+                        data-ga-label="Business phone"
+                        data-ga-entity-slug={listing.slug}
+                        data-ga-entity-name={listing.name}
+                        data-ga-href={`tel:${listing.phone.replace(/[^+\d]/g, "")}`}
+                        className="font-semibold text-[#1f3b2f] underline underline-offset-4"
+                      >
+                        {listing.phone}
+                      </a>
+                    ) : (
+                      "Phone not yet provided"
+                    )}
+                  </p>
                   <p>
                     {listing.website ? (
-                      <a href={listing.website} className="font-semibold text-[#1f3b2f] underline underline-offset-4">Website</a>
+                      <a
+                        href={listing.website}
+                        data-ga-event="business_website_click"
+                        data-ga-source="business_contact"
+                        data-ga-label="Business website"
+                        data-ga-business-slug={listing.slug}
+                        data-ga-business-name={listing.name}
+                        data-ga-href={listing.website}
+                        className="font-semibold text-[#1f3b2f] underline underline-offset-4"
+                      >
+                        Website
+                      </a>
                     ) : (
                       "Website not yet provided"
                     )}

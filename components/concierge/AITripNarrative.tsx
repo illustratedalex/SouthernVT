@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackAIConcierge } from "@/lib/analytics/events";
 import type { ConciergeAINarrative, ConciergePreferences, ConciergeTrip } from "@/types/Concierge";
 
 type AITripNarrativeProps = {
@@ -15,6 +16,14 @@ export function AITripNarrative({ preferences, compassTrip, aiConciergeEnabled }
   const [narrative, setNarrative] = useState<ConciergeAINarrative | null>(null);
 
   const enhanceWithAI = async () => {
+    trackAIConcierge({
+      mood: preferences.mood,
+      time_available: preferences.timeAvailable,
+      travel_style: preferences.travelStyle,
+      radius: preferences.radius,
+      featured_place_id: compassTrip.recommendations.featuredPlace.id,
+    });
+
     setLoading(true);
     setError(null);
 
@@ -103,4 +112,3 @@ export function AITripNarrative({ preferences, compassTrip, aiConciergeEnabled }
     </section>
   );
 }
-

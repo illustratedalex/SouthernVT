@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input, useToasts } from "@/components/ui";
+import { trackClaimStarted, trackClaimSubmitted } from "@/lib/analytics/events";
 import { addSessionActivityEvent } from "@/lib/basecamp/sessionEvents";
 import { submitClaim } from "@/lib/repositories/claimRepository";
 import type { ClaimRelationship } from "@/types/Claim";
@@ -42,6 +43,13 @@ export function ClaimForm({ listing }: ClaimFormProps) {
   const [state, setState] = useState<FormState>(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    trackClaimStarted(
+      { listing_id: listing.id, listing_slug: listing.slug, listing_name: listing.name },
+      `claim:${listing.id}`,
+    );
+  }, [listing.id, listing.name, listing.slug]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setState((current) => ({ ...current, [key]: value }));
@@ -86,6 +94,12 @@ export function ClaimForm({ listing }: ClaimFormProps) {
       });
 
       setSubmitted(true);
+      trackClaimSubmitted({
+        listing_id: listing.id,
+        listing_slug: listing.slug,
+        listing_name: listing.name,
+        relationship: state.relationship,
+      });
       pushToast({ tone: "success", title: "Claim submitted", description: "Your request is pending review." });
     } catch {
       pushToast({ tone: "error", title: "Submission failed", description: "Please try again." });

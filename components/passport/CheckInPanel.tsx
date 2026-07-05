@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { trackPassportCheckIn } from "@/lib/analytics/events";
 import type { PassportMember, PassportReward } from "@/types/Passport";
 
 interface CheckInPanelProps {
@@ -44,7 +45,10 @@ export function CheckInPanel({ member, placeId, placeName, currentStampCount, re
 
       <button
         type="button"
-        onClick={() => setCollected(true)}
+        onClick={() => {
+          setCollected(true);
+          trackPassportCheckIn({ member_id: member.id, place_id: placeId, place_name: placeName });
+        }}
         disabled={collected}
         className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-3 text-sm font-semibold text-[#f8f2e4] disabled:opacity-50"
       >

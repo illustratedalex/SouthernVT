@@ -15,10 +15,24 @@ export function FoundingPartnerCTA({ primaryHref = "/contact", secondaryHref = "
       className="bg-[#f9f4e8]"
     >
       <div className="flex flex-wrap gap-3">
-        <Link href={primaryHref}>
+        <Link
+          href={primaryHref}
+          data-ga-event="partner_click"
+          data-ga-source="founding_partner_cta"
+          data-ga-label="Become a Founding Partner"
+          data-ga-partner-surface="founding_partners_page"
+          data-ga-href={primaryHref}
+        >
           <Button variant="secondary">Become a Founding Partner</Button>
         </Link>
-        <a href={secondaryHref}>
+        <a
+          href={secondaryHref}
+          data-ga-event="partner_click"
+          data-ga-source="founding_partner_cta"
+          data-ga-label="Contact Alex"
+          data-ga-partner-surface="founding_partners_page"
+          data-ga-href={secondaryHref}
+        >
           <Button variant="ghost" className="border border-(--color-forest-green)/15 bg-white text-(--color-forest-green) motion-safe:hover:bg-[#f4efe1]">
             Contact Alex
           </Button>
