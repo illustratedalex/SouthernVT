@@ -169,7 +169,7 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
             <PublicCTA
               eyebrow="Claim deal"
               title="Use this offer"
-              description="This placeholder will connect to the partner redemption flow in a future release."
+              description="Online redemption tools are coming soon. Contact the partner directly or email partners@southernvt.com for help redeeming this offer."
               href={ctaHref}
               label={ctaText}
             />

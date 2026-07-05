@@ -241,7 +241,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
           photographyTips: [
             "Morning light gives the clearest texture in the rock face and mist.",
             "The day after rainfall brings stronger flow and dramatic spray.",
-            "Best drone launch area placeholder: open shoulder near the trailhead clearing.",
+            "Drone flight note: verify local regulations and launch only from open areas near the trailhead shoulder.",
             "Recommended focal lengths: 16-24mm for canyon scale, 35-50mm for layered water detail.",
             "Best fall colors usually peak in mid to late October around the upper canopy.",
           ],
@@ -266,7 +266,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             "Cloudy weather often brings cleaner color and less glare off the water surface.",
             "Fall colors peak in early to mid-October; reflections in calm pool sections are excellent.",
             "River bridges and covered areas create natural framing for composition.",
-            "Best drone launch area placeholder: open areas near the parking lot and picnic zone.",
+            "Drone flight note: verify local regulations and use open launch areas near parking and picnic zones.",
           ],
         }
       : story;
@@ -354,13 +354,13 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               <div className="grid gap-4 md:grid-cols-3">
                 {premiumGallery.length ? premiumGallery.map((image, index) => (
                   <img key={`${image}-${index}`} src={image} alt={`${place.name} premium gallery ${index + 1}`} className="h-44 w-full rounded-2xl object-cover" />
-                )) : <p className="text-sm text-slate-600">Image carousel placeholder</p>}
+                )) : <p className="text-sm text-slate-600">Gallery images coming soon.</p>}
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Business Video</p>
-                  <p className="mt-2 text-sm text-slate-600">{place.businessVideo ? place.businessVideo : "Video placeholder"}</p>
+                  <p className="mt-2 text-sm text-slate-600">{place.businessVideo ? place.businessVideo : "Business video coming soon."}</p>
                 </div>
                 <div className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Featured Story</p>
@@ -375,7 +375,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                 </div>
                 <div className="rounded-2xl border border-[#e8dfc8] bg-white p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Owner Message</p>
-                  <p className="mt-2 text-sm leading-7 text-slate-700">{place.ownerMessage || "Owner message placeholder"}</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700">{place.ownerMessage || "Owner message coming soon."}</p>
                 </div>
               </div>
 
@@ -383,13 +383,13 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                 <div className="rounded-2xl border border-[#e8dfc8] bg-white p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Special Offers</p>
                   <ul className="mt-2 space-y-2 text-sm text-slate-700">
-                    {premiumDeals.length ? premiumDeals.map((deal) => <li key={deal.id}>{deal.title}</li>) : <li>Special offers placeholder</li>}
+                    {premiumDeals.length ? premiumDeals.map((deal) => <li key={deal.id}>{deal.title}</li>) : <li>Special offers coming soon.</li>}
                   </ul>
                 </div>
                 <div className="rounded-2xl border border-[#e8dfc8] bg-white p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Upcoming Events</p>
                   <ul className="mt-2 space-y-2 text-sm text-slate-700">
-                    {premiumEvents.length ? premiumEvents.map((event) => <li key={event.id}>{event.title}</li>) : <li>Upcoming events placeholder</li>}
+                    {premiumEvents.length ? premiumEvents.map((event) => <li key={event.id}>{event.title}</li>) : <li>Upcoming events coming soon.</li>}
                   </ul>
                 </div>
               </div>
@@ -398,7 +398,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                 <a href={place.ctaUrl || "#"} className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-3 text-sm font-semibold text-[#f8f2e4]">
                   {place.ctaButton || "Book now"}
                 </a>
-                <span className="inline-flex rounded-full border border-[#d7cbb3] px-5 py-3 text-sm font-semibold text-slate-700">Book now placeholder</span>
+                <span className="inline-flex rounded-full border border-[#d7cbb3] px-5 py-3 text-sm font-semibold text-slate-700">Booking tools coming soon</span>
               </div>
             </div>
           </ContentSection>
@@ -571,7 +571,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                     className="rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4 text-sm font-semibold text-slate-800 transition hover:border-[#d7cbb3] hover:bg-white"
                   >
                     {collection.name}
-                    {!collection.active ? <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Template slot</p> : null}
+                    {!collection.active ? <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Collection details coming soon</p> : null}
                   </Link>
                 ))}
               </div>
@@ -586,7 +586,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               </ol>
             </ContentSection>
 
-            <ContentSection title="Map" eyebrow="Field Navigation" description="Marker placeholders show the intended orientation for arrival and on-foot navigation.">
+            <ContentSection title="Map" eyebrow="Field Navigation" description="Map orientation tools are being expanded for arrival and on-foot navigation.">
               <div className="rounded-3xl border border-[#ece3cf] bg-[linear-gradient(135deg,#eef4eb_0%,#f8f3e6_100%)] p-5">
                 <div className="mb-4 rounded-2xl border border-[#d9ceb7] bg-white/80 p-4 text-sm leading-7 text-slate-700">
                   <p><strong className="text-slate-900">Parking:</strong> Confirm on-site or nearby parking availability before arrival.</p>
@@ -612,7 +612,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               </div>
             </ContentSection>
 
-            <ContentSection title="Content Quality" eyebrow="Compass Quality Signals" description="This flagship page uses the same scoring engine available in Basecamp editorial workflows.">
+            <ContentSection title="Content Quality" eyebrow="Compass Quality Signals" description="Example quality signals used during beta preview for editorial consistency.">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <div className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Content Health</p>
@@ -637,7 +637,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             <BestTimeSection story={story} />
             <StoryQuote story={story} />
 
-            <ContentSection title="Gallery" eyebrow="Photo preview" description="A few images to help you picture the stop before you go.">
+            <ContentSection title="Gallery" eyebrow="Photo preview" description="A few photos to help you picture the stop before you go.">
               <GalleryGrid images={galleryImages.slice(0, 6)} alt={place.name} />
             </ContentSection>
 

@@ -51,9 +51,9 @@ export default function ContactPage() {
           headingLevel="h1"
         >
           <div className="overflow-hidden rounded-[26px] border border-[#d8c7a0] bg-[linear-gradient(125deg,#f4dfb0,#d7b274_45%,#8ea188)] p-8 text-[#173325] shadow-[0_20px_60px_rgba(31,59,47,0.16)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#274737]">Editorial Hero Image Placeholder</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#274737]">Southern Vermont Editorial Desk</p>
             <p className="mt-2 max-w-2xl text-lg font-medium leading-8">
-              Warm photography of Southern Vermont landscapes, villages, and small businesses should live here.
+              We respond to destination tips, listing corrections, business partner questions, and media requests.
             </p>
           </div>
         </EditorialSection>

@@ -96,7 +96,7 @@ export function PlaceRelationshipSectionsLive({ placeId }: PlaceRelationshipSect
     <section className="grid gap-6 xl:grid-cols-3">
       <RelationshipBlock title="Nearby Places" emptyText="No nearby relationship data linked yet." rows={rows.nearby} />
       <RelationshipBlock title="Featured Collections" emptyText="No featured collection relationships linked yet." rows={rows.featured} />
-      <RelationshipBlock title="Related Media" emptyText="Media placeholders will appear as links are added." rows={rows.media} />
+      <RelationshipBlock title="Related Media" emptyText="Related media links will appear as they are added." rows={rows.media} />
     </section>
   );
 }

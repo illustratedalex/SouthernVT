@@ -116,7 +116,10 @@ export function TravelerExperiences({ listingType, overallRating = 5, verifiedVi
   return (
     <section className="rounded-[28px] border border-[#e8dfc8] bg-[#fcfaf6] p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Traveler Experiences</p>
-      <h2 className="mt-2 text-2xl font-semibold text-slate-900">Experiences shared by verified visitors.</h2>
+      <h2 className="mt-2 text-2xl font-semibold text-slate-900">Experience highlights (example preview)</h2>
+      <p className="mt-2 text-sm leading-7 text-slate-700">
+        These are sample experience signals used during beta preview. Live guest reviews and ratings are not yet enabled.
+      </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-[#ece3cf] bg-white p-4">
         <div>
@@ -144,7 +147,7 @@ export function TravelerExperiences({ listingType, overallRating = 5, verifiedVi
       <div className="mt-4 space-y-2">
         {profile.notes.slice(0, 5).map((note) => (
           <article key={note} className="rounded-2xl border border-[#ece3cf] bg-white px-4 py-3 text-sm text-slate-700">
-            &ldquo;{note.slice(0, 140)}&rdquo;
+            &ldquo;{note.slice(0, 140)}&rdquo; <span className="text-slate-500">(example)</span>
           </article>
         ))}
       </div>
@@ -160,12 +163,13 @@ export function TravelerExperiences({ listingType, overallRating = 5, verifiedVi
 
       <div className="mt-5 rounded-2xl border border-[#ece3cf] bg-white p-4">
         <p className="text-sm font-semibold text-slate-900">Stayed here?</p>
-        <p className="mt-1 text-sm text-slate-600">Share your experience. Verified guests only.</p>
+        <p className="mt-1 text-sm text-slate-600">Public review submission is coming soon. Verified guest workflow is in progress.</p>
         <button
           type="button"
-          className="mt-3 inline-flex rounded-full bg-[#1f5a3d] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#2b6d4c]"
+          disabled
+          className="mt-3 inline-flex rounded-full bg-[#c8d6cd] px-5 py-2 text-sm font-semibold text-slate-700"
         >
-          Leave Experience
+          Reviews coming soon
         </button>
       </div>
     </section>

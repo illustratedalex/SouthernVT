@@ -50,7 +50,7 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Badge variant="featured">Not paid placement</Badge>
-            <Badge variant="subtle" className="border-white/20 bg-white/10 text-white">Mock data only</Badge>
+            <Badge variant="subtle" className="border-white/20 bg-white/10 text-white">Beta directory · details may be incomplete</Badge>
           </div>
         </div>
       </section>

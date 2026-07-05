@@ -289,10 +289,10 @@ export default async function Home() {
                   Read the Feature
                 </Link>
                 <Link
-                  href="/basecamp/editorial-issue"
+                  href="/guides"
                   className="inline-flex h-11 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-5 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
                 >
-                  Open Issue Board
+                  Browse guides
                 </Link>
               </div>
             </Card>
@@ -303,7 +303,7 @@ export default async function Home() {
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Newsletter Preview</p>
                   <h3 className="mt-2 text-2xl font-semibold text-slate-900">{weeklyIssue.newsletterPreview.subject}</h3>
                 </div>
-                <Badge variant="forest">Mock</Badge>
+                <Badge variant="forest">Example</Badge>
               </div>
 
               <div className="mt-4 space-y-3">
@@ -346,10 +346,10 @@ export default async function Home() {
                   Open editor
                 </Link>
                 <Link
-                  href="/basecamp/content"
+                  href="/guides"
                   className="inline-flex h-10 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-4 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
                 >
-                  Open newsroom
+                  Read guides
                 </Link>
               </div>
             </Card>
@@ -382,10 +382,10 @@ export default async function Home() {
               </div>
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
-                  href="/basecamp/southernvt-100"
+                  href="/places"
                   className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
                 >
-                  Open dashboard
+                  Explore places
                 </Link>
               </div>
             </Card>
