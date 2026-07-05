@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { BusinessListingCard } from "@/components/public/BusinessListingCard";
 import { Badge, Button, Card, EditorialSection, Input, MetaText, Prose } from "@/components/ui";
 import { ExperienceService } from "@/lib/experience/ExperienceService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
+import { getBusinessListings } from "@/lib/businessListings";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { createPageMetadata } from "@/lib/seo";
 import { getPlaces } from "@/repositories/PlaceRepository";
@@ -38,6 +40,10 @@ export default async function Home() {
   const hamiltonFalls = placesBySlug.get("hamilton-falls") ?? featuredPlace ?? publishedPlaces[0] ?? null;
 
   const featuredCollections = publishedCollections.filter((collection) => collection.featured).slice(0, 3);
+  const businessListings = getBusinessListings();
+  const homeBusinessListings = ["founding_partner", "verified", "claimed", "basic"]
+    .map((status) => businessListings.find((listing) => listing.status === status))
+    .filter((listing): listing is NonNullable<(typeof businessListings)[number]> => Boolean(listing));
 
   const hiddenGems = publishedPlaces
     .filter(
@@ -440,6 +446,30 @@ export default async function Home() {
               </Link>
             ))}
           </div>
+        </EditorialSection>
+
+        <EditorialSection
+          eyebrow="Local Directory"
+          title="Local Businesses to Know"
+          description="A foundational business directory shaped for discovery, accuracy, and future owner updates. These are listings, not ads."
+        >
+          <div className="mb-4 flex flex-wrap gap-3">
+            <Badge variant="subtle">Basic</Badge>
+            <Badge variant="forest">Claimed</Badge>
+            <Badge variant="amber">Verified</Badge>
+            <Badge variant="featured">Founding Partner</Badge>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {homeBusinessListings.map((listing) => (
+              <BusinessListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+          <Link
+            href="/businesses"
+            className="mt-5 inline-flex rounded-full border border-[#d7cbb3] bg-white px-5 py-3 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
+          >
+            Browse all business listings
+          </Link>
         </EditorialSection>
 
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">

@@ -17,6 +17,7 @@ type SidebarProps = {
 };
 
 const alwaysVisibleItems: SidebarItem[] = [
+  { label: "Businesses", href: "/basecamp/businesses" },
   { label: "Founding Partners", href: "/basecamp/founding-partners" },
   { label: "Partner Outreach", href: "/basecamp/partner-outreach" },
 ];
@@ -59,6 +60,22 @@ export function Sidebar({ items }: SidebarProps) {
     }
   }
 
+  const promotedHrefs = [
+    "/basecamp/businesses",
+    "/basecamp/claims",
+    "/basecamp/founding-partners",
+    "/basecamp/partner-outreach",
+  ];
+  const promotedItems = allItems.filter((item) => promotedHrefs.includes(item.href));
+  const baseItems = allItems.filter((item) => !promotedHrefs.includes(item.href));
+  const placeIndex = baseItems.findIndex((item) => item.href === "/basecamp/places");
+
+  if (promotedItems.length > 0 && placeIndex >= 0) {
+    baseItems.splice(placeIndex + 1, 0, ...promotedItems);
+  } else if (promotedItems.length > 0) {
+    baseItems.push(...promotedItems);
+  }
+
   return (
     <aside className="w-full rounded-[30px] border border-white/10 bg-[#12261d] p-5 text-[#f7efe0] shadow-[0_24px_90px_rgba(10,18,15,0.28)] lg:sticky lg:top-6 lg:w-72 lg:shrink-0 lg:p-6">
       <div className="flex items-center gap-3">
@@ -72,7 +89,7 @@ export function Sidebar({ items }: SidebarProps) {
       </div>
 
       <nav className="mt-8 space-y-1.5">
-        {allItems.map((item) => (
+        {baseItems.map((item) => (
           item.disabled ? (
             <div
               key={item.label}

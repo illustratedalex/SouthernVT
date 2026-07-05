@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const EDITOR_NOTE_STORAGE_KEY = "basecamp.morning-briefing.editor-note";
 const defaultNote = "Focus on swimming holes before the weekend.";
 
 export function MorningBriefingNote() {
-  const [note, setNote] = useState(defaultNote);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(EDITOR_NOTE_STORAGE_KEY);
-    if (stored) {
-      setNote(stored);
+  const [note, setNote] = useState(() => {
+    if (typeof window === "undefined") {
+      return defaultNote;
     }
-  }, []);
+
+    return window.localStorage.getItem(EDITOR_NOTE_STORAGE_KEY) ?? defaultNote;
+  });
+  const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
     window.localStorage.setItem(EDITOR_NOTE_STORAGE_KEY, note);

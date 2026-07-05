@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getBusinessListings } from "@/lib/businessListings";
 import { getPublishedArticles } from "@/repositories/ArticleRepository";
 import { getPublishedDeals } from "@/repositories/DealRepository";
 import { getPublishedEvents } from "@/repositories/EventRepository";
@@ -7,6 +8,7 @@ import { getCollections } from "@/lib/repositories/collectionRepository";
 import { absoluteUrl } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const businessListings = getBusinessListings();
   const [places, collections, events, articles, deals] = await Promise.all([
     getPlaces(),
     getCollections(),
@@ -30,6 +32,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
+    },
+    {
+      url: absoluteUrl("/businesses"),
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
     },
     {
       url: absoluteUrl("/collections"),
@@ -76,6 +84,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const businessEntries: MetadataRoute.Sitemap = businessListings.map((listing) => ({
+    url: absoluteUrl(`/businesses/${listing.slug}`),
+    lastModified: new Date(listing.updatedAt),
+    changeFrequency: "weekly",
+    priority: 0.72,
+  }));
+
   const collectionEntries: MetadataRoute.Sitemap = publishedCollections.map((collection) => ({
     url: absoluteUrl(`/collections/${collection.slug}`),
     lastModified: new Date(collection.updatedAt),
@@ -104,5 +119,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.75,
   }));
 
-  return [...staticEntries, ...placeEntries, ...collectionEntries, ...eventEntries, ...articleEntries, ...dealEntries];
+  return [...staticEntries, ...placeEntries, ...businessEntries, ...collectionEntries, ...eventEntries, ...articleEntries, ...dealEntries];
 }

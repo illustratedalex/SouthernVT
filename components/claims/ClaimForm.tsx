@@ -8,10 +8,12 @@ import { submitClaim } from "@/lib/repositories/claimRepository";
 import type { ClaimRelationship } from "@/types/Claim";
 
 type ClaimFormProps = {
-  place: {
+  listing: {
     id: string;
     slug: string;
     name: string;
+    publicHref: string;
+    publicLabel: string;
   };
 };
 
@@ -35,7 +37,7 @@ const initialState: FormState = {
   certified: false,
 };
 
-export function ClaimForm({ place }: ClaimFormProps) {
+export function ClaimForm({ listing }: ClaimFormProps) {
   const { pushToast } = useToasts();
   const [state, setState] = useState<FormState>(initialState);
   const [submitting, setSubmitting] = useState(false);
@@ -57,9 +59,9 @@ export function ClaimForm({ place }: ClaimFormProps) {
 
     try {
       await submitClaim({
-        placeId: place.id,
-        placeSlug: place.slug,
-        placeName: place.name,
+        placeId: listing.id,
+        placeSlug: listing.slug,
+        placeName: listing.name,
         businessName: state.businessName,
         contactName: state.contactName,
         email: state.email,
@@ -72,12 +74,12 @@ export function ClaimForm({ place }: ClaimFormProps) {
       addSessionActivityEvent({
         type: "created",
         contentType: "workflow",
-        contentId: place.id,
-        title: `${place.name} ownership request submitted.`,
-        description: `${state.contactName} submitted a business claim for ${place.name}.`,
+        contentId: listing.id,
+        title: `${listing.name} ownership request submitted.`,
+        description: `${state.contactName} submitted a business claim for ${listing.name}.`,
         actor: "Public Claim Form",
         metadata: {
-          placeSlug: place.slug,
+          placeSlug: listing.slug,
           relationship: state.relationship,
           status: "pending",
         },
@@ -98,11 +100,11 @@ export function ClaimForm({ place }: ClaimFormProps) {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f5a3d]">Request received</p>
         <h2 className="mt-2 text-2xl font-semibold text-slate-900">Success</h2>
         <p className="mt-3 text-sm leading-7 text-slate-700">
-          Your ownership request for {place.name} has been submitted. We will review it in Basecamp.
+          Your ownership request for {listing.name} has been submitted. We will review it in Basecamp.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href={`/places/${place.slug}`} className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-3 text-sm font-semibold text-[#f8f2e4]">
-            Return to Place
+          <Link href={listing.publicHref} className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-3 text-sm font-semibold text-[#f8f2e4]">
+            Return to {listing.publicLabel}
           </Link>
           <Link href="/" className="inline-flex rounded-full border border-[#d7cbb3] px-5 py-3 text-sm font-semibold text-slate-700">
             Back to Home

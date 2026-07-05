@@ -77,7 +77,7 @@ export const mockFeatureFlags: FeatureFlag[] = [
     key: "businessPortal",
     label: "Business Portal",
     description: "Enables partner business self-service dashboard modules.",
-    enabled: false,
+    enabled: true,
     environment: "development",
     createdAt: "2026-06-28T09:00:00.000Z",
     updatedAt: "2026-06-28T09:00:00.000Z",

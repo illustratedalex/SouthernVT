@@ -22,6 +22,7 @@ const navItems = [
   { label: "Knowledge Graph", href: "/basecamp/graph" },
   { label: "Content Report", href: "/basecamp/content/report" },
   { label: "Places", href: "/basecamp/places" },
+  { label: "Businesses", href: "/basecamp/businesses" },
   { label: "Collections", href: "/basecamp/collections" },
   { label: "Photo Desk", href: "/basecamp/media" },
   { label: "Activity", href: "/basecamp/activity" },
