@@ -1,9 +1,11 @@
 import type { BusinessClaim, BusinessClaimInput, ClaimReviewInput } from "@/types/Claim";
 
+type ApiErrorPayload = { error?: string; notConfigured?: boolean; blocked?: boolean };
+
 async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const payload = (await response.json()) as T & { error?: string };
+  const payload = (await response.json()) as T & ApiErrorPayload;
   if (!response.ok) {
-    throw new Error((payload as { error?: string }).error ?? "Claim request failed.");
+    throw new Error((payload as ApiErrorPayload).error ?? "Claim request failed.");
   }
   return payload;
 }
@@ -28,6 +30,12 @@ export async function submitClaim(input: BusinessClaimInput): Promise<BusinessCl
     },
     body: JSON.stringify(input),
   });
+
+  // Surface the 503 "not configured" message explicitly so the UI can render it clearly
+  if (response.status === 503) {
+    const payload = (await response.json()) as ApiErrorPayload;
+    throw new Error(payload.error ?? "Claim submissions are not enabled yet. Please email partners@southernvt.com.");
+  }
 
   const payload = await parseJsonResponse<{ claim?: BusinessClaim; blocked?: boolean }>(response);
   return payload.claim ?? null;

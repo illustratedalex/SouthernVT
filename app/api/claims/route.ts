@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createBusinessClaim } from "@/lib/claims/liveClaims";
+import { createBusinessClaim, hasSupabaseServiceRoleEnv } from "@/lib/claims/liveClaims";
 import { sendClaimSubmissionEmails } from "@/lib/email/claimEmails";
 import type { BusinessClaimInput } from "@/types/Claim";
 
@@ -9,6 +9,19 @@ export async function POST(request: Request) {
   if ((payload.honeypot ?? "").trim()) {
     console.warn("Blocked suspected claim form spam submission.");
     return NextResponse.json({ blocked: true });
+  }
+
+  // Service guard — do not silently mock success when Supabase is not configured
+  if (!hasSupabaseServiceRoleEnv()) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "Claim submissions are not enabled yet. Please email partners@southernvt.com to claim your listing.",
+        notConfigured: true,
+      },
+      { status: 503 },
+    );
   }
 
   if (

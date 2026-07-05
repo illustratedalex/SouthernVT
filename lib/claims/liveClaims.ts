@@ -195,24 +195,32 @@ export async function reviewBusinessClaim(claimId: string, input: ClaimReviewInp
 
   if (input.status === "approved") {
     const userId = await findAuthUserIdByEmail(claimRow.claimant_email);
-    if (!userId) {
-      throw new Error("Cannot approve claim because no authenticated owner account was found for claimant email.");
+    if (userId) {
+      const normalizedRole = claimRow.role_at_business.trim().toLowerCase();
+      // Create owner row when a matching auth account exists
+      await fetch(`${url}/rest/v1/business_listing_owners?on_conflict=business_listing_id,user_id`, {
+        method: "POST",
+        headers: restHeaders(serviceRoleKey, { Prefer: "resolution=merge-duplicates,return=minimal" }),
+        body: JSON.stringify([
+          {
+            business_listing_id: claimRow.business_listing_id,
+            user_id: userId,
+            role: normalizedRole === "editor" ? "editor" : normalizedRole === "manager" ? "manager" : "owner",
+            status: "active",
+          },
+        ]),
+        cache: "no-store",
+      }).then(parseJsonResponse<null>);
+    } else {
+      // TODO: claimant has not yet created an account — owner dashboard access cannot be
+      // granted automatically. Send them a signup invitation manually or implement
+      // an invite-by-email flow. Approval still proceeds so the claim record is marked
+      // approved and the claimant receives an email notification.
+      console.warn(
+        `[Claims] Approved claim ${claimRow.id} for ${claimRow.claimant_email} but no auth user found. ` +
+          "business_listing_owners row was NOT created. Owner must sign up and be manually linked.",
+      );
     }
-    const normalizedRole = claimRow.role_at_business.trim().toLowerCase();
-
-    await fetch(`${url}/rest/v1/business_listing_owners?on_conflict=business_listing_id,user_id`, {
-      method: "POST",
-      headers: restHeaders(serviceRoleKey, { Prefer: "resolution=merge-duplicates,return=minimal" }),
-      body: JSON.stringify([
-        {
-          business_listing_id: claimRow.business_listing_id,
-          user_id: userId,
-          role: normalizedRole === "editor" ? "editor" : normalizedRole === "manager" ? "manager" : "owner",
-          status: "active",
-        },
-      ]),
-      cache: "no-store",
-    }).then(parseJsonResponse<null>);
   }
 
   const updateResponse = await fetch(`${url}/rest/v1/business_claims?id=eq.${encodedId}`, {
