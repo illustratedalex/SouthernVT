@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Sidebar } from "@/components/admin";
 import { BasecampPageHeader, BasecampSection, BasecampStatCard } from "@/components/basecamp";
+import { getEditorialIntelligenceSummary } from "@/lib/editorial/EditorialIntelligence";
 import { Badge, Prose } from "@/components/ui";
 import { weeklyIssue } from "@/data/weeklyIssue";
 
@@ -39,6 +40,8 @@ function formatDate(value: string) {
 }
 
 export default function EditorialIssuePlannerPage() {
+  const intelligenceSummary = getEditorialIntelligenceSummary();
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(213,183,102,0.16),transparent_32%),linear-gradient(135deg,#f7efe1_0%,#fcfaf6_100%)] text-slate-800">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-4 sm:px-6 lg:flex-row lg:px-8 lg:py-6">
@@ -55,12 +58,15 @@ export default function EditorialIssuePlannerPage() {
             secondaryAction={{ label: "Read the feature", href: weeklyIssue.coverStory.href }}
           />
 
-          <section className="grid gap-4 md:grid-cols-4">
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {[
               { label: "Stories in progress", value: String(weeklyIssue.metrics.storiesInProgress), detail: "Supporting stories moving through the newsroom." },
               { label: "Stories published", value: String(weeklyIssue.metrics.storiesPublished), detail: "Pieces already ready for readers." },
               { label: "Average Content Health", value: `${weeklyIssue.metrics.averageContentHealth}%`, detail: "Mock editorial quality average for the issue." },
               { label: "Assignments complete", value: String(weeklyIssue.metrics.assignmentsComplete), detail: "Tasks checked off in the weekly workflow." },
+              { label: "Coverage Score", value: `${intelligenceSummary.coverageScore}%`, detail: "Story and collection coverage completeness for this issue." },
+              { label: "Relationship Score", value: `${intelligenceSummary.relationshipScore}%`, detail: "Depth of place-to-place and place-to-business relationship links." },
+              { label: "Photography Score", value: `${intelligenceSummary.photographyScore}%`, detail: "Photo direction coverage including winter and drone opportunities." },
             ].map((stat) => (
               <BasecampStatCard key={stat.label} label={stat.label} value={stat.value} detail={stat.detail} />
             ))}

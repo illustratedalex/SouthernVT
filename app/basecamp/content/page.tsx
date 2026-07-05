@@ -23,6 +23,16 @@ import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { getVaultEntries } from "@/lib/content/knowledgeVault";
 import { weeklyIssue } from "@/data/weeklyIssue";
 import {
+  type EditorialOpportunity,
+  findMissingBusinesses,
+  findMissingCollections,
+  findMissingPhotography,
+  findMissingRelationships,
+  findSeasonalGaps,
+  findVerificationOpportunities,
+  findWeakStories,
+} from "@/lib/editorial/EditorialIntelligence";
+import {
   getPlacesNeedingReview as getPlacesNeedingVerificationReview,
   getRecommendedPlaces as getRecommendedVerifiedPlaces,
   getVerifiedPlaces,
@@ -283,6 +293,36 @@ export default async function BasecampContentStudioPage() {
   const placesWithoutArticles = places.filter((place) => !articles.some((article) => article.relatedPlaces.includes(place.id)));
   const placesWithoutEvents = places.filter((place) => !events.some((event) => event.venuePlaceId === place.id));
   const collectionsUnderFivePlaces = collections.filter((collection) => collection.places.length < 5);
+  const intelligenceBuckets = [
+    ...findMissingRelationships(8),
+    ...findWeakStories(8),
+    ...findMissingPhotography(8),
+    ...findMissingBusinesses(8),
+    ...findMissingCollections(8),
+    ...findVerificationOpportunities(8),
+    ...findSeasonalGaps(8),
+  ];
+  const editorialIntelligence = Array.from(
+    intelligenceBuckets.reduce((map, opportunity) => {
+      const existing = map.get(opportunity.entityId);
+      if (!existing) {
+        map.set(opportunity.entityId, {
+          ...opportunity,
+          missing: [...opportunity.missing],
+        });
+      } else {
+        for (const missingItem of opportunity.missing) {
+          if (!existing.missing.includes(missingItem)) {
+            existing.missing.push(missingItem);
+          }
+        }
+        existing.priority = Math.max(existing.priority, opportunity.priority) + opportunity.missing.length;
+      }
+      return map;
+    }, new Map<string, EditorialOpportunity>()).values(),
+  )
+    .sort((left, right) => right.priority - left.priority)
+    .slice(0, 6);
 
   const allScores = [
     ...placeScores,
@@ -577,6 +617,12 @@ export default async function BasecampContentStudioPage() {
                 href="/basecamp/articles"
               />
               <DiscoveryOpportunityCard
+                title="Places without Articles"
+                count={placesWithoutArticles.length}
+                description="Add guide coverage so core places have supporting stories."
+                href="/basecamp/articles"
+              />
+              <DiscoveryOpportunityCard
                 title="Places without Events"
                 count={placesWithoutEvents.length}
                 description="Add event ties so destination pages reflect seasonality and relevance."
@@ -588,6 +634,35 @@ export default async function BasecampContentStudioPage() {
                 description="Build light collections to improve route depth and itinerary value."
                 href="/basecamp/collections"
               />
+            </div>
+          </section>
+
+          <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Newsroom</p>
+                <h2 className="mt-2 text-2xl font-semibold text-slate-900">Editorial Intelligence</h2>
+                <p className="mt-1 text-sm text-slate-600">Use relationship intelligence to identify missing editorial opportunities across stories, links, and assets.</p>
+              </div>
+              <Link href="/basecamp/graph" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-white">
+                Open Relationship Explorer
+              </Link>
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {editorialIntelligence.map((entry) => (
+                <article key={entry.entityId} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+                  <p className="text-lg font-semibold text-slate-900">{entry.entityName}</p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Missing</p>
+                  <ul className="mt-2 space-y-1 text-sm text-slate-700">
+                    {entry.missing.map((missingItem) => (
+                      <li key={missingItem}>• {missingItem}</li>
+                    ))}
+                  </ul>
+                  <Link href={entry.href} className="mt-3 inline-flex text-sm font-semibold text-[#1f5a3d] underline underline-offset-4">
+                    Open editor
+                  </Link>
+                </article>
+              ))}
             </div>
           </section>
 

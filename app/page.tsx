@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { BusinessListingCard } from "@/components/public/BusinessListingCard";
 import { Badge, Button, Card, EditorialSection, Input, MetaText, Prose } from "@/components/ui";
+import { getEditorialIntelligenceSummary } from "@/lib/editorial/EditorialIntelligence";
 import { ExperienceService } from "@/lib/experience/ExperienceService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { getBusinessListings } from "@/lib/businessListings";
@@ -18,9 +19,10 @@ export const metadata = createPageMetadata({
 });
 
 export default async function Home() {
-  const [feed, premiumProfilesEnabled, places, collections] = await Promise.all([
+  const [feed, premiumProfilesEnabled, editorialIntelligenceEnabled, places, collections] = await Promise.all([
     ExperienceService.getHomeFeed(6),
     isFeatureEnabled("premiumProfiles"),
+    isFeatureEnabled("editorialIntelligence"),
     getPlaces(),
     getCollections(),
   ]);
@@ -106,6 +108,7 @@ export default async function Home() {
   const seasonalSubtitle = isFall
     ? "Scenic drives, mountain overlooks, and village stops tuned for peak color."
     : "Waterfalls, riverside trails, and fresh-air weekends made for long days outside.";
+  const intelligenceSummary = getEditorialIntelligenceSummary();
 
   const magazineGrid = [
     {
@@ -298,6 +301,44 @@ export default async function Home() {
             </Card>
           </div>
         </EditorialSection>
+
+        {editorialIntelligenceEnabled && intelligenceSummary.bestOpportunity ? (
+          <EditorialSection
+            eyebrow="Editor Only"
+            title="Today's Best Opportunity"
+            description="Live editorial intelligence from the relationship graph."
+          >
+            <Card variant="compact" className="p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Editorial Intelligence</p>
+                  <h3 className="mt-2 text-2xl font-semibold text-slate-900">{intelligenceSummary.bestOpportunity.entityName}</h3>
+                </div>
+                <Badge variant="featured">Editor View</Badge>
+              </div>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Missing</p>
+              <ul className="mt-2 space-y-1 text-sm text-slate-700">
+                {intelligenceSummary.bestOpportunity.missing.map((gap) => (
+                  <li key={gap}>• {gap}</li>
+                ))}
+              </ul>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link
+                  href={intelligenceSummary.bestOpportunity.href}
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+                >
+                  Open editor
+                </Link>
+                <Link
+                  href="/basecamp/content"
+                  className="inline-flex h-10 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-4 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
+                >
+                  Open newsroom
+                </Link>
+              </div>
+            </Card>
+          </EditorialSection>
+        ) : null}
 
         <EditorialSection
           eyebrow="Magazine Grid"

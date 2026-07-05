@@ -11,6 +11,7 @@ import {
   getBusinessListingStatusLabel,
   getBusinessListingStatusTone,
 } from "@/lib/businessListings";
+import { getBusinessRelationshipSnapshot } from "@/lib/graph/RelationshipQueries";
 import { createPageMetadata } from "@/lib/seo";
 
 interface BusinessPageProps {
@@ -62,6 +63,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     : listing.claimStatus === "pending"
       ? "A claim request is already in review. Owners can still contact SouthernVT if details need correction."
       : "This listing has already been claimed by the business owner.";
+  const relationshipSnapshot = getBusinessRelationshipSnapshot(listing.slug);
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
@@ -126,6 +128,46 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               <p><span className="font-semibold text-slate-900">Claimed by Owner:</span> Business owner has claimed the profile.</p>
               <p><span className="font-semibold text-slate-900">Verified by SouthernVT:</span> SouthernVT has reviewed or verified key details.</p>
               <p><span className="font-semibold text-slate-900">Founding Partner:</span> Business is helping support SouthernVT during beta.</p>
+            </div>
+          </article>
+
+          <article className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Relationship Engine</p>
+            <h2 className="mt-2 text-xl font-semibold text-slate-900">Connected Discovery</h2>
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Nearby attractions</p>
+                <div className="mt-2 space-y-2">
+                  {relationshipSnapshot.nearbyAttractions.length ? relationshipSnapshot.nearbyAttractions.map((item) => (
+                    <Link key={item.id} href={item.href} className="block rounded-xl border border-[#ece3cf] bg-[#fcfaf6] px-3 py-2 text-sm text-slate-700">
+                      <span className="font-semibold text-slate-900">{item.name}</span>
+                      <span className="block text-xs uppercase tracking-[0.12em] text-slate-500">{item.reason}</span>
+                    </Link>
+                  )) : <p className="text-sm text-slate-600">No nearby attractions linked yet.</p>}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Related collections</p>
+                <div className="mt-2 space-y-2">
+                  {relationshipSnapshot.relatedCollections.length ? relationshipSnapshot.relatedCollections.map((item) => (
+                    <Link key={item.id} href={item.href} className="block rounded-xl border border-[#ece3cf] bg-[#fcfaf6] px-3 py-2 text-sm text-slate-700">
+                      <span className="font-semibold text-slate-900">{item.name}</span>
+                      <span className="block text-xs uppercase tracking-[0.12em] text-slate-500">{item.reason}</span>
+                    </Link>
+                  )) : <p className="text-sm text-slate-600">No related collections linked yet.</p>}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Upcoming events</p>
+                <div className="mt-2 space-y-2">
+                  {relationshipSnapshot.upcomingEvents.length ? relationshipSnapshot.upcomingEvents.map((item) => (
+                    <Link key={item.id} href={item.href} className="block rounded-xl border border-[#ece3cf] bg-[#fcfaf6] px-3 py-2 text-sm text-slate-700">
+                      <span className="font-semibold text-slate-900">{item.name}</span>
+                      <span className="block text-xs uppercase tracking-[0.12em] text-slate-500">{item.reason}</span>
+                    </Link>
+                  )) : <p className="text-sm text-slate-600">No upcoming events linked yet.</p>}
+                </div>
+              </div>
             </div>
           </article>
 

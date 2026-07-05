@@ -13,7 +13,8 @@ export type FeatureFlagKey =
   | "publicCollections"
   | "publicPlaces"
   | "partnerFeatures"
-  | "billing";
+  | "billing"
+  | "editorialIntelligence";
 
 export type FeatureFlagEnvironment = "development" | "staging" | "production";
 

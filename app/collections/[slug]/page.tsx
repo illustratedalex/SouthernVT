@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
@@ -17,6 +18,7 @@ import { StorySummary } from "@/components/story/StorySummary";
 import { VisitorTips } from "@/components/story/VisitorTips";
 import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
+import { getRelatedBusinessesForCollection } from "@/lib/graph/RelationshipQueries";
 import { collectionJsonLd } from "@/lib/jsonLd";
 import { getCollectionBySlug, getCollections } from "@/lib/repositories/collectionRepository";
 import { createCollectionMetadata } from "@/lib/seo";
@@ -74,6 +76,7 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
   const story = storyRecord ?? createFallbackCollectionStory(collection);
   const collectionPlaces = allPlaces.filter((place) => collection.places.includes(place.id));
   const featuredPlacesForRail = featuredPlaces.filter((place) => place.featured || collection.places.includes(place.id)).slice(0, 4);
+  const relatedBusinesses = getRelatedBusinessesForCollection(collection.slug, 4);
   const jsonLd = collectionJsonLd(collection);
 
   return (
@@ -163,6 +166,22 @@ export default async function CollectionPublicPage({ params }: CollectionPublicP
             <RecommendedCollectionsRail collections={similarCollections} title="Similar Collections" />
             <NearbyPlacesRail places={featuredPlacesForRail} title="Featured Places" />
             <RecommendedArticlesRail articles={relatedGuides} title="Related Guides" />
+            <ContentSection title="Related Businesses" eyebrow="Relationship Engine" description="Businesses auto-surfaced from collection relationships.">
+              <div className="space-y-2">
+                {relatedBusinesses.length ? relatedBusinesses.map((business) => (
+                  <Link
+                    key={business.id}
+                    href={business.href}
+                    className="block rounded-xl border border-[#e8dfc8] bg-[#fcfaf6] px-3 py-2 transition hover:border-[#d7cbb3] hover:bg-white"
+                  >
+                    <p className="text-sm font-semibold text-slate-900">{business.name}</p>
+                    <p className="text-xs uppercase tracking-[0.14em] text-slate-500">{business.reason}</p>
+                  </Link>
+                )) : (
+                  <p className="text-sm text-slate-600">Related businesses will appear as collection links grow.</p>
+                )}
+              </div>
+            </ContentSection>
             <RecommendationRail
               title="Compass Place Picks"
               recommendations={compassPlaces}

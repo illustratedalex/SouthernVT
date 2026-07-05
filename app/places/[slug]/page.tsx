@@ -32,6 +32,7 @@ import { isBusinessPlaceType } from "@/lib/businessClaims";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
 import { getPlaceLayoutProfile } from "@/lib/places/placeLayoutProfiles";
+import { getSuggestedNextStopsForPlace } from "@/lib/graph/RelationshipQueries";
 import { createPageMetadata, createPlaceMetadata } from "@/lib/seo";
 import { getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
@@ -194,6 +195,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     .map((slugItem) => relatedPlaces.find((candidate) => candidate.slug === slugItem) || null)
     .filter((candidate): candidate is Place => Boolean(candidate && candidate.status === "published"));
   const nearbyAdventureFeed = [...featuredNearbyAdventures, ...nearbyPlaces].slice(0, 6);
+  const relationshipNextStops = getSuggestedNextStopsForPlace(place.slug, 4);
 
   const galleryImages = place.gallery.length ? place.gallery : [place.featuredImage];
   const scoringGallery = [...new Set([...galleryImages, ...nearbyAdventureFeed.map((candidate) => candidate.featuredImage).filter(Boolean)])];
@@ -640,6 +642,27 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                     {action.label}
                   </Link>
                 ))}
+              </div>
+            </ContentSection>
+
+            <ContentSection title="Because you visited this..." eyebrow="Relationship Engine" description="Suggested next stops from the local intelligence graph.">
+              <div className="space-y-2">
+                {relationshipNextStops.length ? (
+                  relationshipNextStops.map((entry) => (
+                    <Link
+                      key={entry.id}
+                      href={entry.href}
+                      className="block rounded-xl border border-[#e8dfc8] bg-[#fcfaf6] px-3 py-2 transition hover:border-[#d7cbb3] hover:bg-white"
+                    >
+                      <p className="text-sm font-semibold text-slate-900">{entry.name}</p>
+                      <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
+                        Suggested next stop · {entry.reason}
+                      </p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-600">Suggested next stops will appear as relationships are expanded.</p>
+                )}
               </div>
             </ContentSection>
 

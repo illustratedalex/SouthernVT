@@ -1,5 +1,7 @@
 import { Sidebar } from "@/components/admin";
+import { RelationshipExplorer } from "@/components/basecamp/RelationshipExplorer";
 import { KnowledgeGraph } from "@/components/knowledge/KnowledgeGraph";
+import { getRelationshipExplorerGraph } from "@/lib/graph/RelationshipQueries";
 import { getAllNodes, getEdges } from "@/lib/repositories/KnowledgeGraphRepository";
 
 const navItems = [
@@ -27,7 +29,7 @@ interface BasecampGraphPageProps {
 
 export default async function BasecampGraphPage({ searchParams }: BasecampGraphPageProps) {
   const { node } = await searchParams;
-  const [nodes, edges] = await Promise.all([getAllNodes(), getEdges()]);
+  const [nodes, edges, relationshipGraph] = await Promise.all([getAllNodes(), getEdges(), getRelationshipExplorerGraph()]);
   const initialNodeId = node && nodes.some((entry) => entry.id === node) ? node : undefined;
 
   return (
@@ -38,12 +40,13 @@ export default async function BasecampGraphPage({ searchParams }: BasecampGraphP
         <main className="flex-1 space-y-6">
           <section className="rounded-4xl border border-[#e8dfc8] bg-white p-6 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Basecamp Intelligence</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">Knowledge Graph</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900">Knowledge Graph + Relationship Explorer</h1>
             <p className="mt-3 max-w-3xl text-base leading-8 text-slate-600">
               Explore the internal relationship network between places, collections, guides, deals, events, media assets, and story nodes.
             </p>
           </section>
 
+          <RelationshipExplorer graph={relationshipGraph} />
           <KnowledgeGraph nodes={nodes} edges={edges} title="Southern Vermont Knowledge Graph" initialNodeId={initialNodeId} />
         </main>
       </div>
