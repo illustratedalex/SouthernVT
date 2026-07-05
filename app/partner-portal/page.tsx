@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { OwnerListingEditRequestForm } from "@/components/partner/OwnerListingEditRequestForm";
+import { billingPlans, getCurrentBillingPlanLabel, getStripeBillingStatus } from "@/lib/billing/plans";
 import { getAuthenticatedOwnerUser } from "@/lib/auth/session";
 import { getOwnedBusinessListings } from "@/lib/claims/liveClaims";
 import { createPageMetadata } from "@/lib/seo";
@@ -13,6 +14,7 @@ export const metadata = createPageMetadata({
 export default async function PartnerPortalLandingPage() {
   const user = await getAuthenticatedOwnerUser();
   const ownedListings = user ? await getOwnedBusinessListings(user.id) : [];
+  const stripeStatus = getStripeBillingStatus();
 
   return (
     <section className="mx-auto max-w-6xl space-y-8 px-6 py-14 sm:px-8 lg:px-10">
@@ -30,6 +32,36 @@ export default async function PartnerPortalLandingPage() {
           </form>
         ) : null}
       </header>
+
+      <article className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Billing &amp; upgrade path</p>
+        <h2 className="mt-2 text-2xl font-semibold text-slate-900">Current plan: {user && ownedListings[0] ? getCurrentBillingPlanLabel(ownedListings[0].isFoundingPartner, ownedListings[0].status) : "Free Basic Listing"}</h2>
+        <p className="mt-3 text-sm leading-7 text-slate-700">
+          Claiming a listing is free. Paid upgrades are structured for later launch, but they do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
+        </p>
+        {!stripeStatus.configured ? (
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-7 text-amber-900">
+            Online checkout is coming soon. Contact{" "}
+            <a href="mailto:partners@southernvt.com" className="font-semibold underline underline-offset-2">
+              partners@southernvt.com
+            </a>{" "}
+            to activate this plan.
+          </div>
+        ) : (
+          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-7 text-emerald-900">
+            Stripe is configured, but live checkout is intentionally staged for beta launch. We&apos;ll only enable payment flow when the rest of the owner workflow is ready.
+          </div>
+        )}
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {billingPlans.filter((plan) => plan.purchasable).map((plan) => (
+            <div key={plan.id} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{plan.name}</p>
+              <p className="mt-2 text-xl font-semibold text-slate-900">${plan.price}/{plan.interval === "monthly" ? "mo" : "yr"}</p>
+              <p className="mt-2 text-sm leading-7 text-slate-700">{plan.trustNote}</p>
+            </div>
+          ))}
+        </div>
+      </article>
 
       {/* Coming online notice — shown to all visitors so expectations are clear */}
       <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-6">
@@ -94,6 +126,20 @@ export default async function PartnerPortalLandingPage() {
             <article key={listing.id} className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
               <h3 className="text-xl font-semibold text-slate-900">{listing.name}</h3>
               <p className="mt-1 text-sm text-slate-600">{listing.town}, {listing.county}</p>
+              <div className="mt-3 rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4 text-sm leading-7 text-slate-700">
+                <p className="font-semibold text-slate-900">Current plan</p>
+                <p className="mt-1">{getCurrentBillingPlanLabel(listing.isFoundingPartner, listing.status)}</p>
+                <p className="mt-2">
+                  Upgrade path: Enhanced Listing for $25/month or $250/year, or Founding Partner for $50/month or $500/year.
+                </p>
+                <p className="mt-2">
+                  Need help? Email{" "}
+                  <a href="mailto:partners@southernvt.com" className="font-semibold text-[#1f3b2f] underline underline-offset-2">
+                    partners@southernvt.com
+                  </a>
+                  .
+                </p>
+              </div>
               <OwnerListingEditRequestForm listing={listing} />
               <div className="mt-4 rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4 text-sm leading-7 text-slate-700">
                 <p className="font-semibold text-slate-900">What owners cannot edit</p>

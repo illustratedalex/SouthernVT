@@ -263,6 +263,11 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             >
               Claim this listing
             </Link>
+            <div className="mt-4">
+              <Link href={`/businesses/${listing.slug}/upgrade`} className="text-sm font-semibold text-[#1f3b2f] underline underline-offset-4">
+                View upgrade options
+              </Link>
+            </div>
           </article>
         </aside>
       </section>
