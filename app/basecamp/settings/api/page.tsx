@@ -24,8 +24,9 @@ export default function ApiStatusPage() {
   const apiStatus = getApiStatus();
   const environment = getCurrentEnvironment();
 
-  const connectedCount = Object.values(apiStatus).filter((a) => a.status === "connected").length;
+  const totalApis = Object.keys(apiStatus).length;
   const configuredCount = Object.values(apiStatus).filter((a) => a.status === "configured").length;
+  const missingCount = Object.values(apiStatus).filter((a) => a.status === "missing").length;
   const errorCount = Object.values(apiStatus).filter((a) => a.status === "error").length;
 
   return (
@@ -44,14 +45,16 @@ export default function ApiStatusPage() {
                 issues, and integration readiness.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-900 border border-[#ece3cf]">
-                  <span className="text-lg">🔗</span>
-                  <span>{connectedCount} connected</span>
-                </span>
                 <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-900 border border-blue-200">
                   <span className="text-lg">◐</span>
                   <span>{configuredCount} configured</span>
                 </span>
+                {missingCount > 0 && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-900 border border-orange-200">
+                    <span className="text-lg">⚠</span>
+                    <span>{missingCount} missing</span>
+                  </span>
+                )}
                 {errorCount > 0 && (
                   <span className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-900 border border-red-200">
                     <span className="text-lg">✕</span>
@@ -111,7 +114,7 @@ export default function ApiStatusPage() {
 
                   <div className="rounded-lg border border-[#ece3cf] bg-[#fcfaf6] p-4">
                     <p className="text-xs font-semibold uppercase tracking-widest text-slate-600">Total APIs</p>
-                    <p className="mt-2 text-2xl font-bold text-slate-900">5</p>
+                    <p className="mt-2 text-2xl font-bold text-slate-900">{totalApis}</p>
                     <p className="mt-3 text-xs text-slate-600">Configured integrations</p>
                   </div>
 

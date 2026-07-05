@@ -1,4 +1,4 @@
-import { GeneralSettings, FeatureFlags, ApiStatusConfig, EnvironmentType } from "@/types/Settings";
+import { GeneralSettings, FeatureFlags, ApiStatusConfig, EnvironmentType, ApiStatus } from "@/types/Settings";
 
 const generalSettings: GeneralSettings = {
   siteName: "SouthernVT",
@@ -27,38 +27,71 @@ const featureFlags: FeatureFlags = {
   futureFeatures: false,
 };
 
-const apiStatus: ApiStatusConfig = {
-  openai: {
-    name: "OpenAI",
-    status: "connected",
-    lastChecked: new Date(Date.now() - 15 * 60000),
-    description: "GPT API for AI Concierge and content analysis",
-  },
-  microsoftClarity: {
-    name: "Microsoft Clarity",
-    status: "connected",
-    lastChecked: new Date(Date.now() - 30 * 60000),
-    description: "Session recording and heatmap analytics",
-  },
-  vercelAnalytics: {
-    name: "Vercel Analytics",
-    status: "configured",
-    lastChecked: new Date(Date.now() - 5 * 60000),
-    description: "Web performance metrics and monitoring",
-  },
-  mapbox: {
-    name: "Mapbox",
-    status: "connected",
-    lastChecked: new Date(Date.now() - 2 * 60000),
-    description: "Interactive maps and location services",
-  },
-  supabase: {
-    name: "Supabase",
-    status: "connected",
-    lastChecked: new Date(Date.now() - 1 * 60000),
-    description: "PostgreSQL database and authentication",
-  },
-};
+function envStatus(key: string | undefined): ApiStatus {
+  return key && key.trim().length > 0 ? "configured" : "missing";
+}
+
+function buildApiStatus(): ApiStatusConfig {
+  const now = new Date();
+  return {
+    supabase: {
+      name: "Supabase",
+      status:
+        (process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "") &&
+        (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? "")
+          ? "configured"
+          : "missing",
+      lastChecked: now,
+      description: "PostgreSQL database and authentication",
+    },
+    resend: {
+      name: "Resend (Email)",
+      status: envStatus(process.env.RESEND_API_KEY),
+      lastChecked: now,
+      description: "Transactional email for contact form and claims",
+    },
+    openai: {
+      name: "OpenAI",
+      status: envStatus(process.env.OPENAI_API_KEY),
+      lastChecked: now,
+      description: "GPT-4o for AI Concierge and content analysis",
+    },
+    googleAnalytics: {
+      name: "Google Analytics",
+      status: envStatus(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID),
+      lastChecked: now,
+      description: "Page views, sessions, and visitor behaviour",
+    },
+    microsoftClarity: {
+      name: "Microsoft Clarity",
+      status: envStatus(process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID),
+      lastChecked: now,
+      description: "Session replay and heatmap analytics",
+    },
+    vercelAnalytics: {
+      name: "Vercel Analytics",
+      status: "configured",
+      lastChecked: now,
+      description: "Web performance metrics — auto-enabled on Vercel",
+    },
+    stripe: {
+      name: "Stripe",
+      status:
+        (process.env.STRIPE_SECRET_KEY?.trim() ?? "") &&
+        (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ?? "")
+          ? "configured"
+          : "missing",
+      lastChecked: now,
+      description: "Payment processing for listing upgrades (optional)",
+    },
+    mapbox: {
+      name: "Mapbox",
+      status: envStatus(process.env.NEXT_PUBLIC_MAPBOX_TOKEN),
+      lastChecked: now,
+      description: "Interactive maps and location services (optional)",
+    },
+  };
+}
 
 function getEnvironment(): EnvironmentType {
   if (process.env.VERCEL_ENV === "preview") {
@@ -79,7 +112,7 @@ export function getFeatureFlags(): FeatureFlags {
 }
 
 export function getApiStatus(): ApiStatusConfig {
-  return apiStatus;
+  return buildApiStatus();
 }
 
 export function getCurrentEnvironment(): EnvironmentType {

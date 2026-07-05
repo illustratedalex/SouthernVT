@@ -39,11 +39,14 @@ export interface ApiIntegration {
 }
 
 export interface ApiStatusConfig {
+  supabase: ApiIntegration;
+  resend: ApiIntegration;
   openai: ApiIntegration;
+  googleAnalytics: ApiIntegration;
   microsoftClarity: ApiIntegration;
   vercelAnalytics: ApiIntegration;
+  stripe: ApiIntegration;
   mapbox: ApiIntegration;
-  supabase: ApiIntegration;
 }
 
 export interface SettingsContext {

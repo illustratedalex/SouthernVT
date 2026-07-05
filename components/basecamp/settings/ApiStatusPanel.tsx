@@ -8,11 +8,14 @@ interface ApiStatusPanelProps {
 
 export function ApiStatusPanel({ apiStatus }: ApiStatusPanelProps) {
   const apis = [
+    apiStatus.supabase,
+    apiStatus.resend,
     apiStatus.openai,
+    apiStatus.googleAnalytics,
     apiStatus.microsoftClarity,
     apiStatus.vercelAnalytics,
+    apiStatus.stripe,
     apiStatus.mapbox,
-    apiStatus.supabase,
   ];
 
   const getStatusColor = (status: string) => {
