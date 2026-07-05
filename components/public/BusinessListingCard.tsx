@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui";
 import {
+  getBusinessListingCategoryIcon,
   getBusinessListingClaimLabel,
   getBusinessListingStatusLabel,
   getBusinessListingStatusTone,
@@ -26,7 +27,7 @@ export function BusinessListingCard({ listing, ctaLabel = "View listing" }: Busi
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-        <span>{listing.category}</span>
+        <span>{getBusinessListingCategoryIcon(listing.category)} {listing.category}</span>
         <span className="h-1 w-1 rounded-full bg-slate-300" />
         <span>{listing.completenessScore}% complete</span>
       </div>

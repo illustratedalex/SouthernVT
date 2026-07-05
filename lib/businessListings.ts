@@ -1,6 +1,24 @@
 import { basicBusinessListings } from "@/data/basicBusinessListings";
 import type { BusinessListing, BusinessListingClaimStatus, BusinessListingStatus } from "@/types/BusinessListing";
 
+const categoryIcons: Record<string, string> = {
+  Attraction: "📍",
+  Bakery: "🥐",
+  Brewery: "🍺",
+  Cafe: "☕",
+  Campground: "⛺",
+  Distillery: "🥃",
+  "Farm Stand": "🥕",
+  Gallery: "🖼️",
+  "General Store": "🛒",
+  Lodging: "🏨",
+  Museum: "🏛️",
+  "Outdoor Recreation": "🥾",
+  Restaurant: "🍽️",
+  Shopping: "🛍️",
+  Winery: "🍷",
+};
+
 export function getBusinessListings() {
   return basicBusinessListings;
 }
@@ -15,6 +33,10 @@ export function getBusinessListingTowns() {
 
 export function getBusinessListingCategories() {
   return [...new Set(basicBusinessListings.map((listing) => listing.category))].sort((left, right) => left.localeCompare(right));
+}
+
+export function getBusinessListingCategoryIcon(category: string) {
+  return categoryIcons[category] ?? "📌";
 }
 
 export function filterBusinessListings(listings: BusinessListing[], filters: {

@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { TravelerExperiences } from "@/components/public/TravelerExperiences";
 import { Badge } from "@/components/ui";
 import {
+  getBusinessListingCategoryIcon,
   getBusinessListingBySlug,
   getBusinessListingClaimLabel,
   getBusinessListingDescription,
@@ -90,7 +91,9 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           </div>
 
           <h1 className="mt-4 text-4xl font-semibold text-slate-900 md:text-5xl">{listing.name}</h1>
-          <p className="mt-3 text-lg text-slate-700">{listing.category} in {listing.town}, {listing.county}</p>
+          <p className="mt-3 text-lg text-slate-700">
+            {getBusinessListingCategoryIcon(listing.category)} {listing.category} in {listing.town}, {listing.county}
+          </p>
           <p className="mt-5 max-w-3xl text-base leading-8 text-slate-700">{listing.description}</p>
         </div>
       </section>
@@ -102,7 +105,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Category</p>
-                <p className="mt-1 text-sm text-slate-800">{listing.category}</p>
+                <p className="mt-1 text-sm text-slate-800">{getBusinessListingCategoryIcon(listing.category)} {listing.category}</p>
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Town</p>

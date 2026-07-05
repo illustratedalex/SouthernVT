@@ -44,6 +44,8 @@ export default async function Home() {
 
   const featuredCollections = publishedCollections.filter((collection) => collection.featured).slice(0, 3);
   const businessListings = getBusinessListings();
+  const businessCount = businessListings.length;
+  const unclaimedBusinessCount = businessListings.filter((listing) => listing.claimStatus === "unclaimed").length;
   const homeBusinessListings = ["founding_partner", "verified", "claimed", "basic"]
     .map((status) => businessListings.find((listing) => listing.status === status))
     .filter((listing): listing is NonNullable<(typeof businessListings)[number]> => Boolean(listing));
@@ -542,13 +544,15 @@ export default async function Home() {
         <EditorialSection
           eyebrow="Local Directory"
           title="Local Businesses to Know"
-          description="A foundational business directory shaped for discovery, accuracy, and future owner updates. These are listings, not ads."
+          description={`A foundational business directory shaped for discovery, accuracy, and future owner updates. ${businessCount} listings currently published.`}
         >
           <div className="mb-4 flex flex-wrap gap-3">
             <Badge variant="subtle">Basic</Badge>
             <Badge variant="forest">Claimed</Badge>
             <Badge variant="amber">Verified</Badge>
             <Badge variant="featured">Founding Partner</Badge>
+            <Badge variant="subtle">{businessCount} total businesses</Badge>
+            <Badge variant="subtle">{unclaimedBusinessCount} unclaimed</Badge>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {homeBusinessListings.map((listing) => (

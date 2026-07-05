@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/admin";
 import { BasecampPageHeader } from "@/components/basecamp";
 import { Badge, Button } from "@/components/ui";
 import {
+  getBusinessListingCategoryIcon,
   getBusinessListingClaimLabel,
   getBusinessListings,
   getBusinessListingStatusLabel,
@@ -38,6 +39,10 @@ function updateListing(listings: BusinessListing[], id: string, updater: (listin
 
 export default function BasecampBusinessesPage() {
   const [listings, setListings] = useState<BusinessListing[]>(() => getBusinessListings().map((listing) => ({ ...listing })));
+  const totalListings = listings.length;
+  const unclaimedListings = listings.filter((listing) => listing.claimStatus === "unclaimed").length;
+  const pendingClaims = listings.filter((listing) => listing.claimStatus === "pending").length;
+  const claimedListings = listings.filter((listing) => listing.claimStatus === "claimed").length;
 
   const markReviewed = (id: string) => {
     const now = new Date().toISOString();
@@ -88,6 +93,25 @@ export default function BasecampBusinessesPage() {
             primaryAction={{ label: "Open public directory", href: "/businesses" }}
           />
 
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <article className="rounded-2xl border border-[#e8dfc8] bg-white p-4 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Business Listings</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{totalListings}</p>
+            </article>
+            <article className="rounded-2xl border border-[#e8dfc8] bg-white p-4 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Unclaimed</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{unclaimedListings}</p>
+            </article>
+            <article className="rounded-2xl border border-[#e8dfc8] bg-white p-4 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Claim Pending</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{pendingClaims}</p>
+            </article>
+            <article className="rounded-2xl border border-[#e8dfc8] bg-white p-4 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Claimed</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-900">{claimedListings}</p>
+            </article>
+          </section>
+
           <section className="rounded-[30px] border border-[#e8dfc8] bg-white/95 p-5 shadow-sm">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-[#ece3cf] text-left text-sm">
@@ -111,7 +135,7 @@ export default function BasecampBusinessesPage() {
                         <p className="mt-1 text-xs text-slate-500">{listing.address}</p>
                       </td>
                       <td className="px-3 py-4 text-slate-700">{listing.town}</td>
-                      <td className="px-3 py-4 text-slate-700">{listing.category}</td>
+                      <td className="px-3 py-4 text-slate-700">{getBusinessListingCategoryIcon(listing.category)} {listing.category}</td>
                       <td className="px-3 py-4">
                         <Badge variant={getBusinessListingStatusTone(listing.status)}>{getBusinessListingStatusLabel(listing.status)}</Badge>
                       </td>
