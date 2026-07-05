@@ -4,8 +4,8 @@ import { ClaimStatusBadge } from "./ClaimStatusBadge";
 
 interface ClaimTableProps {
   claims: BusinessClaim[];
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  onApprove: (id: string, reviewNotes?: string) => void;
+  onReject: (id: string, reviewNotes?: string) => void;
   onView: (claim: BusinessClaim) => void;
 }
 
@@ -37,9 +37,9 @@ export function ClaimTable({ claims, onApprove, onReject, onView }: ClaimTablePr
             <tr key={claim.id} className="text-sm text-slate-700">
               <td className="px-4 py-4">
                 <p className="font-semibold text-slate-900">{claim.businessName}</p>
-                <p className="mt-1 text-xs text-slate-500">{claim.contactName}</p>
+                <p className="mt-1 text-xs text-slate-500">{claim.claimantName}</p>
               </td>
-              <td className="px-4 py-4">{claim.placeName}</td>
+              <td className="px-4 py-4">{claim.businessSlug}</td>
               <td className="px-4 py-4">{formatSubmitted(claim.submittedAt)}</td>
               <td className="px-4 py-4"><ClaimStatusBadge status={claim.status} /></td>
               <td className="px-4 py-4">

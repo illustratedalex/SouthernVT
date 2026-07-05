@@ -20,23 +20,19 @@ type ClaimFormProps = {
 };
 
 type FormState = {
-  businessName: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  relationship: ClaimRelationship;
-  message: string;
-  certified: boolean;
+  claimantName: string;
+  claimantEmail: string;
+  claimantPhone: string;
+  roleAtBusiness: ClaimRelationship;
+  proofMessage: string;
 };
 
 const initialState: FormState = {
-  businessName: "",
-  contactName: "",
-  email: "",
-  phone: "",
-  relationship: "owner",
-  message: "",
-  certified: false,
+  claimantName: "",
+  claimantEmail: "",
+  claimantPhone: "",
+  roleAtBusiness: "owner",
+  proofMessage: "",
 };
 
 export function ClaimForm({ listing }: ClaimFormProps) {
@@ -56,8 +52,8 @@ export function ClaimForm({ listing }: ClaimFormProps) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!state.businessName || !state.contactName || !state.email || !state.phone || !state.certified) {
-      pushToast({ tone: "warning", title: "Required fields missing", description: "Complete all required fields and certification." });
+    if (!state.claimantName || !state.claimantEmail || !state.claimantPhone || !state.roleAtBusiness) {
+      pushToast({ tone: "warning", title: "Required fields missing", description: "Complete all required fields." });
       return;
     }
 
@@ -65,16 +61,14 @@ export function ClaimForm({ listing }: ClaimFormProps) {
 
     try {
       await submitClaim({
-        placeId: listing.id,
-        placeSlug: listing.slug,
-        placeName: listing.name,
-        businessName: state.businessName,
-        contactName: state.contactName,
-        email: state.email,
-        phone: state.phone,
-        relationship: state.relationship,
-        message: state.message,
-        certified: state.certified,
+        businessListingId: listing.id,
+        businessSlug: listing.slug,
+        businessName: listing.name,
+        claimantName: state.claimantName,
+        claimantEmail: state.claimantEmail,
+        claimantPhone: state.claimantPhone,
+        roleAtBusiness: state.roleAtBusiness,
+        proofMessage: state.proofMessage,
       });
 
       addSessionActivityEvent({
@@ -82,20 +76,28 @@ export function ClaimForm({ listing }: ClaimFormProps) {
         contentType: "workflow",
         contentId: listing.id,
         title: `${listing.name} ownership request submitted.`,
-        description: `${state.contactName} submitted a business claim for ${listing.name}.`,
+        description: `${state.claimantName} submitted a business claim for ${listing.name}.`,
         actor: "Public Claim Form",
         metadata: {
-          placeSlug: listing.slug,
-          relationship: state.relationship,
+          businessSlug: listing.slug,
+          roleAtBusiness: state.roleAtBusiness,
           status: "pending",
         },
       });
 
       setSubmitted(true);
       trackClaimSubmitted(listing.slug, listing.type);
-      pushToast({ tone: "success", title: "Claim submitted", description: "Your request is pending review." });
-    } catch {
-      pushToast({ tone: "error", title: "Submission failed", description: "Please try again." });
+      pushToast({
+        tone: "success",
+        title: "Claim submitted",
+        description: "Your claim request has been submitted. SouthernVT will review it before granting access.",
+      });
+    } catch (error) {
+      pushToast({
+        tone: "error",
+        title: "Submission failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -107,7 +109,7 @@ export function ClaimForm({ listing }: ClaimFormProps) {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f5a3d]">Request received</p>
         <h2 className="mt-2 text-2xl font-semibold text-slate-900">Success</h2>
         <p className="mt-3 text-sm leading-7 text-slate-700">
-          Your ownership request for {listing.name} has been submitted. We will review it in Basecamp.
+          Your claim request has been submitted. SouthernVT will review it before granting access.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href={listing.publicHref} className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-3 text-sm font-semibold text-[#f8f2e4]">
@@ -130,53 +132,43 @@ export function ClaimForm({ listing }: ClaimFormProps) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="space-y-2 text-sm font-medium text-slate-700">
-          Business Name
-          <Input value={state.businessName} onChange={(event) => update("businessName", event.target.value)} required />
-        </label>
-
-        <label className="space-y-2 text-sm font-medium text-slate-700">
-          Contact Name
-          <Input value={state.contactName} onChange={(event) => update("contactName", event.target.value)} required />
+          Claimant Name
+          <Input value={state.claimantName} onChange={(event) => update("claimantName", event.target.value)} required />
         </label>
 
         <label className="space-y-2 text-sm font-medium text-slate-700">
           Email
-          <Input type="email" value={state.email} onChange={(event) => update("email", event.target.value)} required />
+          <Input type="email" value={state.claimantEmail} onChange={(event) => update("claimantEmail", event.target.value)} required />
         </label>
 
         <label className="space-y-2 text-sm font-medium text-slate-700">
           Phone
-          <Input value={state.phone} onChange={(event) => update("phone", event.target.value)} required />
+          <Input value={state.claimantPhone} onChange={(event) => update("claimantPhone", event.target.value)} required />
         </label>
       </div>
 
       <label className="space-y-2 text-sm font-medium text-slate-700">
-        Relationship
+        Role at business
         <select
-          value={state.relationship}
-          onChange={(event) => update("relationship", event.target.value as ClaimRelationship)}
+          value={state.roleAtBusiness}
+          onChange={(event) => update("roleAtBusiness", event.target.value as ClaimRelationship)}
           className="h-12 w-full rounded-2xl border border-(--color-pine)/25 bg-white px-4 text-sm text-slate-700 outline-none transition focus:border-(--color-maple-gold) focus:ring-2 focus:ring-(--color-maple-gold)/20"
         >
           <option value="owner">Owner</option>
           <option value="manager">Manager</option>
-          <option value="marketing">Marketing</option>
+          <option value="editor">Editor</option>
           <option value="other">Other</option>
         </select>
       </label>
 
       <label className="space-y-2 text-sm font-medium text-slate-700">
-        Message
+        Proof message
         <textarea
-          value={state.message}
-          onChange={(event) => update("message", event.target.value)}
+          value={state.proofMessage}
+          onChange={(event) => update("proofMessage", event.target.value)}
           className="min-h-32 w-full rounded-2xl border border-(--color-pine)/25 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-(--color-maple-gold) focus:ring-2 focus:ring-(--color-maple-gold)/20"
           placeholder="Share verification details or context for the review team."
         />
-      </label>
-
-      <label className="flex items-center gap-3 text-sm text-slate-700">
-        <input type="checkbox" checked={state.certified} onChange={(event) => update("certified", event.target.checked)} className="h-4 w-4" required />
-        I certify I represent this business.
       </label>
 
       <Button type="submit" disabled={submitting}>

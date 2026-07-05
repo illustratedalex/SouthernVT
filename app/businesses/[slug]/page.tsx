@@ -14,6 +14,7 @@ import {
   getBusinessListingStatusLabel,
   getBusinessListingStatusTone,
 } from "@/lib/businessListings";
+import { getBusinessListingBySlugWithLiveClaimStatus } from "@/lib/businessListings.server";
 import { getBusinessRelationshipSnapshot } from "@/lib/graph/RelationshipQueries";
 import { createPageMetadata } from "@/lib/seo";
 
@@ -21,8 +22,8 @@ interface BusinessPageProps {
   params: Promise<{ slug: string }>;
 }
 
-function buildBusinessMetadataDescription(slug: string) {
-  const listing = getBusinessListingBySlug(slug);
+async function buildBusinessMetadataDescription(slug: string) {
+  const listing = await getBusinessListingBySlugWithLiveClaimStatus(slug);
   if (!listing) {
     return "Basic SouthernVT business listing.";
   }
@@ -36,7 +37,7 @@ function buildBusinessMetadataDescription(slug: string) {
 
 export async function generateMetadata({ params }: BusinessPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const listing = getBusinessListingBySlug(slug);
+  const listing = await getBusinessListingBySlugWithLiveClaimStatus(slug);
 
   if (!listing) {
     return createPageMetadata({
@@ -48,14 +49,14 @@ export async function generateMetadata({ params }: BusinessPageProps): Promise<M
 
   return createPageMetadata({
     title: `${listing.name} | SouthernVT Businesses`,
-    description: buildBusinessMetadataDescription(slug),
+    description: await buildBusinessMetadataDescription(slug),
     path: `/businesses/${listing.slug}`,
   });
 }
 
 export default async function BusinessPage({ params }: BusinessPageProps) {
   const { slug } = await params;
-  const listing = getBusinessListingBySlug(slug);
+  const listing = await getBusinessListingBySlugWithLiveClaimStatus(slug) ?? getBusinessListingBySlug(slug);
 
   if (!listing) {
     notFound();

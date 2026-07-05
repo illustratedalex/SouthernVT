@@ -6,7 +6,7 @@ import { Badge, Button, Card, EditorialSection, Input, MetaText, Prose } from "@
 import { getEditorialIntelligenceSummary } from "@/lib/editorial/EditorialIntelligence";
 import { ExperienceService } from "@/lib/experience/ExperienceService";
 import { isFeatureEnabled } from "@/lib/featureFlags";
-import { getBusinessListings } from "@/lib/businessListings";
+import { getBusinessListingsWithLiveClaimStatus } from "@/lib/businessListings.server";
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { createPageMetadata } from "@/lib/seo";
 import { getPlaces } from "@/repositories/PlaceRepository";
@@ -43,7 +43,7 @@ export default async function Home() {
   const hamiltonFalls = placesBySlug.get("hamilton-falls") ?? featuredPlace ?? publishedPlaces[0] ?? null;
 
   const featuredCollections = publishedCollections.filter((collection) => collection.featured).slice(0, 3);
-  const businessListings = getBusinessListings();
+  const businessListings = await getBusinessListingsWithLiveClaimStatus();
   const businessCount = businessListings.length;
   const unclaimedBusinessCount = businessListings.filter((listing) => listing.claimStatus === "unclaimed").length;
   const homeBusinessListings = ["founding_partner", "verified", "claimed", "basic"]

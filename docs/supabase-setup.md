@@ -15,12 +15,16 @@ Set these values in your local environment file:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only, required for Basecamp claim review and owner mapping)
+- `BASECAMP_ADMIN_EMAILS` (optional, comma-separated reviewer emails)
 
 Example:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+BASECAMP_ADMIN_EMAILS=editor@southernvt.com,ops@southernvt.com
 ```
 
 ## 3) Apply database schema
@@ -63,6 +67,7 @@ Standalone Supabase repository files are provided beside mock repositories for i
 
 ## 6) Current scope
 
-- No authentication integration yet.
-- No required UI changes.
+- Business owner authentication is now enabled through Supabase email/password and magic links.
+- Business claiming and owner edit-request workflow requires the service role key on the server.
+- `SUPABASE_SERVICE_ROLE_KEY` must never be exposed to client-side code.
 - Supabase configuration helpers live in `lib/supabase/config.ts`.

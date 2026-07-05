@@ -1,33 +1,36 @@
 export type ClaimStatus = "pending" | "approved" | "rejected";
 
-export type ClaimRelationship = "owner" | "manager" | "marketing" | "other";
+export type ClaimRelationship = "owner" | "manager" | "editor" | "other";
 
 export interface BusinessClaim {
   id: string;
-  placeId: string;
-  placeSlug: string;
-  placeName: string;
+  businessListingId: string;
+  businessSlug: string;
   businessName: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  relationship: ClaimRelationship;
-  message: string;
-  certified: boolean;
+  claimantName: string;
+  claimantEmail: string;
+  claimantPhone: string;
+  roleAtBusiness: ClaimRelationship | string;
+  proofMessage: string;
   status: ClaimStatus;
   submittedAt: string;
   reviewedAt?: string;
+  reviewedBy?: string;
+  reviewNotes?: string;
 }
 
 export interface BusinessClaimInput {
-  placeId: string;
-  placeSlug: string;
-  placeName: string;
+  businessListingId: string;
+  businessSlug: string;
   businessName: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  relationship: ClaimRelationship;
-  message: string;
-  certified: boolean;
+  claimantName: string;
+  claimantEmail: string;
+  claimantPhone: string;
+  roleAtBusiness: ClaimRelationship | string;
+  proofMessage: string;
+}
+
+export interface ClaimReviewInput {
+  status: Extract<ClaimStatus, "approved" | "rejected">;
+  reviewNotes?: string;
 }

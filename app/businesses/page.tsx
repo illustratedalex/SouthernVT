@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui";
 import {
   filterBusinessListings,
   getBusinessListingCategories,
-  getBusinessListings,
   getBusinessListingTowns,
 } from "@/lib/businessListings";
+import { getBusinessListingsWithLiveClaimStatus } from "@/lib/businessListings.server";
 import { createPageMetadata } from "@/lib/seo";
 
 interface BusinessesPageProps {
@@ -29,7 +29,7 @@ export const metadata: Metadata = createPageMetadata({
 
 export default async function BusinessesPage({ searchParams }: BusinessesPageProps) {
   const params = await searchParams;
-  const listings = getBusinessListings();
+  const listings = await getBusinessListingsWithLiveClaimStatus();
   const towns = getBusinessListingTowns();
   const categories = getBusinessListingCategories();
   const filteredListings = filterBusinessListings(listings, params);

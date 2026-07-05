@@ -82,7 +82,7 @@ export default async function ClaimPage({ params }: ClaimPageProps) {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Business Portal</p>
           <h1 className="mt-2 text-3xl font-semibold text-slate-900">Claim {listing.name}</h1>
           <p className="mt-3 text-sm leading-7 text-slate-700">
-            Complete the mock ownership request workflow for this listing. No account sign-in is required in this preview.
+            Submit your ownership request for review. SouthernVT reviews every request before granting owner access.
           </p>
           <div className="mt-4 text-sm text-slate-600">
             <p>{listing.address}</p>

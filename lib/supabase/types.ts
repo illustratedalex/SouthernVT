@@ -259,6 +259,55 @@ export interface Database {
         Insert: Partial<Database["public"]["Tables"]["comments"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["comments"]["Row"]>;
       };
+      business_claims: {
+        Row: {
+          id: string;
+          business_listing_id: string;
+          business_slug: string;
+          business_name: string;
+          claimant_name: string;
+          claimant_email: string;
+          claimant_phone: string;
+          role_at_business: string;
+          proof_message: string;
+          status: "pending" | "approved" | "rejected";
+          submitted_at: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          review_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["business_claims"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["business_claims"]["Row"]>;
+      };
+      business_listing_owners: {
+        Row: {
+          id: string;
+          business_listing_id: string;
+          user_id: string;
+          role: "owner" | "manager" | "editor";
+          status: "active" | "revoked";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["business_listing_owners"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["business_listing_owners"]["Row"]>;
+      };
+      business_listing_edit_requests: {
+        Row: {
+          id: string;
+          business_listing_id: string;
+          user_id: string;
+          proposed_changes: Json;
+          status: "pending" | "approved" | "rejected";
+          created_at: string;
+          reviewed_at: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["business_listing_edit_requests"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["business_listing_edit_requests"]["Row"]>;
+      };
     };
   };
 }
