@@ -64,16 +64,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     },
     {
-      url: absoluteUrl("/passport"),
+      url: absoluteUrl("/concierge"),
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: absoluteUrl("/partner-portal"),
+      url: absoluteUrl("/founding-partners"),
       lastModified: new Date(),
       changeFrequency: "weekly",
-      priority: 0.7,
+      priority: 0.8,
+    },
+    {
+      url: absoluteUrl("/why-trust-southernvt"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.75,
+    },
+    {
+      url: absoluteUrl("/our-coverage"),
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.75,
     },
   ];
 
