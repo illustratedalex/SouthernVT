@@ -62,9 +62,9 @@ export default async function PlannerTripDetailPage({ params }: PlannerTripDetai
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
       <AnalyticsTrackOnRender
-        event="saved_trip_viewed"
+        event="saved_trip"
         onceKey={`saved-trip:${trip.id}`}
-        params={{ trip_id: trip.id, trip_title: trip.title, status: trip.status }}
+        params={{ trip_id: trip.id, trip_title: trip.title, status: trip.status, source: "planner_trip_page" }}
       />
       <Navbar />
 

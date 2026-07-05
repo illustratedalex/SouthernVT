@@ -56,6 +56,7 @@ export default async function ClaimPage({ params }: ClaimPageProps) {
         id: claimablePlace.id,
         slug: claimablePlace.slug,
         name: claimablePlace.name,
+        type: "place_listing",
         address: claimablePlace.address,
         townLine: `${claimablePlace.city}, ${claimablePlace.state} ${claimablePlace.zip}`,
         publicHref: `/places/${claimablePlace.slug}`,
@@ -65,6 +66,7 @@ export default async function ClaimPage({ params }: ClaimPageProps) {
         id: businessListing!.id,
         slug: businessListing!.slug,
         name: businessListing!.name,
+        type: "business_listing",
         address: businessListing!.address || "Address not yet confirmed",
         townLine: `${businessListing!.town}, ${businessListing!.county}`,
         publicHref: `/businesses/${businessListing!.slug}`,
@@ -91,7 +93,7 @@ export default async function ClaimPage({ params }: ClaimPageProps) {
           </Link>
         </div>
 
-        <ClaimForm listing={{ id: listing.id, slug: listing.slug, name: listing.name, publicHref: listing.publicHref, publicLabel: listing.publicLabel }} />
+        <ClaimForm listing={{ id: listing.id, slug: listing.slug, name: listing.name, type: listing.type, publicHref: listing.publicHref, publicLabel: listing.publicLabel }} />
       </section>
 
       <Footer />

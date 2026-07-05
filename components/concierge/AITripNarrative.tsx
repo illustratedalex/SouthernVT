@@ -16,13 +16,7 @@ export function AITripNarrative({ preferences, compassTrip, aiConciergeEnabled }
   const [narrative, setNarrative] = useState<ConciergeAINarrative | null>(null);
 
   const enhanceWithAI = async () => {
-    trackAIConcierge({
-      mood: preferences.mood,
-      time_available: preferences.timeAvailable,
-      travel_style: preferences.travelStyle,
-      radius: preferences.radius,
-      featured_place_id: compassTrip.recommendations.featuredPlace.id,
-    });
+    trackAIConcierge();
 
     setLoading(true);
     setError(null);

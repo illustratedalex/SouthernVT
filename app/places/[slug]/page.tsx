@@ -294,7 +294,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
       <AnalyticsTrackOnRender
-        event="place_viewed"
+        event="place_view"
         onceKey={`place:${place.id}`}
         params={{ place_id: place.id, place_slug: place.slug, place_name: place.name }}
       />
@@ -648,6 +648,9 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                     data-ga-label={action.label}
                     data-ga-place-slug={place.slug}
                     data-ga-place-name={place.name}
+                    data-ga-target-slug={place.slug}
+                    data-ga-target-name={place.name}
+                    data-ga-target-type="place"
                     data-ga-entity-slug={place.slug}
                     data-ga-entity-name={place.name}
                     data-ga-href={action.href}

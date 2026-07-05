@@ -17,7 +17,7 @@ export function FoundingPartnerCTA({ primaryHref = "/contact", secondaryHref = "
       <div className="flex flex-wrap gap-3">
         <Link
           href={primaryHref}
-          data-ga-event="partner_click"
+          data-ga-event="founding_partner_interest"
           data-ga-source="founding_partner_cta"
           data-ga-label="Become a Founding Partner"
           data-ga-partner-surface="founding_partners_page"
@@ -27,7 +27,7 @@ export function FoundingPartnerCTA({ primaryHref = "/contact", secondaryHref = "
         </Link>
         <a
           href={secondaryHref}
-          data-ga-event="partner_click"
+          data-ga-event="founding_partner_interest"
           data-ga-source="founding_partner_cta"
           data-ga-label="Contact Alex"
           data-ga-partner-surface="founding_partners_page"

@@ -7,13 +7,14 @@ import type { PassportMember, PassportReward } from "@/types/Passport";
 interface CheckInPanelProps {
   member: PassportMember;
   placeId: string;
+  placeSlug: string;
   placeName: string;
   currentStampCount: number;
   rewards: PassportReward[];
   previewMode: boolean;
 }
 
-export function CheckInPanel({ member, placeId, placeName, currentStampCount, rewards, previewMode }: CheckInPanelProps) {
+export function CheckInPanel({ member, placeId, placeSlug, placeName, currentStampCount, rewards, previewMode }: CheckInPanelProps) {
   const [collected, setCollected] = useState(false);
 
   const stampCount = collected ? currentStampCount + 1 : currentStampCount;
@@ -47,7 +48,7 @@ export function CheckInPanel({ member, placeId, placeName, currentStampCount, re
         type="button"
         onClick={() => {
           setCollected(true);
-          trackPassportCheckIn({ member_id: member.id, place_id: placeId, place_name: placeName });
+          trackPassportCheckIn(placeSlug, placeName);
         }}
         disabled={collected}
         className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-3 text-sm font-semibold text-[#f8f2e4] disabled:opacity-50"

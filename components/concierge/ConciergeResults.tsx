@@ -14,7 +14,7 @@ export function ConciergeResults({ trip, aiConciergeEnabled }: ConciergeResultsP
   return (
     <section className="space-y-6">
       <AnalyticsTrackOnRender
-        event="concierge_completed"
+        event="concierge_complete"
         onceKey={`concierge:${trip.recommendations.featuredPlace.id}:${trip.preferences.mood}:${trip.preferences.timeAvailable}:${trip.preferences.travelStyle}:${trip.preferences.radius}`}
         params={{
           featured_place_id: trip.recommendations.featuredPlace.id,

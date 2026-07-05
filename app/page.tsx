@@ -11,6 +11,7 @@ import { getCollections } from "@/lib/repositories/collectionRepository";
 import { createPageMetadata } from "@/lib/seo";
 import { getPlaces } from "@/repositories/PlaceRepository";
 import { weeklyIssue } from "@/data/weeklyIssue";
+import { southernVT100Destinations } from "@/data/southernvt100";
 
 export const metadata = createPageMetadata({
   title: "Southern Vermont | Travel & Adventure",
@@ -109,6 +110,7 @@ export default async function Home() {
     ? "Scenic drives, mountain overlooks, and village stops tuned for peak color."
     : "Waterfalls, riverside trails, and fresh-air weekends made for long days outside.";
   const intelligenceSummary = getEditorialIntelligenceSummary();
+  const southernVT100Published = southernVT100Destinations.filter((destination) => destination.editorialStatus === "Published").length;
 
   const magazineGrid = [
     {
@@ -179,7 +181,7 @@ export default async function Home() {
             <form
               action="/explorer"
               method="get"
-              data-ga-event="search_submitted"
+              data-ga-event="search"
               data-ga-source="home_hero_search"
               className="max-w-2xl space-y-3"
             >
@@ -340,6 +342,42 @@ export default async function Home() {
                   className="inline-flex h-10 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-4 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
                 >
                   Open newsroom
+                </Link>
+              </div>
+            </Card>
+          </EditorialSection>
+        ) : null}
+
+        {editorialIntelligenceEnabled ? (
+          <EditorialSection
+            eyebrow="Editor Only"
+            title="SouthernVT 100 Progress"
+            description="Master publication coverage progress across the SouthernVT 100 catalog."
+          >
+            <Card variant="compact" className="p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">SouthernVT 100</p>
+                  <h3 className="mt-2 text-3xl font-semibold text-slate-900">
+                    {southernVT100Published} / {southernVT100Destinations.length} Published
+                  </h3>
+                </div>
+                <Badge variant="featured">Editor View</Badge>
+              </div>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#d8b15d,#1f5a3d)]"
+                  style={{
+                    width: `${Math.round((southernVT100Published / southernVT100Destinations.length) * 100)}%`,
+                  }}
+                />
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link
+                  href="/basecamp/southernvt-100"
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+                >
+                  Open dashboard
                 </Link>
               </div>
             </Card>
@@ -543,7 +581,7 @@ export default async function Home() {
             description="Scenic routes, seasonal picks, and local stories. No spam."
             className="h-fit"
           >
-            <form action="/updates" method="get" className="space-y-3">
+            <form action="/updates" method="get" data-ga-event="newsletter_signup" data-ga-source="home_newsletter" className="space-y-3">
               <label htmlFor="newsletter-email" className="sr-only">
                 Email address
               </label>

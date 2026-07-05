@@ -84,7 +84,7 @@ export function ConciergeWizard({
           <Link
             href={buildHref({ generate: "1" })}
             scroll={false}
-            data-ga-event="concierge_started"
+            data-ga-event="concierge_start"
             data-ga-source="concierge_wizard"
             data-ga-label="Generate Concierge Plan"
             data-ga-mood={selectedMood}

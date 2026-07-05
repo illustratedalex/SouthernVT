@@ -1,0 +1,168 @@
+import type {
+  SouthernVT100Category,
+  SouthernVT100Coverage,
+  SouthernVT100Destination,
+  SouthernVT100IssueAssignment,
+  SouthernVT100Season,
+} from "@/types/SouthernVT100";
+
+type SouthernVT100Seed = {
+  name: string;
+  town: string;
+  region: string;
+  coverage: SouthernVT100Coverage;
+  category: SouthernVT100Category;
+  season: SouthernVT100Season;
+};
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const seeds: SouthernVT100Seed[] = [
+  { name: "Hamilton Falls", town: "Jamaica", region: "West River Valley", coverage: "Core Southern Vermont", category: "Waterfalls", season: "Summer" },
+  { name: "Jamaica State Park", town: "Jamaica", region: "West River Valley", coverage: "Core Southern Vermont", category: "State Parks", season: "Summer" },
+  { name: "Lye Brook Falls", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Waterfalls", season: "Spring" },
+  { name: "Mount Equinox", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Mountains", season: "Fall" },
+  { name: "Grafton Village", town: "Grafton", region: "Saxtons River & Grafton", coverage: "Core Southern Vermont", category: "Historic Villages", season: "Evergreen" },
+  { name: "Bellows Falls Downtown", town: "Bellows Falls", region: "Bellows Falls Corridor", coverage: "Core Southern Vermont", category: "Historic Villages", season: "Evergreen" },
+  { name: "Dorset Quarry", town: "Dorset", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Swimming Holes", season: "Summer" },
+  { name: "Vermont Country Store", town: "Weston", region: "Weston & Ludlow", coverage: "Core Southern Vermont", category: "Shopping", season: "Evergreen" },
+  { name: "Hildene", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Museums", season: "Evergreen" },
+  { name: "Hogback Mountain", town: "Marlboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Scenic Drives", season: "Fall" },
+  { name: "Putney Mountain", town: "Putney", region: "Putney & Westminster", coverage: "Core Southern Vermont", category: "Mountains", season: "Fall" },
+  { name: "Scott Covered Bridge", town: "Townshend", region: "West River Valley", coverage: "Core Southern Vermont", category: "Covered Bridges", season: "Fall" },
+  { name: "Creamery Covered Bridge", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Covered Bridges", season: "Fall" },
+  { name: "Molly Stark State Park", town: "Wilmington", region: "Mount Snow Valley", coverage: "Core Southern Vermont", category: "State Parks", season: "Summer" },
+  { name: "Retreat Farm", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Family", season: "Evergreen" },
+  { name: "Santa's Land USA", town: "Putney", region: "Putney & Westminster", coverage: "Core Southern Vermont", category: "Family", season: "Summer" },
+  { name: "Brattleboro Farmers Market", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Regional Features", season: "Summer" },
+  { name: "Hermit Thrush Brewery", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Breweries", season: "Evergreen" },
+  { name: "Mount Snow Resort", town: "Dover", region: "Mount Snow Valley", coverage: "Core Southern Vermont", category: "Winter", season: "Winter" },
+  { name: "Stratton Mountain Resort", town: "Stratton", region: "Stratton Region", coverage: "Core Southern Vermont", category: "Winter", season: "Winter" },
+  { name: "Bromley Mountain", town: "Peru", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Winter", season: "Winter" },
+  { name: "Grout Pond", town: "Stratton", region: "Stratton Region", coverage: "Core Southern Vermont", category: "Hidden Gems", season: "Summer" },
+  { name: "Woodford State Park", town: "Woodford", region: "Bennington Region", coverage: "Core Southern Vermont", category: "State Parks", season: "Summer" },
+  { name: "Lake Shaftsbury State Park", town: "Shaftsbury", region: "Bennington Region", coverage: "Core Southern Vermont", category: "Swimming Holes", season: "Summer" },
+  { name: "Merck Forest & Farmland Center", town: "Rupert", region: "Battenkill Valley", coverage: "Core Southern Vermont", category: "Photography", season: "Evergreen" },
+  { name: "Bennington Battle Monument", town: "Bennington", region: "Bennington Region", coverage: "Core Southern Vermont", category: "Museums", season: "Evergreen" },
+  { name: "Bennington Museum", town: "Bennington", region: "Bennington Region", coverage: "Core Southern Vermont", category: "Museums", season: "Evergreen" },
+  { name: "Robert Frost Stone House Museum", town: "Shaftsbury", region: "Bennington Region", coverage: "Core Southern Vermont", category: "Museums", season: "Evergreen" },
+  { name: "Southern Vermont Arts Center", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Art", season: "Evergreen" },
+  { name: "Old First Church", town: "Bennington", region: "Bennington Region", coverage: "Regional Feature", category: "Historic Villages", season: "Evergreen" },
+  { name: "Park-McCullough Historic House", town: "North Bennington", region: "Bennington Region", coverage: "Regional Feature", category: "Museums", season: "Evergreen" },
+  { name: "Downtown Brattleboro", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Historic Villages", season: "Evergreen" },
+  { name: "Downtown Manchester", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Historic Villages", season: "Evergreen" },
+  { name: "Downtown Wilmington", town: "Wilmington", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Historic Villages", season: "Evergreen" },
+  { name: "Downtown Putney", town: "Putney", region: "Putney & Westminster", coverage: "Regional Feature", category: "Historic Villages", season: "Evergreen" },
+  { name: "Saxtons River Village", town: "Saxtons River", region: "Saxtons River & Grafton", coverage: "Regional Feature", category: "Historic Villages", season: "Evergreen" },
+  { name: "Weston Village Green", town: "Weston", region: "Weston & Ludlow", coverage: "Regional Feature", category: "Historic Villages", season: "Evergreen" },
+  { name: "Arlington Village", town: "Arlington", region: "Battenkill Valley", coverage: "Regional Feature", category: "Historic Villages", season: "Evergreen" },
+  { name: "Silk Road Covered Bridge", town: "Bennington", region: "Bennington Region", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Chiselville Covered Bridge", town: "Sunderland", region: "Battenkill Valley", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Burt Henry Covered Bridge", town: "Bennington", region: "Bennington Region", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Williamsville Covered Bridge", town: "Newfane", region: "West River Valley", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Wardsboro Covered Bridge", town: "Wardsboro", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Kidder Covered Bridge", town: "Grafton", region: "Saxtons River & Grafton", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Green River Covered Bridge", town: "Guilford", region: "Brattleboro Area", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Hogback Scenic Overlook", town: "Marlboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Scenic Drives", season: "Fall" },
+  { name: "Route 9 Molly Stark Byway", town: "Wilmington", region: "Mount Snow Valley", coverage: "Core Southern Vermont", category: "Scenic Drives", season: "Fall" },
+  { name: "Equinox Skyline Drive", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Scenic Drives", season: "Fall" },
+  { name: "Kelly Stand Road", town: "Arlington", region: "Battenkill Valley", coverage: "Worth the Drive", category: "Scenic Drives", season: "Fall" },
+  { name: "Somerset Reservoir", town: "Somerset", region: "Mount Snow Valley", coverage: "Worth the Drive", category: "Hidden Gems", season: "Summer" },
+  { name: "Harriman Reservoir", town: "Wilmington", region: "Mount Snow Valley", coverage: "Core Southern Vermont", category: "Swimming Holes", season: "Summer" },
+  { name: "Lake Whitingham Overlook", town: "Whitingham", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Photography", season: "Fall" },
+  { name: "Deerfield Valley Trails", town: "Dover", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Family", season: "Summer" },
+  { name: "West River Trail", town: "Townshend", region: "West River Valley", coverage: "Core Southern Vermont", category: "Photography", season: "Evergreen" },
+  { name: "Lye Brook Wilderness Trail", town: "Manchester", region: "Manchester & Dorset", coverage: "Regional Feature", category: "Photography", season: "Summer" },
+  { name: "Prospect Rock Trail", town: "Woodford", region: "Bennington Region", coverage: "Regional Feature", category: "Hidden Gems", season: "Summer" },
+  { name: "Stratton Fire Tower", town: "Stratton", region: "Stratton Region", coverage: "Worth the Drive", category: "Mountains", season: "Fall" },
+  { name: "Glastenbury Fire Tower", town: "Glastenbury", region: "Bennington Region", coverage: "Worth the Drive", category: "Mountains", season: "Summer" },
+  { name: "Haystack Mountain Trail", town: "Wilmington", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Mountains", season: "Summer" },
+  { name: "Bald Mountain Preserve", town: "Westminster", region: "Putney & Westminster", coverage: "Regional Feature", category: "Hidden Gems", season: "Summer" },
+  { name: "Mount Olga Fire Tower", town: "Wilmington", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Photography", season: "Fall" },
+  { name: "Pikes Falls", town: "Jamaica", region: "West River Valley", coverage: "Core Southern Vermont", category: "Waterfalls", season: "Summer" },
+  { name: "Warren Falls", town: "Warren", region: "Mad River Valley", coverage: "Worth the Drive", category: "Worth the Drive", season: "Summer" },
+  { name: "Bingham Falls", town: "Stowe", region: "Northern Vermont", coverage: "Worth the Drive", category: "Worth the Drive", season: "Summer" },
+  { name: "Quechee Gorge", town: "Quechee", region: "Upper Valley", coverage: "Worth the Drive", category: "Worth the Drive", season: "Fall" },
+  { name: "Okemo Mountain Resort", town: "Ludlow", region: "Weston & Ludlow", coverage: "Worth the Drive", category: "Winter", season: "Winter" },
+  { name: "Viking Nordic Center", town: "Londonderry", region: "Weston & Ludlow", coverage: "Regional Feature", category: "Winter", season: "Winter" },
+  { name: "Northshire Bookstore", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Shopping", season: "Evergreen" },
+  { name: "Village Square Booksellers Cafe", town: "Bellows Falls", region: "Bellows Falls Corridor", coverage: "Regional Feature", category: "Coffee", season: "Evergreen" },
+  { name: "Putney Mountain Roastery", town: "Putney", region: "Putney & Westminster", coverage: "Regional Feature", category: "Coffee", season: "Evergreen" },
+  { name: "Dutton Farm Stand", town: "Manchester", region: "Manchester & Dorset", coverage: "Regional Feature", category: "Restaurants", season: "Summer" },
+  { name: "Grafton Village Cheese", town: "Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Shopping", season: "Evergreen" },
+  { name: "Sticky Fingers Bakery", town: "West Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Coffee", season: "Evergreen" },
+  { name: "Whetstone Station", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Restaurants", season: "Evergreen" },
+  { name: "Duo Restaurant", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Restaurants", season: "Evergreen" },
+  { name: "The Works Bakery Cafe", town: "Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Coffee", season: "Evergreen" },
+  { name: "Three Stones", town: "Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Restaurants", season: "Evergreen" },
+  { name: "Copper Grouse", town: "Manchester", region: "Manchester & Dorset", coverage: "Regional Feature", category: "Restaurants", season: "Evergreen" },
+  { name: "Wilburton Inn", town: "Manchester", region: "Manchester & Dorset", coverage: "Regional Feature", category: "Lodging", season: "Evergreen" },
+  { name: "Grafton Inn", town: "Grafton", region: "Saxtons River & Grafton", coverage: "Core Southern Vermont", category: "Lodging", season: "Evergreen" },
+  { name: "Kimpton Taconic Hotel", town: "Manchester", region: "Manchester & Dorset", coverage: "Regional Feature", category: "Lodging", season: "Evergreen" },
+  { name: "Four Columns Inn", town: "Newfane", region: "West River Valley", coverage: "Regional Feature", category: "Lodging", season: "Evergreen" },
+  { name: "Deerhill Inn", town: "West Dover", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Lodging", season: "Evergreen" },
+  { name: "The Equinox Golf Resort & Spa", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Lodging", season: "Evergreen" },
+  { name: "West River Inn", town: "Londonderry", region: "Weston & Ludlow", coverage: "Regional Feature", category: "Lodging", season: "Evergreen" },
+  { name: "The Nutmeg Vermont", town: "Wilmington", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Lodging", season: "Evergreen" },
+  { name: "Adams Farm Market", town: "Wilmington", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Shopping", season: "Summer" },
+  { name: "Brattleboro Food Co-op", town: "Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Shopping", season: "Evergreen" },
+  { name: "Vermont Country Deli", town: "Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Restaurants", season: "Evergreen" },
+  { name: "Stone Church", town: "Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Art", season: "Evergreen" },
+  { name: "Sandglass Theater", town: "Putney", region: "Putney & Westminster", coverage: "Regional Feature", category: "Art", season: "Evergreen" },
+  { name: "Next Stage Arts", town: "Putney", region: "Putney & Westminster", coverage: "Regional Feature", category: "Art", season: "Evergreen" },
+  { name: "Latchis Theatre", town: "Brattleboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Art", season: "Evergreen" },
+  { name: "Billings Farm & Museum", town: "Woodstock", region: "Upper Valley", coverage: "Worth the Drive", category: "Worth the Drive", season: "Evergreen" },
+  { name: "Marsh-Billings-Rockefeller National Historical Park", town: "Woodstock", region: "Upper Valley", coverage: "Worth the Drive", category: "Worth the Drive", season: "Evergreen" },
+  { name: "Saint-Gaudens National Historical Park", town: "Cornish", region: "Upper Valley", coverage: "Worth the Drive", category: "Worth the Drive", season: "Evergreen" },
+  { name: "American Precision Museum", town: "Windsor", region: "Upper Valley", coverage: "Worth the Drive", category: "Worth the Drive", season: "Evergreen" },
+  { name: "Naulakha", town: "Dummerston", region: "Brattleboro Area", coverage: "Regional Feature", category: "Museums", season: "Evergreen" },
+  { name: "Fairy House Trail", town: "Mendon", region: "Killington Region", coverage: "Worth the Drive", category: "Family", season: "Summer" },
+  { name: "Secret Swimming Hole at Pikes Brook", town: "Jamaica", region: "West River Valley", coverage: "Regional Feature", category: "Hidden Gems", season: "Summer" },
+  { name: "Bromley Alpine Slide", town: "Peru", region: "Manchester & Dorset", coverage: "Regional Feature", category: "Family", season: "Summer" },
+  { name: "Wilmington Antique District", town: "Wilmington", region: "Mount Snow Valley", coverage: "Regional Feature", category: "Shopping", season: "Evergreen" },
+  { name: "Arlington Green Covered Bridge", town: "Arlington", region: "Battenkill Valley", coverage: "Regional Feature", category: "Covered Bridges", season: "Fall" },
+  { name: "Pownal Valley Vineyard", town: "Pownal", region: "Bennington Region", coverage: "Regional Feature", category: "Regional Features", season: "Summer" },
+  { name: "Beer Naked Brewery", town: "Marlboro", region: "Brattleboro Area", coverage: "Regional Feature", category: "Breweries", season: "Evergreen" },
+  { name: "Mad Tom Notch Scenic Pull-Off", town: "Dorset", region: "Manchester & Dorset", coverage: "Regional Feature", category: "Photography", season: "Fall" },
+  { name: "Manchester Designer Outlets", town: "Manchester", region: "Manchester & Dorset", coverage: "Core Southern Vermont", category: "Shopping", season: "Evergreen" },
+  { name: "Battenkill River Access", town: "Arlington", region: "Battenkill Valley", coverage: "Regional Feature", category: "Swimming Holes", season: "Summer" },
+  { name: "Prospect Mountain Nordic Center", town: "Woodford", region: "Bennington Region", coverage: "Regional Feature", category: "Winter", season: "Winter" },
+  { name: "Townshend Dam Recreation Area", town: "Townshend", region: "West River Valley", coverage: "Regional Feature", category: "Family", season: "Summer" },
+  { name: "Brattleboro Museum & Art Center", town: "Brattleboro", region: "Brattleboro Area", coverage: "Core Southern Vermont", category: "Art", season: "Evergreen" },
+];
+
+export const southernVT100Destinations: SouthernVT100Destination[] = seeds.map((seed, index) => {
+  const id = `southernvt-100-${String(index + 1).padStart(3, "0")}`;
+  const slug = slugify(seed.name);
+  const published = index < 27;
+  const issueAssignment: SouthernVT100IssueAssignment = published ? (index < 8 ? "Current Issue" : "Future Issue") : "None";
+
+  return {
+    id,
+    slug,
+    name: seed.name,
+    town: seed.town,
+    region: seed.region,
+    coverage: seed.coverage,
+    category: seed.category,
+    priority: published ? "High" : index % 5 === 0 ? "Critical" : "Medium",
+    editorialStatus: published ? "Published" : "Research",
+    verification: {
+      location: published,
+      photo: published,
+      visited: published,
+      recommended: published && index < 10,
+    },
+    contentHealth: published ? 88 - (index % 7) : 52 + (index % 8),
+    coverageScore: published ? 90 - (index % 6) : 48 + (index % 10),
+    relationshipScore: published ? 87 - (index % 8) : 45 + (index % 9),
+    photographyScore: published ? 89 - (index % 9) : 42 + (index % 11),
+    issueAssignment,
+    season: seed.season,
+  };
+});

@@ -2,23 +2,18 @@
 
 import { useEffect } from "react";
 import {
-  trackBusinessViewed,
-  trackCollectionViewed,
-  trackConciergeCompleted,
-  trackGuideViewed,
-  trackPlaceViewed,
-  trackSavedTrip,
-  trackStoryViewed,
+  trackEvent,
+  trackEventOnce,
 } from "@/lib/analytics/events";
 
 type TrackOnRenderEvent =
-  | "place_viewed"
+  | "place_view"
   | "collection_viewed"
   | "guide_viewed"
   | "story_viewed"
-  | "business_viewed"
-  | "concierge_completed"
-  | "saved_trip_viewed";
+  | "business_view"
+  | "concierge_complete"
+  | "saved_trip";
 
 type AnalyticsTrackOnRenderProps = {
   event: TrackOnRenderEvent;
@@ -28,32 +23,36 @@ type AnalyticsTrackOnRenderProps = {
 
 export function AnalyticsTrackOnRender({ event, params, onceKey }: AnalyticsTrackOnRenderProps) {
   useEffect(() => {
-    if (event === "place_viewed") {
-      trackPlaceViewed(params, onceKey);
+    if (event === "place_view") {
+      trackEventOnce("place_view", params, onceKey);
       return;
     }
     if (event === "collection_viewed") {
-      trackCollectionViewed(params, onceKey);
+      trackEventOnce("collection_viewed", params, onceKey);
       return;
     }
     if (event === "guide_viewed") {
-      trackGuideViewed(params, onceKey);
+      trackEventOnce("guide_viewed", params, onceKey);
       return;
     }
     if (event === "story_viewed") {
-      trackStoryViewed(params, onceKey);
+      trackEventOnce("story_viewed", params, onceKey);
       return;
     }
-    if (event === "business_viewed") {
-      trackBusinessViewed(params, onceKey);
+    if (event === "business_view") {
+      trackEventOnce("business_view", params, onceKey);
       return;
     }
-    if (event === "concierge_completed") {
-      trackConciergeCompleted(params, onceKey);
+    if (event === "concierge_complete") {
+      trackEventOnce("concierge_complete", params, onceKey);
+      return;
+    }
+    if (event === "saved_trip") {
+      trackEventOnce("saved_trip", params, onceKey);
       return;
     }
 
-    trackSavedTrip(params, onceKey);
+    trackEvent(event, params);
   }, [event, onceKey, params]);
 
   return null;

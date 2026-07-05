@@ -30,6 +30,9 @@ export function PlaceLocationCard({ place }: PlaceLocationCardProps) {
           data-ga-label="Get directions"
           data-ga-place-slug={place.slug}
           data-ga-place-name={place.name}
+          data-ga-target-slug={place.slug}
+          data-ga-target-name={place.name}
+          data-ga-target-type="place"
           data-ga-href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${place.latitude},${place.longitude}`)}`}
           className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-700"
         >

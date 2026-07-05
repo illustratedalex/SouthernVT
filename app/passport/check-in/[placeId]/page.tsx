@@ -47,6 +47,7 @@ export default async function PassportCheckInPage({ params }: PassportCheckInPag
           <CheckInPanel
             member={member}
             placeId={place.id}
+            placeSlug={place.slug}
             placeName={place.name}
             currentStampCount={stamps.length}
             rewards={rewards}

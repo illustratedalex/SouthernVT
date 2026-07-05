@@ -13,6 +13,7 @@ type ClaimFormProps = {
     id: string;
     slug: string;
     name: string;
+    type: string;
     publicHref: string;
     publicLabel: string;
   };
@@ -45,11 +46,8 @@ export function ClaimForm({ listing }: ClaimFormProps) {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    trackClaimStarted(
-      { listing_id: listing.id, listing_slug: listing.slug, listing_name: listing.name },
-      `claim:${listing.id}`,
-    );
-  }, [listing.id, listing.name, listing.slug]);
+    trackClaimStarted(listing.slug, listing.type);
+  }, [listing.slug, listing.type]);
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setState((current) => ({ ...current, [key]: value }));
@@ -94,12 +92,7 @@ export function ClaimForm({ listing }: ClaimFormProps) {
       });
 
       setSubmitted(true);
-      trackClaimSubmitted({
-        listing_id: listing.id,
-        listing_slug: listing.slug,
-        listing_name: listing.name,
-        relationship: state.relationship,
-      });
+      trackClaimSubmitted(listing.slug, listing.type);
       pushToast({ tone: "success", title: "Claim submitted", description: "Your request is pending review." });
     } catch {
       pushToast({ tone: "error", title: "Submission failed", description: "Please try again." });

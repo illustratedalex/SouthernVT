@@ -1,94 +1,112 @@
 "use client";
 
-type EventParams = Record<string, string | number | boolean | undefined | null>;
+type GAValue = string | number | boolean;
+type EventParams = Record<string, GAValue | null | undefined>;
+type GtagFn = (command: "event", eventName: string, params?: Record<string, GAValue>) => void;
 
 declare global {
   interface Window {
-    gtag?: (command: "event", eventName: string, params?: EventParams) => void;
+    gtag?: GtagFn;
   }
 }
 
 const trackedOnce = new Set<string>();
 
-function sendEvent(eventName: string, params?: EventParams, onceKey?: string) {
-  if (typeof window === "undefined" || typeof window.gtag !== "function") {
-    return;
-  }
+function sanitizeEventParams(params?: EventParams): Record<string, GAValue> | undefined {
+  if (!params) return undefined;
 
+  const entries = Object.entries(params).filter(([, value]) => {
+    if (value === undefined || value === null) return false;
+    if (typeof value === "string") return value.trim().length > 0;
+    return typeof value === "number" || typeof value === "boolean";
+  });
+
+  if (!entries.length) return undefined;
+  return Object.fromEntries(entries) as Record<string, GAValue>;
+}
+
+export function trackEvent(eventName: string, params?: EventParams) {
+  if (typeof window === "undefined") return;
+
+  const gtag = window.gtag;
+  if (typeof gtag !== "function") return;
+
+  try {
+    gtag("event", eventName, sanitizeEventParams(params));
+  } catch {
+    // Analytics should never break user flows.
+  }
+}
+
+export function trackEventOnce(eventName: string, params?: EventParams, onceKey?: string) {
   if (onceKey) {
-    if (trackedOnce.has(onceKey)) {
-      return;
-    }
+    if (trackedOnce.has(onceKey)) return;
     trackedOnce.add(onceKey);
   }
 
-  window.gtag("event", eventName, params);
+  trackEvent(eventName, params);
 }
 
-export function trackConciergeStarted(params?: EventParams) {
-  sendEvent("concierge_started", params);
+export function trackConciergeStarted() {
+  trackEvent("concierge_start");
 }
 
-export function trackConciergeCompleted(params?: EventParams, onceKey?: string) {
-  sendEvent("concierge_completed", params, onceKey);
+export function trackConciergeCompleted() {
+  trackEvent("concierge_complete");
 }
 
-export function trackPlaceViewed(params?: EventParams, onceKey?: string) {
-  sendEvent("place_viewed", params, onceKey);
+export function trackAIConcierge() {
+  trackEvent("ai_concierge");
 }
 
-export function trackCollectionViewed(params?: EventParams, onceKey?: string) {
-  sendEvent("collection_viewed", params, onceKey);
+export function trackPlaceViewed(placeSlug: string, placeName: string) {
+  trackEvent("place_view", { place_slug: placeSlug, place_name: placeName });
 }
 
-export function trackGuideViewed(params?: EventParams, onceKey?: string) {
-  sendEvent("guide_viewed", params, onceKey);
+export function trackBusinessViewed(businessSlug: string, businessName: string) {
+  trackEvent("business_view", { business_slug: businessSlug, business_name: businessName });
 }
 
-export function trackStoryViewed(params?: EventParams, onceKey?: string) {
-  sendEvent("story_viewed", params, onceKey);
+export function trackBusinessWebsiteClick(businessSlug: string, businessName: string) {
+  trackEvent("business_website_click", { business_slug: businessSlug, business_name: businessName });
 }
 
-export function trackBusinessViewed(params?: EventParams, onceKey?: string) {
-  sendEvent("business_viewed", params, onceKey);
+export function trackDirectionsClick(targetSlug: string, targetName: string, targetType: string) {
+  trackEvent("directions_click", {
+    target_slug: targetSlug,
+    target_name: targetName,
+    target_type: targetType,
+  });
 }
 
-export function trackBusinessWebsiteClick(params?: EventParams) {
-  sendEvent("business_website_click", params);
+export function trackPhoneClick(businessSlug: string, businessName: string) {
+  trackEvent("phone_click", { business_slug: businessSlug, business_name: businessName });
 }
 
-export function trackDirectionsClick(params?: EventParams) {
-  sendEvent("directions_click", params);
+export function trackClaimStarted(slug: string, listingType: string) {
+  trackEventOnce("claim_start", { slug, listing_type: listingType }, `claim_start:${slug}:${listingType}`);
 }
 
-export function trackPhoneClick(params?: EventParams) {
-  sendEvent("phone_click", params);
+export function trackClaimSubmitted(slug: string, listingType: string) {
+  trackEvent("claim_submit", { slug, listing_type: listingType });
 }
 
-export function trackPassportCheckIn(params?: EventParams) {
-  sendEvent("passport_check_in", params);
+export function trackFoundingPartnerInterest(source: string) {
+  trackEvent("founding_partner_interest", { source });
 }
 
-export function trackPartnerClick(params?: EventParams) {
-  sendEvent("partner_click", params);
+export function trackNewsletterSignup(source: string) {
+  trackEvent("newsletter_signup", { source });
 }
 
-export function trackClaimStarted(params?: EventParams, onceKey?: string) {
-  sendEvent("claim_started", params, onceKey);
+export function trackSearch(query: string, source: string) {
+  trackEvent("search", { query, source });
 }
 
-export function trackClaimSubmitted(params?: EventParams) {
-  sendEvent("claim_submitted", params);
+export function trackSavedTrip(source: string) {
+  trackEvent("saved_trip", { source });
 }
 
-export function trackSearch(params?: EventParams) {
-  sendEvent("search_submitted", params);
-}
-
-export function trackSavedTrip(params?: EventParams, onceKey?: string) {
-  sendEvent("saved_trip_viewed", params, onceKey);
-}
-
-export function trackAIConcierge(params?: EventParams) {
-  sendEvent("ai_concierge_requested", params);
+export function trackPassportCheckIn(placeSlug: string, placeName: string) {
+  trackEvent("passport_checkin", { place_slug: placeSlug, place_name: placeName });
 }

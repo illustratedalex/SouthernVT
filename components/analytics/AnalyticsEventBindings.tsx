@@ -5,7 +5,8 @@ import {
   trackBusinessWebsiteClick,
   trackConciergeStarted,
   trackDirectionsClick,
-  trackPartnerClick,
+  trackFoundingPartnerInterest,
+  trackNewsletterSignup,
   trackPhoneClick,
   trackSearch,
 } from "@/lib/analytics/events";
@@ -32,55 +33,40 @@ export function AnalyticsEventBindings() {
         return;
       }
 
-      const commonParams = {
-        source: toValue(clickable.dataset.gaSource),
-        label: toValue(clickable.dataset.gaLabel),
-        href: toValue(clickable.dataset.gaHref),
-      };
-
-      if (gaEvent === "concierge_started") {
-        trackConciergeStarted({
-          ...commonParams,
-          mood: toValue(clickable.dataset.gaMood),
-          time_available: toValue(clickable.dataset.gaTime),
-          travel_style: toValue(clickable.dataset.gaStyle),
-          radius: toValue(clickable.dataset.gaRadius),
-        });
+      if (gaEvent === "concierge_start") {
+        trackConciergeStarted();
         return;
       }
 
       if (gaEvent === "business_website_click") {
-        trackBusinessWebsiteClick({
-          ...commonParams,
-          business_slug: toValue(clickable.dataset.gaBusinessSlug),
-          business_name: toValue(clickable.dataset.gaBusinessName),
-        });
+        trackBusinessWebsiteClick(
+          toValue(clickable.dataset.gaBusinessSlug) ?? "unknown",
+          toValue(clickable.dataset.gaBusinessName) ?? toValue(clickable.dataset.gaLabel) ?? "Unknown Business",
+        );
         return;
       }
 
       if (gaEvent === "directions_click") {
-        trackDirectionsClick({
-          ...commonParams,
-          place_slug: toValue(clickable.dataset.gaPlaceSlug),
-          place_name: toValue(clickable.dataset.gaPlaceName),
-        });
+        trackDirectionsClick(
+          toValue(clickable.dataset.gaTargetSlug) ?? toValue(clickable.dataset.gaPlaceSlug) ?? "unknown",
+          toValue(clickable.dataset.gaTargetName) ?? toValue(clickable.dataset.gaPlaceName) ?? "Unknown Destination",
+          toValue(clickable.dataset.gaTargetType) ?? "place",
+        );
         return;
       }
 
       if (gaEvent === "phone_click") {
-        trackPhoneClick({
-          ...commonParams,
-          entity_slug: toValue(clickable.dataset.gaEntitySlug),
-          entity_name: toValue(clickable.dataset.gaEntityName),
-        });
+        trackPhoneClick(
+          toValue(clickable.dataset.gaBusinessSlug) ?? toValue(clickable.dataset.gaEntitySlug) ?? "unknown",
+          toValue(clickable.dataset.gaBusinessName) ?? toValue(clickable.dataset.gaEntityName) ?? "Unknown Business",
+        );
         return;
       }
 
-      if (gaEvent === "partner_click") {
-        trackPartnerClick({
-          ...commonParams,
-          partner_surface: toValue(clickable.dataset.gaPartnerSurface),
-        });
+      if (gaEvent === "founding_partner_interest") {
+        trackFoundingPartnerInterest(
+          toValue(clickable.dataset.gaSource) ?? toValue(clickable.dataset.gaPartnerSurface) ?? "unknown",
+        );
       }
     };
 
@@ -90,16 +76,20 @@ export function AnalyticsEventBindings() {
         return;
       }
 
-      if (target.dataset.gaEvent !== "search_submitted") {
+      const formData = new FormData(target);
+      const gaEvent = target.dataset.gaEvent;
+      if (gaEvent === "search") {
+        const query = formData.get("q");
+        trackSearch(
+          typeof query === "string" ? query.trim() : "",
+          toValue(target.dataset.gaSource) ?? "unknown",
+        );
         return;
       }
 
-      const formData = new FormData(target);
-      const query = formData.get("q");
-      trackSearch({
-        source: toValue(target.dataset.gaSource),
-        query: typeof query === "string" ? query.trim() : undefined,
-      });
+      if (gaEvent === "newsletter_signup") {
+        trackNewsletterSignup(toValue(target.dataset.gaSource) ?? "unknown");
+      }
     };
 
     document.addEventListener("click", onClick);

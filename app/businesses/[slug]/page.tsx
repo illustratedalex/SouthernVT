@@ -69,7 +69,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
       <AnalyticsTrackOnRender
-        event="business_viewed"
+        event="business_view"
         onceKey={`business:${listing.id}`}
         params={{ business_id: listing.id, business_slug: listing.slug, business_name: listing.name }}
       />
@@ -123,6 +123,8 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                         data-ga-label="Business phone"
                         data-ga-entity-slug={listing.slug}
                         data-ga-entity-name={listing.name}
+                        data-ga-business-slug={listing.slug}
+                        data-ga-business-name={listing.name}
                         data-ga-href={`tel:${listing.phone.replace(/[^+\d]/g, "")}`}
                         className="font-semibold text-[#1f3b2f] underline underline-offset-4"
                       >
@@ -148,6 +150,27 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
                       </a>
                     ) : (
                       "Website not yet provided"
+                    )}
+                  </p>
+                  <p>
+                    {listing.address ? (
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${listing.address} ${listing.town} ${listing.county}`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        data-ga-event="directions_click"
+                        data-ga-source="business_contact"
+                        data-ga-label="Business directions"
+                        data-ga-target-slug={listing.slug}
+                        data-ga-target-name={listing.name}
+                        data-ga-target-type="business"
+                        data-ga-href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${listing.address} ${listing.town} ${listing.county}`)}`}
+                        className="font-semibold text-[#1f3b2f] underline underline-offset-4"
+                      >
+                        Directions
+                      </a>
+                    ) : (
+                      "Address needed for directions"
                     )}
                   </p>
                 </div>
