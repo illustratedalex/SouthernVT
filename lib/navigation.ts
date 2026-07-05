@@ -10,7 +10,6 @@ export const publicNavigationGroups: NavigationGroup[] = [
     href: "/places",
     items: [
       { label: "Places", href: "/places" },
-      { label: "Map", href: "/map" },
       { label: "Collections", href: "/collections" },
       { label: "Events", href: "/events" },
       { label: "Deals", href: "/deals" },
@@ -21,7 +20,6 @@ export const publicNavigationGroups: NavigationGroup[] = [
     href: "/concierge",
     items: [
       { label: "Concierge", href: "/concierge" },
-      { label: "Trip Planner", href: "/trip-planner" },
       { label: "Passport", href: "/passport" },
     ],
   },
@@ -40,7 +38,7 @@ export const publicNavigationGroups: NavigationGroup[] = [
     href: "/businesses",
     items: [
       { label: "Businesses", href: "/businesses" },
-      { label: "Claim a Listing", href: "/claim" },
+      { label: "Claim a Listing", href: "/claim-listing" },
       { label: "Founding Partners", href: "/founding-partners" },
       { label: "Partner Portal", href: "/partner-portal" },
     ],

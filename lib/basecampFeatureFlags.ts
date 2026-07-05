@@ -5,8 +5,8 @@ export const BASECAMP_FEATURE_FLAGS_CHANGE_EVENT = "basecamp-feature-flags-chang
 
 export const BASECAMP_FEATURE_DEFAULTS: FeatureFlags = {
   aiConcierge: true,
-  aiPlanner: true,
-  weather: true,
+  aiPlanner: false,
+  weather: false,
   passport: true,
   partnerPortal: true,
   businessClaims: true,

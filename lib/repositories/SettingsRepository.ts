@@ -16,14 +16,14 @@ const generalSettings: GeneralSettings = {
 
 const featureFlags: FeatureFlags = {
   aiConcierge: true,
-  weather: true,
-  aiPlanner: true,
+  weather: false,
+  aiPlanner: false,
   passport: true,
   partnerPortal: true,
   knowledgeGraph: true,
   businessClaims: true,
   premiumProfiles: false,
-  mapbox: true,
+  mapbox: false,
   analytics: true,
   futureFeatures: false,
 };
