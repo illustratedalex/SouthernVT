@@ -28,7 +28,7 @@ export const publicNavigationGroups: NavigationGroup[] = [
     href: "/guides",
     items: [
       { label: "Guides", href: "/guides" },
-      { label: "Current Issue", href: "/guides" },
+      { label: "Current Issue", href: "/updates" },
       { label: "Why Trust SouthernVT", href: "/why-trust-southernvt" },
       { label: "Our Coverage", href: "/our-coverage" },
     ],
@@ -38,7 +38,7 @@ export const publicNavigationGroups: NavigationGroup[] = [
     href: "/businesses",
     items: [
       { label: "Businesses", href: "/businesses" },
-      { label: "Claim a Listing", href: "/claim-listing" },
+      { label: "Claim a Listing", href: "/businesses" },
       { label: "Founding Partners", href: "/founding-partners" },
       { label: "Partner Portal", href: "/partner-portal" },
     ],

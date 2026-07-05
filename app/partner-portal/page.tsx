@@ -78,12 +78,13 @@ export default async function PartnerPortalLandingPage() {
             Email partners@southernvt.com
           </a>
           <Link
-            href="/claim-listing"
+            href="/businesses"
             className="inline-flex rounded-full border border-amber-300 bg-white px-5 py-2.5 text-sm font-semibold text-amber-900 hover:bg-amber-50 transition"
           >
             Claim your listing
           </Link>
         </div>
+        <p className="mt-3 text-sm text-amber-900">Find your business, then choose Claim this listing.</p>
       </div>
 
       {!user ? (

@@ -108,7 +108,7 @@ export default function WhyTrustSouthernVTPage() {
             <Link href="/places">
               <Button variant="secondary" size="lg">Explore Verified Places</Button>
             </Link>
-            <Link href="/feedback">
+            <Link href="/feedback?category=Missing%20Place">
               <Button variant="ghost" size="lg" className="border border-(--color-forest-green)/20 bg-white text-(--color-forest-green) motion-safe:hover:bg-[#f4efe1]">
                 Suggest a Place
               </Button>

@@ -48,6 +48,7 @@ export default async function BusinessesPage({ searchParams }: BusinessesPagePro
           <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-200">
             This is the public directory foundation. Listings can start basic, then get claimed, verified, and improved over time.
           </p>
+          <p className="mt-3 text-sm font-medium text-slate-200/95">Find your business, then choose Claim this listing.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Badge variant="featured">Not paid placement</Badge>
             <Badge variant="subtle" className="border-white/20 bg-white/10 text-white">Beta directory · details may be incomplete</Badge>

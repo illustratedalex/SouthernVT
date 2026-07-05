@@ -151,7 +151,7 @@ export const mockEvents: Event[] = [
     zip: "05255",
     latitude: 43.1768,
     longitude: -73.0521,
-    featuredImage: "https://images.unsplash.com/photo-1506424482690-f7cd225efb41?auto=format&fit=crop&w=1200&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
     gallery: ["https://images.unsplash.com/photo-1476041800959-2f6bb412c8ce?auto=format&fit=crop&w=1200&q=80"],
     organizerName: "Manchester Trails Guild",
     organizerEmail: "hello@manchestertrails.org",

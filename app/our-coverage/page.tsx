@@ -144,7 +144,7 @@ export default function OurCoveragePage() {
 
         <EditorialSection eyebrow="Section 8" title="Help Us Discover Places" description="Know a destination we should review next?">
           <div className="flex flex-wrap gap-3">
-            <Link href="/suggest-place">
+            <Link href="/feedback?category=Missing%20Place">
               <Button variant="secondary" size="lg">Suggest a Place</Button>
             </Link>
           </div>

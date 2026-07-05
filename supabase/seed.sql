@@ -145,7 +145,7 @@ values
     '',
     'https://www.equinoxresort.com/skyline-drive',
     'Seasonal hours',
-    'https://images.unsplash.com/photo-1506424482690-f7cd225efb41?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80',
     '["https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"]'::jsonb,
     '["Parking","Scenic Views"]'::jsonb,
     true,

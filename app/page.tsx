@@ -131,7 +131,7 @@ export default async function Home() {
       subtitle: "A summit viewpoint where the entire valley opens in layers.",
       href: "/places/mount-equinox-skyline-drive",
       imageClass:
-        "bg-[linear-gradient(145deg,rgba(20,49,39,0.83),rgba(198,161,86,0.34)),url('https://images.unsplash.com/photo-1506424482690-f7cd225efb41?auto=format&fit=crop&w=1400&q=80')]",
+        "bg-[linear-gradient(145deg,rgba(20,49,39,0.83),rgba(198,161,86,0.34)),url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=80')]",
       layoutClass: "",
       badge: "Scenic Drive",
     },
