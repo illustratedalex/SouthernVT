@@ -1,13 +1,50 @@
-export const navigationItems = [
-  { label: "Explore", href: "/places" },
-  { label: "Concierge", href: "/concierge" },
-  { label: "Explorer", href: "/explorer" },
-  { label: "Passport", href: "/passport" },
-  { label: "Trip Planner", href: "/planner" },
-  { label: "Guides", href: "/guides" },
-  { label: "Map", href: "/map" },
-  { label: "Events", href: "/events" },
-  { label: "Deals", href: "/deals" },
+type NavigationGroup = {
+  label: string;
+  href: string;
+  items: { label: string; href: string }[];
+};
+
+export const publicNavigationGroups: NavigationGroup[] = [
+  {
+    label: "Explore",
+    href: "/places",
+    items: [
+      { label: "Places", href: "/places" },
+      { label: "Map", href: "/map" },
+      { label: "Collections", href: "/collections" },
+      { label: "Events", href: "/events" },
+      { label: "Deals", href: "/deals" },
+    ],
+  },
+  {
+    label: "Plan",
+    href: "/concierge",
+    items: [
+      { label: "Concierge", href: "/concierge" },
+      { label: "Trip Planner", href: "/trip-planner" },
+      { label: "Passport", href: "/passport" },
+    ],
+  },
+  {
+    label: "Stories",
+    href: "/guides",
+    items: [
+      { label: "Guides", href: "/guides" },
+      { label: "Current Issue", href: "/guides" },
+      { label: "Why Trust SouthernVT", href: "/why-trust-southernvt" },
+      { label: "Our Coverage", href: "/our-coverage" },
+    ],
+  },
+  {
+    label: "Businesses",
+    href: "/businesses",
+    items: [
+      { label: "Businesses", href: "/businesses" },
+      { label: "Claim a Listing", href: "/claim" },
+      { label: "Founding Partners", href: "/founding-partners" },
+      { label: "Partner Portal", href: "/partner-portal" },
+    ],
+  },
 ];
 
 export const footerLinks = [

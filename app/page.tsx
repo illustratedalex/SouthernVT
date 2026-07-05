@@ -161,22 +161,28 @@ export default async function Home() {
 
       <section className="relative overflow-hidden border-b border-[#d7cbb3] bg-[#10261e] text-[#f8f2e4]">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=80')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(7,18,14,0.22),rgba(8,22,17,0.08))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(7,18,14,0.28),rgba(8,22,17,0.1))]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_44%,rgba(4,12,9,0.3)_100%)]" />
-        <div className="absolute inset-y-0 left-0 w-full bg-[linear-gradient(95deg,rgba(6,17,13,0.84),rgba(6,17,13,0.68)_42%,rgba(6,17,13,0.2)_72%,transparent)] lg:w-[62%]" />
+        <div className="absolute inset-y-0 left-0 w-full bg-[linear-gradient(95deg,rgba(8,31,24,0.86),rgba(8,31,24,0.72)_42%,rgba(8,31,24,0.24)_72%,transparent)] lg:w-[62%]" />
 
         <div className="relative mx-auto grid max-w-7xl gap-8 px-6 py-14 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:px-10 lg:py-20">
           <div className="space-y-6">
             <MetaText as="p" variant="eyebrow" className="text-(--color-maple-gold)">
               Southern Vermont Travel Magazine
             </MetaText>
-            <h1 className="max-w-5xl text-4xl font-semibold leading-tight text-[#fff9ee] md:text-6xl">Discover Southern Vermont Like a Local</h1>
-            <Prose size="lg" className="max-w-3xl text-[#f1e8d9]">
-              <p>Hidden waterfalls.</p>
-              <p>Historic villages.</p>
-              <p>Scenic drives.</p>
-              <p>Original stories.</p>
-            </Prose>
+            <h1 className="max-w-5xl text-4xl font-semibold leading-tight text-[#fff9ee] drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)] md:text-6xl">
+              Discover Southern Vermont Like a Local
+            </h1>
+            <div className="max-w-2xl rounded-2xl border border-white/20 bg-black/30 p-4 text-white shadow-[0_12px_36px_rgba(0,0,0,0.35)] backdrop-blur-[2px]">
+              <ul className="space-y-2 text-base font-medium leading-7 text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">
+                {["Hidden waterfalls.", "Historic villages.", "Scenic drives.", "Original stories."].map((line) => (
+                  <li key={line} className="flex items-center gap-3">
+                    <span className="h-2.5 w-2.5 rounded-full border border-white/30 bg-white/20" aria-hidden />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <form
               action="/explorer"

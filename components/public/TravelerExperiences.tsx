@@ -68,9 +68,31 @@ const profiles: Record<ExperienceProfile["id"], ExperienceProfile> = {
 
 function toProfileId(listingType: string): ExperienceProfile["id"] {
   const normalized = listingType.toLowerCase();
+  const lodgingCategories = [
+    "lodging",
+    "inn",
+    "motel",
+    "bed & breakfast",
+    "bed and breakfast",
+    "cabin",
+    "campground",
+    "vacation rental",
+    "unique stay",
+    "hotel",
+  ];
+
+  if (lodgingCategories.some((category) => normalized.includes(category))) {
+    return "lodging";
+  }
+
   if (normalized.includes("restaurant") || normalized.includes("cafe")) {
     return "restaurant";
   }
+
+  if (normalized.includes("shopping")) {
+    return "attraction";
+  }
+
   if (
     normalized.includes("attraction") ||
     normalized.includes("outdoor") ||

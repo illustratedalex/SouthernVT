@@ -166,6 +166,130 @@ const seeds: BasicListingSeed[] = [
   { name: "Townshend Common Services", slug: "townshend-common-services", category: "Services", town: "Townshend", county: "Windham County", completenessScore: 25 },
 ];
 
+const starterBasicBusinessSeeds: BasicListingSeed[] = [
+  { name: "Greater Falls Farmers Market", slug: "greater-falls-farmers-market-bellows-falls", category: "Farm Stand", town: "Bellows Falls", county: "Windham County", completenessScore: 46 },
+  { name: "Bellows Falls Downtown Historic District", slug: "bellows-falls-downtown-historic-district", category: "Attraction", town: "Bellows Falls", county: "Windham County", completenessScore: 44 },
+  { name: "Bellows Falls Train Station", slug: "bellows-falls-train-station", category: "Services", town: "Bellows Falls", county: "Windham County", completenessScore: 42 },
+  { name: "Canal Street Art Gallery", slug: "canal-street-art-gallery-bellows-falls", category: "Gallery", town: "Bellows Falls", county: "Windham County", completenessScore: 43 },
+  { name: "Rockingham Free Public Library", slug: "rockingham-free-public-library", category: "Services", town: "Rockingham", county: "Windham County", completenessScore: 41 },
+  { name: "Bartonsville Covered Bridge", slug: "bartonsville-covered-bridge", category: "Attraction", town: "Rockingham", county: "Windham County", completenessScore: 45 },
+  { name: "Lower Bartonsville Covered Bridge Park", slug: "lower-bartonsville-covered-bridge-park", category: "Outdoor Recreation", town: "Rockingham", county: "Windham County", completenessScore: 39 },
+  { name: "Rockingham Meeting House Trailhead", slug: "rockingham-meeting-house-trailhead", category: "Outdoor Recreation", town: "Rockingham", county: "Windham County", completenessScore: 37 },
+  { name: "Kurn Hattin Farm Store", slug: "kurn-hattin-farm-store-westminster", category: "Farm Stand", town: "Westminster", county: "Windham County", completenessScore: 45 },
+  { name: "Westminster Historical Society", slug: "westminster-historical-society", category: "Attraction", town: "Westminster", county: "Windham County", completenessScore: 37 },
+  { name: "Westminster West Public Library", slug: "westminster-west-public-library", category: "Services", town: "Westminster", county: "Windham County", completenessScore: 39 },
+  { name: "Fuller Covered Bridge", slug: "fuller-covered-bridge-westminster", category: "Attraction", town: "Westminster", county: "Windham County", completenessScore: 40 },
+  { name: "Bald Mountain Preserve", slug: "bald-mountain-preserve-westminster", category: "Outdoor Recreation", town: "Westminster", county: "Windham County", completenessScore: 41 },
+  { name: "Main Street Arts", slug: "main-street-arts-saxtons-river", category: "Attraction", town: "Saxtons River", county: "Windham County", completenessScore: 45 },
+  { name: "Vermont Academy Campus Store", slug: "vermont-academy-campus-store-saxtons-river", category: "Shopping", town: "Saxtons River", county: "Windham County", completenessScore: 34 },
+  { name: "Saxtons River Park", slug: "saxtons-river-park", category: "Outdoor Recreation", town: "Saxtons River", county: "Windham County", completenessScore: 35 },
+  { name: "Saxtons River Village Green", slug: "saxtons-river-village-green", category: "Attraction", town: "Saxtons River", county: "Windham County", completenessScore: 36 },
+  { name: "Saxtons River Community Library", slug: "saxtons-river-community-library", category: "Services", town: "Saxtons River", county: "Windham County", completenessScore: 33 },
+  { name: "Nature Museum at Grafton", slug: "nature-museum-at-grafton", category: "Attraction", town: "Grafton", county: "Windham County", completenessScore: 47 },
+  { name: "Plummer's Sugar House", slug: "plummers-sugar-house-grafton", category: "Farm Stand", town: "Grafton", county: "Windham County", completenessScore: 43 },
+  { name: "Kidder Covered Bridge", slug: "kidder-covered-bridge-grafton", category: "Attraction", town: "Grafton", county: "Windham County", completenessScore: 42 },
+  { name: "Grafton Village Park", slug: "grafton-village-park", category: "Outdoor Recreation", town: "Grafton", county: "Windham County", completenessScore: 36 },
+  { name: "Grafton Public Library", slug: "grafton-public-library", category: "Services", town: "Grafton", county: "Windham County", completenessScore: 35 },
+  { name: "Grafton Trails Nordic Center", slug: "grafton-trails-nordic-center", category: "Outdoor Recreation", town: "Grafton", county: "Windham County", completenessScore: 44 },
+  { name: "Chester Theatre Company", slug: "chester-theatre-company", category: "Attraction", town: "Chester", county: "Windsor County", completenessScore: 43 },
+  { name: "Vermont Institute of Contemporary Arts", slug: "vermont-institute-of-contemporary-arts-chester", category: "Attraction", town: "Chester", county: "Windsor County", completenessScore: 40 },
+  { name: "Cobleigh Public Library", slug: "cobleigh-public-library-chester", category: "Services", town: "Chester", county: "Windsor County", completenessScore: 37 },
+  { name: "Chester Farmers Market", slug: "chester-farmers-market", category: "Farm Stand", town: "Chester", county: "Windsor County", completenessScore: 41 },
+  { name: "Chester-Andover Family Center", slug: "chester-andover-family-center", category: "Services", town: "Chester", county: "Windsor County", completenessScore: 36 },
+  { name: "Yosemite Firehouse Museum", slug: "yosemite-firehouse-museum-chester", category: "Attraction", town: "Chester", county: "Windsor County", completenessScore: 35 },
+  { name: "Springfield Art & Historical Society", slug: "springfield-art-and-historical-society", category: "Attraction", town: "Springfield", county: "Windsor County", completenessScore: 42 },
+  { name: "EdgarMay Health & Recreation Center", slug: "edgarmay-health-and-recreation-center", category: "Services", town: "Springfield", county: "Windsor County", completenessScore: 40 },
+  { name: "Springfield Community Players", slug: "springfield-community-players", category: "Attraction", town: "Springfield", county: "Windsor County", completenessScore: 37 },
+  { name: "Hartness House Planetarium", slug: "hartness-house-planetarium-springfield", category: "Attraction", town: "Springfield", county: "Windsor County", completenessScore: 39 },
+  { name: "Black River Innovation Campus", slug: "black-river-innovation-campus-springfield", category: "Services", town: "Springfield", county: "Windsor County", completenessScore: 35 },
+  { name: "Springfield Farmers Market", slug: "springfield-farmers-market", category: "Farm Stand", town: "Springfield", county: "Windsor County", completenessScore: 38 },
+  { name: "Retreat Farm", slug: "retreat-farm-brattleboro-starter", category: "Attraction", town: "Brattleboro", county: "Windham County", completenessScore: 50 },
+  { name: "Brattleboro Museum & Art Center", slug: "brattleboro-museum-and-art-center-starter", category: "Attraction", town: "Brattleboro", county: "Windham County", completenessScore: 51 },
+  { name: "Latchis Theatre", slug: "latchis-theatre-brattleboro", category: "Attraction", town: "Brattleboro", county: "Windham County", completenessScore: 46 },
+  { name: "Stone Church", slug: "stone-church-brattleboro", category: "Attraction", town: "Brattleboro", county: "Windham County", completenessScore: 43 },
+  { name: "Brattleboro Food Co-op", slug: "brattleboro-food-co-op", category: "Shopping", town: "Brattleboro", county: "Windham County", completenessScore: 49 },
+  { name: "Downtown Brattleboro Alliance", slug: "downtown-brattleboro-alliance", category: "Services", town: "Brattleboro", county: "Windham County", completenessScore: 37 },
+  { name: "Brattleboro Area Farmers Market", slug: "brattleboro-area-farmers-market", category: "Farm Stand", town: "Brattleboro", county: "Windham County", completenessScore: 47 },
+  { name: "Harris Hill Ski Jump", slug: "harris-hill-ski-jump-brattleboro", category: "Attraction", town: "Brattleboro", county: "Windham County", completenessScore: 40 },
+  { name: "Creamery Covered Bridge", slug: "creamery-covered-bridge-brattleboro", category: "Attraction", town: "Brattleboro", county: "Windham County", completenessScore: 38 },
+  { name: "Brattleboro Recreation & Parks", slug: "brattleboro-recreation-and-parks", category: "Services", town: "Brattleboro", county: "Windham County", completenessScore: 34 },
+  { name: "Next Stage Arts", slug: "next-stage-arts-putney-starter", category: "Attraction", town: "Putney", county: "Windham County", completenessScore: 45 },
+  { name: "Sandglass Theater", slug: "sandglass-theater-putney", category: "Attraction", town: "Putney", county: "Windham County", completenessScore: 44 },
+  { name: "Putney Public Library", slug: "putney-public-library", category: "Services", town: "Putney", county: "Windham County", completenessScore: 36 },
+  { name: "Putney Farmers Market", slug: "putney-farmers-market", category: "Farm Stand", town: "Putney", county: "Windham County", completenessScore: 41 },
+  { name: "Putney Mountain Trailhead", slug: "putney-mountain-trailhead", category: "Outdoor Recreation", town: "Putney", county: "Windham County", completenessScore: 40 },
+  { name: "Landmark College Bookstore", slug: "landmark-college-bookstore-putney", category: "Shopping", town: "Putney", county: "Windham County", completenessScore: 33 },
+  { name: "Jamaica State Park", slug: "jamaica-state-park-starter", category: "Outdoor Recreation", town: "Jamaica", county: "Windham County", completenessScore: 49 },
+  { name: "Pikes Falls", slug: "pikes-falls-jamaica-starter", category: "Attraction", town: "Jamaica", county: "Windham County", completenessScore: 44 },
+  { name: "West River Community Project", slug: "west-river-community-project-jamaica", category: "Services", town: "Jamaica", county: "Windham County", completenessScore: 34 },
+  { name: "Jamaica Farmers Market", slug: "jamaica-farmers-market", category: "Farm Stand", town: "Jamaica", county: "Windham County", completenessScore: 36 },
+  { name: "Hildene", slug: "hildene-manchester-starter", category: "Attraction", town: "Manchester", county: "Bennington County", completenessScore: 52 },
+  { name: "Equinox Preservation Trust", slug: "equinox-preservation-trust-manchester", category: "Outdoor Recreation", town: "Manchester", county: "Bennington County", completenessScore: 44 },
+  { name: "Manchester Farmers Market", slug: "manchester-farmers-market", category: "Farm Stand", town: "Manchester", county: "Bennington County", completenessScore: 43 },
+  { name: "Manchester Community Library", slug: "manchester-community-library", category: "Services", town: "Manchester", county: "Bennington County", completenessScore: 40 },
+  { name: "Dana L. Thompson Memorial Park", slug: "dana-l-thompson-memorial-park-manchester", category: "Outdoor Recreation", town: "Manchester", county: "Bennington County", completenessScore: 37 },
+  { name: "Manchester Visitor Center", slug: "manchester-visitor-center", category: "Services", town: "Manchester", county: "Bennington County", completenessScore: 38 },
+  { name: "Lye Brook Falls Trailhead", slug: "lye-brook-falls-trailhead-manchester", category: "Outdoor Recreation", town: "Manchester", county: "Bennington County", completenessScore: 41 },
+  { name: "Dorset Theatre Festival", slug: "dorset-theatre-festival", category: "Attraction", town: "Dorset", county: "Bennington County", completenessScore: 45 },
+  { name: "Dorset Historical Society", slug: "dorset-historical-society", category: "Attraction", town: "Dorset", county: "Bennington County", completenessScore: 38 },
+  { name: "Dorset Field Club", slug: "dorset-field-club", category: "Outdoor Recreation", town: "Dorset", county: "Bennington County", completenessScore: 36 },
+  { name: "Dorset Farmers Market", slug: "dorset-farmers-market", category: "Farm Stand", town: "Dorset", county: "Bennington County", completenessScore: 37 },
+  { name: "Molly Stark State Park", slug: "molly-stark-state-park-wilmington-starter", category: "Outdoor Recreation", town: "Wilmington", county: "Windham County", completenessScore: 46 },
+  { name: "Wilmington Works", slug: "wilmington-works", category: "Services", town: "Wilmington", county: "Windham County", completenessScore: 33 },
+  { name: "Wilmington Trail Committee", slug: "wilmington-trail-committee", category: "Services", town: "Wilmington", county: "Windham County", completenessScore: 32 },
+  { name: "Lake Raponda Recreation Area", slug: "lake-raponda-recreation-area-wilmington", category: "Outdoor Recreation", town: "Wilmington", county: "Windham County", completenessScore: 39 },
+  { name: "Mount Snow Resort", slug: "mount-snow-resort-dover-starter", category: "Outdoor Recreation", town: "Dover", county: "Windham County", completenessScore: 50 },
+  { name: "Dover Free Library", slug: "dover-free-library", category: "Services", town: "Dover", county: "Windham County", completenessScore: 35 },
+  { name: "Valley Trail Network", slug: "valley-trail-network-dover", category: "Outdoor Recreation", town: "Dover", county: "Windham County", completenessScore: 34 },
+  { name: "Deerfield Valley Rescue", slug: "deerfield-valley-rescue-dover", category: "Services", town: "Dover", county: "Windham County", completenessScore: 31 },
+];
+
+const starterLodgingSeeds: BasicListingSeed[] = [
+  { name: "The Inn at Bellows Falls", slug: "the-inn-at-bellows-falls", category: "Inn", town: "Bellows Falls", county: "Windham County", completenessScore: 36 },
+  { name: "Rodeway Inn Bellows Falls", slug: "rodeway-inn-bellows-falls", category: "Motel", town: "Bellows Falls", county: "Windham County", completenessScore: 38 },
+  { name: "The Grafton Inn", slug: "the-grafton-inn-starter", category: "Inn", town: "Grafton", county: "Windham County", completenessScore: 49 },
+  { name: "The Inn at Weathersfield", slug: "the-inn-at-weathersfield-perkinsville", category: "Bed & Breakfast", town: "Springfield", county: "Windsor County", completenessScore: 43 },
+  { name: "The Inn at Manchester", slug: "the-inn-at-manchester", category: "Bed & Breakfast", town: "Manchester", county: "Bennington County", completenessScore: 45 },
+  { name: "Kimpton Taconic Hotel", slug: "kimpton-taconic-hotel-manchester-starter", category: "Unique Stay", town: "Manchester", county: "Bennington County", completenessScore: 46 },
+  { name: "Aerie Inn of Vermont", slug: "aerie-inn-of-vermont-dover", category: "Motel", town: "Dover", county: "Windham County", completenessScore: 40 },
+  { name: "Mount Snow Grand Summit Resort", slug: "mount-snow-grand-summit-resort", category: "Vacation Rental", town: "Dover", county: "Windham County", completenessScore: 44 },
+  { name: "Jamaica State Park Campground", slug: "jamaica-state-park-campground", category: "Campground", town: "Jamaica", county: "Windham County", completenessScore: 42 },
+  { name: "The Nutmeg Vermont", slug: "the-nutmeg-vermont-wilmington-starter", category: "Cabin", town: "Wilmington", county: "Windham County", completenessScore: 41 },
+];
+
+const starterFoodDrinkSeeds: BasicListingSeed[] = [
+  { name: "Wunderbar", slug: "wunderbar-bellows-falls-starter", category: "Restaurant", town: "Bellows Falls", county: "Windham County", completenessScore: 52 },
+  { name: "Flat Iron Cooperative", slug: "flat-iron-cooperative-bellows-falls", category: "Restaurant", town: "Bellows Falls", county: "Windham County", completenessScore: 49 },
+  { name: "Saxtons River Distillery", slug: "saxtons-river-distillery-starter", category: "Distillery", town: "Saxtons River", county: "Windham County", completenessScore: 50 },
+  { name: "Free Range Restaurant", slug: "free-range-restaurant-chester-starter", category: "Restaurant", town: "Chester", county: "Windsor County", completenessScore: 47 },
+  { name: "The Copper Fox", slug: "the-copper-fox-springfield", category: "Bar", town: "Springfield", county: "Windsor County", completenessScore: 39 },
+  { name: "Whetstone Station Restaurant & Brewery", slug: "whetstone-station-restaurant-brewery-brattleboro", category: "Brewery", town: "Brattleboro", county: "Windham County", completenessScore: 53 },
+  { name: "The Works Bakery Cafe", slug: "the-works-bakery-cafe-brattleboro-starter", category: "Cafe", town: "Brattleboro", county: "Windham County", completenessScore: 46 },
+  { name: "Popolo", slug: "popolo-putney-starter", category: "Restaurant", town: "Putney", county: "Windham County", completenessScore: 51 },
+  { name: "The Crooked Ram", slug: "the-crooked-ram-manchester-starter", category: "Restaurant", town: "Manchester", county: "Bennington County", completenessScore: 48 },
+  { name: "Dot's Restaurant", slug: "dots-restaurant-wilmington-starter", category: "Restaurant", town: "Wilmington", county: "Windham County", completenessScore: 47 },
+];
+
+const starterShoppingGallerySeeds: BasicListingSeed[] = [
+  { name: "Village Square Booksellers", slug: "village-square-booksellers-bellows-falls", category: "Shopping", town: "Bellows Falls", county: "Windham County", completenessScore: 47 },
+  { name: "DaVallia Art & Accents", slug: "davallia-art-accents-chester-starter", category: "Gallery", town: "Chester", county: "Windsor County", completenessScore: 44 },
+  { name: "Grafton Village Cheese", slug: "grafton-village-cheese-grafton-starter", category: "Shopping", town: "Grafton", county: "Windham County", completenessScore: 50 },
+  { name: "Northshire Bookstore", slug: "northshire-bookstore-manchester-starter", category: "Shopping", town: "Manchester", county: "Bennington County", completenessScore: 53 },
+  { name: "Southern Vermont Arts Center", slug: "southern-vermont-arts-center-manchester-starter", category: "Gallery", town: "Manchester", county: "Bennington County", completenessScore: 48 },
+  { name: "Manchester Designer Outlets", slug: "manchester-designer-outlets-starter", category: "Shopping", town: "Manchester", county: "Bennington County", completenessScore: 49 },
+  { name: "Dorset Union Store", slug: "dorset-union-store", category: "Shopping", town: "Dorset", county: "Bennington County", completenessScore: 43 },
+  { name: "Brattleboro Museum Shop", slug: "brattleboro-museum-shop", category: "Gallery", town: "Brattleboro", county: "Windham County", completenessScore: 42 },
+  { name: "The Vermont Country Store Manchester", slug: "the-vermont-country-store-manchester", category: "Shopping", town: "Manchester", county: "Bennington County", completenessScore: 41 },
+  { name: "Wilmington Antique & Flea Market", slug: "wilmington-antique-and-flea-market", category: "Shopping", town: "Wilmington", county: "Windham County", completenessScore: 45 },
+];
+
+const starterSeeds = [
+  ...starterBasicBusinessSeeds,
+  ...starterLodgingSeeds,
+  ...starterFoodDrinkSeeds,
+  ...starterShoppingGallerySeeds,
+];
+
 const requiredStarterNames = new Set([
   "Grafton Inn",
   "Vermont Country Store",
@@ -182,6 +306,6 @@ const requiredStarterNames = new Set([
 
 const requiredStarterListings = seeds.filter((seed) => requiredStarterNames.has(seed.name));
 const remainingListings = seeds.filter((seed) => !requiredStarterNames.has(seed.name));
-const selectedSeeds = [...requiredStarterListings, ...remainingListings].slice(0, 100);
+const selectedSeeds = [...requiredStarterListings, ...remainingListings, ...starterSeeds];
 
 export const basicBusinessListings: BusinessListing[] = selectedSeeds.map(createBasicListing);
