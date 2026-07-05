@@ -31,6 +31,7 @@ import { CompassEngine } from "@/lib/compass/CompassEngine";
 import { calculateHealth } from "@/lib/content/ContentHealthService";
 import { DiscoveryService } from "@/lib/discovery/DiscoveryService";
 import { isBusinessPlaceType } from "@/lib/businessClaims";
+import { buildClaimListingHref } from "@/lib/claims/claimListingUrl";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
 import { getPlaceLayoutProfile } from "@/lib/places/placeLayoutProfiles";
@@ -698,7 +699,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
                 <p>{place.city}, {place.state} {place.zip}</p>
                 <p>Latitude {place.latitude.toFixed(4)} · Longitude {place.longitude.toFixed(4)}</p>
                 {showClaimListingLink ? (
-                  <Link href={`/claim/${place.slug}`} className="inline-flex text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f] underline underline-offset-4">
+                  <Link href={buildClaimListingHref(place.slug)} className="inline-flex text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f] underline underline-offset-4">
                     Claim this listing
                   </Link>
                 ) : null}

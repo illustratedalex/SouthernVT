@@ -265,11 +265,14 @@ export interface Database {
           business_listing_id: string;
           business_slug: string;
           business_name: string;
+          listing_url: string;
           claimant_name: string;
           claimant_email: string;
           claimant_phone: string;
+          claimant_website: string;
           role_at_business: string;
-          proof_message: string;
+          requested_updates: string;
+          verification_notes: string;
           status: "pending" | "approved" | "rejected";
           submitted_at: string;
           reviewed_at: string | null;

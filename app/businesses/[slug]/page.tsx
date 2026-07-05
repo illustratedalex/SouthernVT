@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { TravelerExperiences } from "@/components/public/TravelerExperiences";
 import { Badge } from "@/components/ui";
+import { buildClaimListingHref } from "@/lib/claims/claimListingUrl";
 import {
   getBusinessListingCategoryIcon,
   getBusinessListingBySlug,
@@ -257,7 +258,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Claim This Listing</p>
             <p className="mt-3 text-sm leading-7 text-slate-700">{claimMessage}</p>
             <Link
-              href={`/claim/${listing.slug}`}
+              href={buildClaimListingHref(listing.slug)}
               className="mt-4 inline-flex rounded-full bg-(--color-forest-green) px-5 py-3 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
             >
               Claim this listing

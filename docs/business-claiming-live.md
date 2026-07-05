@@ -4,18 +4,27 @@ SouthernVT now supports a real business owner claim workflow backed by Supabase.
 
 ## Claim process
 
-1. A business owner opens `/claim/[slug]`.
+1. A business owner opens `/claim-listing?listing=<listing-slug>`.
 2. They submit:
-   - claimant name
-   - claimant email
-   - claimant phone
-   - role at business
-   - proof message
+   - business name
+   - listing URL
+   - contact name
+   - role
+   - email
+   - phone
+   - website
+   - requested updates
+   - verification notes
 3. SouthernVT stores the request in `business_claims` with `status = pending`.
-4. The owner sees:
+4. SouthernVT sends:
+   - admin notification email to the site owner
+   - confirmation email to the submitter
+5. A hidden honeypot field is validated server-side to reduce bot spam.
+6. The owner sees:
    - **“Your claim request has been submitted. SouthernVT will review it before granting access.”**
 
 Claims are never auto-approved.
+Claiming is currently free.
 
 ## Basecamp admin review
 
@@ -78,3 +87,9 @@ Owners cannot directly edit:
 ## Verification policy
 
 Verification cannot be bought. Payments, subscriptions, and premium gates are not part of this workflow.
+
+## Required email environment variables
+
+- `RESEND_API_KEY`
+- `CLAIMS_EMAIL_FROM`
+- `CLAIMS_ADMIN_EMAIL`

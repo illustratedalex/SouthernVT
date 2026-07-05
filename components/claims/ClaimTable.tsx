@@ -37,7 +37,7 @@ export function ClaimTable({ claims, onApprove, onReject, onView }: ClaimTablePr
             <tr key={claim.id} className="text-sm text-slate-700">
               <td className="px-4 py-4">
                 <p className="font-semibold text-slate-900">{claim.businessName}</p>
-                <p className="mt-1 text-xs text-slate-500">{claim.claimantName}</p>
+                <p className="mt-1 text-xs text-slate-500">{claim.contactName}</p>
               </td>
               <td className="px-4 py-4">{claim.businessSlug}</td>
               <td className="px-4 py-4">{formatSubmitted(claim.submittedAt)}</td>

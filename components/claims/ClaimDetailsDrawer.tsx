@@ -11,7 +11,7 @@ interface ClaimDetailsDrawerProps {
   onReject: (id: string, reviewNotes?: string) => void;
 }
 
-function relationshipLabel(value: BusinessClaim["roleAtBusiness"]) {
+function relationshipLabel(value: BusinessClaim["role"]) {
   switch (value) {
     case "owner":
       return "Owner";
@@ -57,10 +57,12 @@ export function ClaimDetailsDrawer({ claim, onClose, onApprove, onReject }: Clai
 
       <div className="mt-5 space-y-3 text-sm text-slate-700">
         <p><span className="font-semibold text-slate-900">Business:</span> {claim.businessName}</p>
-        <p><span className="font-semibold text-slate-900">Claimant:</span> {claim.claimantName}</p>
-        <p><span className="font-semibold text-slate-900">Email:</span> {claim.claimantEmail}</p>
-        <p><span className="font-semibold text-slate-900">Phone:</span> {claim.claimantPhone}</p>
-        <p><span className="font-semibold text-slate-900">Role:</span> {relationshipLabel(claim.roleAtBusiness)}</p>
+        <p><span className="font-semibold text-slate-900">Listing URL:</span> {claim.listingUrl}</p>
+        <p><span className="font-semibold text-slate-900">Claimant:</span> {claim.contactName}</p>
+        <p><span className="font-semibold text-slate-900">Email:</span> {claim.email}</p>
+        <p><span className="font-semibold text-slate-900">Phone:</span> {claim.phone || "Not provided"}</p>
+        <p><span className="font-semibold text-slate-900">Website:</span> {claim.website || "Not provided"}</p>
+        <p><span className="font-semibold text-slate-900">Role:</span> {relationshipLabel(claim.role)}</p>
         <p><span className="font-semibold text-slate-900">Listing slug:</span> {claim.businessSlug}</p>
         <p><span className="font-semibold text-slate-900">Submitted:</span> {new Date(claim.submittedAt).toLocaleString()}</p>
         <p><span className="font-semibold text-slate-900">Reviewed:</span> {claim.reviewedAt ? new Date(claim.reviewedAt).toLocaleString() : "Not reviewed yet"}</p>
@@ -68,8 +70,13 @@ export function ClaimDetailsDrawer({ claim, onClose, onApprove, onReject }: Clai
       </div>
 
       <div className="mt-6 rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4 text-sm leading-7 text-slate-700">
-        <p className="font-semibold text-slate-900">Proof message</p>
-        <p className="mt-2">{claim.proofMessage || "No proof message provided."}</p>
+        <p className="font-semibold text-slate-900">Requested updates</p>
+        <p className="mt-2">{claim.requestedUpdates || "No requested updates provided."}</p>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-[#e8dfc8] bg-[#fcfaf6] p-4 text-sm leading-7 text-slate-700">
+        <p className="font-semibold text-slate-900">Verification notes</p>
+        <p className="mt-2">{claim.verificationNotes || "No verification notes provided."}</p>
       </div>
 
       <div className="mt-6 rounded-2xl border border-[#e8dfc8] bg-white p-4 text-sm leading-7 text-slate-700">

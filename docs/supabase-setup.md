@@ -17,6 +17,9 @@ Set these values in your local environment file:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY` (server-only, required for Basecamp claim review and owner mapping)
 - `BASECAMP_ADMIN_EMAILS` (optional, comma-separated reviewer emails)
+- `RESEND_API_KEY` (required for claim notification emails)
+- `CLAIMS_EMAIL_FROM` (verified sender for claim emails)
+- `CLAIMS_ADMIN_EMAIL` (site owner/admin inbox for new claim notifications)
 
 Example:
 

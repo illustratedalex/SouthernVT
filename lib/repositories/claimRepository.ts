@@ -20,7 +20,7 @@ export async function getClaims(): Promise<BusinessClaim[]> {
   return payload.claims;
 }
 
-export async function submitClaim(input: BusinessClaimInput): Promise<BusinessClaim> {
+export async function submitClaim(input: BusinessClaimInput): Promise<BusinessClaim | null> {
   const response = await fetch("/api/claims", {
     method: "POST",
     headers: {
@@ -29,8 +29,8 @@ export async function submitClaim(input: BusinessClaimInput): Promise<BusinessCl
     body: JSON.stringify(input),
   });
 
-  const payload = await parseJsonResponse<{ claim: BusinessClaim }>(response);
-  return payload.claim;
+  const payload = await parseJsonResponse<{ claim?: BusinessClaim; blocked?: boolean }>(response);
+  return payload.claim ?? null;
 }
 
 export async function updateClaimStatus(id: string, input: ClaimReviewInput & { reviewedBy?: string }): Promise<BusinessClaim> {

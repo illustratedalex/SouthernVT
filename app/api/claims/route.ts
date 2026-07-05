@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
 import { createBusinessClaim } from "@/lib/claims/liveClaims";
+import { sendClaimSubmissionEmails } from "@/lib/email/claimEmails";
 import type { BusinessClaimInput } from "@/types/Claim";
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as Partial<BusinessClaimInput>;
 
+  if ((payload.honeypot ?? "").trim()) {
+    console.warn("Blocked suspected claim form spam submission.");
+    return NextResponse.json({ blocked: true });
+  }
+
   if (
     !payload.businessListingId ||
     !payload.businessSlug ||
     !payload.businessName ||
-    !payload.claimantName ||
-    !payload.claimantEmail ||
-    !payload.roleAtBusiness
+    !payload.listingUrl ||
+    !payload.contactName ||
+    !payload.role ||
+    !payload.email
   ) {
     return NextResponse.json({ error: "Missing required claim fields." }, { status: 400 });
   }
@@ -21,12 +28,17 @@ export async function POST(request: Request) {
       businessListingId: payload.businessListingId,
       businessSlug: payload.businessSlug,
       businessName: payload.businessName,
-      claimantName: payload.claimantName,
-      claimantEmail: payload.claimantEmail,
-      claimantPhone: payload.claimantPhone ?? "",
-      roleAtBusiness: payload.roleAtBusiness,
-      proofMessage: payload.proofMessage ?? "",
+      listingUrl: payload.listingUrl,
+      contactName: payload.contactName,
+      role: payload.role,
+      email: payload.email,
+      phone: payload.phone ?? "",
+      website: payload.website ?? "",
+      requestedUpdates: payload.requestedUpdates ?? "",
+      verificationNotes: payload.verificationNotes ?? "",
     });
+
+    await sendClaimSubmissionEmails(claim);
 
     return NextResponse.json({ claim }, { status: 201 });
   } catch (error) {

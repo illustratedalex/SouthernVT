@@ -1,4 +1,5 @@
 import type { Place } from "@/types/Place";
+import { buildClaimListingHref } from "@/lib/claims/claimListingUrl";
 
 type QuickFact = {
   label: string;
@@ -111,7 +112,7 @@ export function getPlaceLayoutProfile(place: Place): PlaceLayoutProfile {
     { label: "Call", href: toTelHref(place.phone) },
     { label: "Directions", href: "/map" },
     { label: "Save", href: `/places/${place.slug}` },
-    { label: "Claim listing", href: `/claim/${place.slug}` },
+    { label: "Claim listing", href: buildClaimListingHref(place.slug) },
   ];
 
   switch (layoutType) {
@@ -279,7 +280,7 @@ export function getPlaceLayoutProfile(place: Place): PlaceLayoutProfile {
           description: "Save this shop and return when finalizing your route.",
           href: `/places/${place.slug}`,
           label: "Save shop",
-          secondaryHref: `/claim/${place.slug}`,
+          secondaryHref: buildClaimListingHref(place.slug),
           secondaryLabel: "Claim listing",
         },
         sidebarActions: baseSidebarActions,
@@ -446,7 +447,7 @@ export function getPlaceLayoutProfile(place: Place): PlaceLayoutProfile {
           description: "Keep this market on your itinerary.",
           href: `/places/${place.slug}`,
           label: "Save place",
-          secondaryHref: `/claim/${place.slug}`,
+          secondaryHref: buildClaimListingHref(place.slug),
           secondaryLabel: "Claim listing",
         },
         sidebarActions: baseSidebarActions,

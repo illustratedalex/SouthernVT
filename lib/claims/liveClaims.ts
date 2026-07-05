@@ -11,11 +11,14 @@ type BusinessClaimRow = {
   business_listing_id: string;
   business_slug: string;
   business_name: string;
+  listing_url: string;
   claimant_name: string;
   claimant_email: string;
   claimant_phone: string;
+  claimant_website: string;
   role_at_business: string;
-  proof_message: string;
+  requested_updates: string;
+  verification_notes: string;
   status: ClaimStatus;
   submitted_at: string;
   reviewed_at: string | null;
@@ -74,11 +77,14 @@ function mapClaimRowToBusinessClaim(row: BusinessClaimRow): BusinessClaim {
     businessListingId: row.business_listing_id,
     businessSlug: row.business_slug,
     businessName: row.business_name,
-    claimantName: row.claimant_name,
-    claimantEmail: row.claimant_email,
-    claimantPhone: row.claimant_phone,
-    roleAtBusiness: row.role_at_business,
-    proofMessage: row.proof_message,
+    listingUrl: row.listing_url,
+    contactName: row.claimant_name,
+    email: row.claimant_email,
+    phone: row.claimant_phone,
+    website: row.claimant_website,
+    role: row.role_at_business,
+    requestedUpdates: row.requested_updates,
+    verificationNotes: row.verification_notes,
     status: row.status,
     submittedAt: row.submitted_at,
     reviewedAt: row.reviewed_at ?? undefined,
@@ -121,11 +127,14 @@ export async function createBusinessClaim(input: BusinessClaimInput): Promise<Bu
         business_listing_id: input.businessListingId,
         business_slug: input.businessSlug,
         business_name: input.businessName,
-        claimant_name: input.claimantName,
-        claimant_email: input.claimantEmail,
-        claimant_phone: input.claimantPhone,
-        role_at_business: input.roleAtBusiness,
-        proof_message: input.proofMessage,
+        listing_url: input.listingUrl,
+        claimant_name: input.contactName,
+        claimant_email: input.email,
+        claimant_phone: input.phone,
+        claimant_website: input.website,
+        role_at_business: input.role,
+        requested_updates: input.requestedUpdates,
+        verification_notes: input.verificationNotes,
         status: "pending",
         submitted_at: new Date().toISOString(),
       },
@@ -150,7 +159,7 @@ export async function getBusinessClaims(): Promise<BusinessClaim[]> {
   const { url, serviceRoleKey } = requireSupabaseAdminEnv();
   const query = new URLSearchParams({
     select:
-      "id,business_listing_id,business_slug,business_name,claimant_name,claimant_email,claimant_phone,role_at_business,proof_message,status,submitted_at,reviewed_at,reviewed_by,review_notes",
+      "id,business_listing_id,business_slug,business_name,listing_url,claimant_name,claimant_email,claimant_phone,claimant_website,role_at_business,requested_updates,verification_notes,status,submitted_at,reviewed_at,reviewed_by,review_notes",
     order: "submitted_at.desc",
   });
 
@@ -169,7 +178,7 @@ export async function reviewBusinessClaim(claimId: string, input: ClaimReviewInp
   const encodedId = encodeURIComponent(claimId);
   const selectQuery = new URLSearchParams({
     select:
-      "id,business_listing_id,business_slug,business_name,claimant_name,claimant_email,claimant_phone,role_at_business,proof_message,status,submitted_at,reviewed_at,reviewed_by,review_notes",
+      "id,business_listing_id,business_slug,business_name,listing_url,claimant_name,claimant_email,claimant_phone,claimant_website,role_at_business,requested_updates,verification_notes,status,submitted_at,reviewed_at,reviewed_by,review_notes",
   });
 
   const claimResponse = await fetch(`${url}/rest/v1/business_claims?id=eq.${encodedId}&${selectQuery.toString()}`, {
@@ -189,6 +198,7 @@ export async function reviewBusinessClaim(claimId: string, input: ClaimReviewInp
     if (!userId) {
       throw new Error("Cannot approve claim because no authenticated owner account was found for claimant email.");
     }
+    const normalizedRole = claimRow.role_at_business.trim().toLowerCase();
 
     await fetch(`${url}/rest/v1/business_listing_owners?on_conflict=business_listing_id,user_id`, {
       method: "POST",
@@ -197,7 +207,7 @@ export async function reviewBusinessClaim(claimId: string, input: ClaimReviewInp
         {
           business_listing_id: claimRow.business_listing_id,
           user_id: userId,
-          role: claimRow.role_at_business === "editor" ? "editor" : claimRow.role_at_business === "manager" ? "manager" : "owner",
+          role: normalizedRole === "editor" ? "editor" : normalizedRole === "manager" ? "manager" : "owner",
           status: "active",
         },
       ]),

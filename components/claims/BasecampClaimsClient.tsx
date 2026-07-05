@@ -43,7 +43,7 @@ export function BasecampClaimsClient() {
     }
 
     return claims.filter((claim) => {
-      const haystack = `${claim.businessName} ${claim.claimantName} ${claim.businessSlug} ${claim.claimantEmail}`.toLowerCase();
+      const haystack = `${claim.businessName} ${claim.contactName} ${claim.businessSlug} ${claim.email}`.toLowerCase();
       return haystack.includes(q);
     });
   }, [claims, search]);

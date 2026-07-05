@@ -7,11 +7,14 @@ export interface BusinessClaim {
   businessListingId: string;
   businessSlug: string;
   businessName: string;
-  claimantName: string;
-  claimantEmail: string;
-  claimantPhone: string;
-  roleAtBusiness: ClaimRelationship | string;
-  proofMessage: string;
+  listingUrl: string;
+  contactName: string;
+  role: ClaimRelationship | string;
+  email: string;
+  phone: string;
+  website: string;
+  requestedUpdates: string;
+  verificationNotes: string;
   status: ClaimStatus;
   submittedAt: string;
   reviewedAt?: string;
@@ -23,11 +26,15 @@ export interface BusinessClaimInput {
   businessListingId: string;
   businessSlug: string;
   businessName: string;
-  claimantName: string;
-  claimantEmail: string;
-  claimantPhone: string;
-  roleAtBusiness: ClaimRelationship | string;
-  proofMessage: string;
+  listingUrl: string;
+  contactName: string;
+  role: ClaimRelationship | string;
+  email: string;
+  phone: string;
+  website: string;
+  requestedUpdates: string;
+  verificationNotes: string;
+  honeypot?: string;
 }
 
 export interface ClaimReviewInput {
