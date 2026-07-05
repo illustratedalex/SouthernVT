@@ -17,11 +17,11 @@ export type EmailEnv = {
 export function requireEmailEnv(): EmailEnv {
   const resendApiKey = process.env.RESEND_API_KEY ?? "";
   const emailFrom = process.env.CLAIMS_EMAIL_FROM ?? "";
-  const adminEmail = process.env.CLAIMS_ADMIN_EMAIL ?? "";
+  const adminEmail = process.env.PARTNERS_EMAIL_TO ?? process.env.CLAIMS_ADMIN_EMAIL ?? "";
 
   if (!resendApiKey || !emailFrom || !adminEmail) {
     throw new Error(
-      "Email requires RESEND_API_KEY, CLAIMS_EMAIL_FROM, and CLAIMS_ADMIN_EMAIL environment variables.",
+      "Email requires RESEND_API_KEY, CLAIMS_EMAIL_FROM, and PARTNERS_EMAIL_TO (or CLAIMS_ADMIN_EMAIL) environment variables.",
     );
   }
 

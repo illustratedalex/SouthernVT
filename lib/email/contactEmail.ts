@@ -35,11 +35,20 @@ function requireContactEmailEnv() {
 const helloReasons = ["General Question", "Suggest a Place", "Correct a Listing", "Other"];
 const partnerReasons = ["Founding Partner Inquiry", "Claim a Business"];
 
+function getContactDestinations() {
+  return {
+    general: process.env.GENERAL_EMAIL_TO?.trim() || "hello@southernvt.com",
+    partners: process.env.PARTNERS_EMAIL_TO?.trim() || "partners@southernvt.com",
+    press: process.env.PRESS_EMAIL_TO?.trim() || "press@southernvt.com",
+  };
+}
+
 function destinationForReason(reason: string): string {
-  if (partnerReasons.includes(reason)) return "partners@southernvt.com";
-  if (reason === "Press / Media") return "press@southernvt.com";
-  if (helloReasons.includes(reason)) return "hello@southernvt.com";
-  return "hello@southernvt.com";
+  const destinations = getContactDestinations();
+  if (partnerReasons.includes(reason)) return destinations.partners;
+  if (reason === "Press / Media") return destinations.press;
+  if (helloReasons.includes(reason)) return destinations.general;
+  return destinations.general;
 }
 
 export function isContactEmailConfigured(): boolean {

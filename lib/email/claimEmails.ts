@@ -85,39 +85,39 @@ export async function sendClaimAdminNotificationEmail(claim: BusinessClaim): Pro
 
   const html = emailHtmlWrapper(`
     ${eyebrow("Basecamp — New Claim")}
-    ${h1(`New listing claim: ${claim.businessName}`)}
+    ${h1(`New SouthernVT Claim Request: ${claim.businessName}`)}
     ${p("A business owner has submitted a claim request. Review it in Basecamp and approve or reject.")}
     ${metaTable([
       ["Business", claim.businessName],
       ["Listing URL", claim.listingUrl],
-      ["Contact", claim.contactName],
+      ["Claimant name", claim.contactName],
       ["Role", claim.role],
-      ["Email", claim.email],
-      ["Phone", claim.phone || "Not provided"],
+      ["Claimant email", claim.email],
+      ["Claimant phone", claim.phone || "Not provided"],
       ["Website", claim.website || "Not provided"],
       ["Submitted", new Date(claim.submittedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })],
       ["Claim ID", claim.id],
     ])}
     ${claim.requestedUpdates ? calloutBox(`${p("<strong>Requested updates</strong>")}<p style="margin:0;font-size:14px;color:#334155;line-height:1.6;">${claim.requestedUpdates}</p>`) : ""}
-    ${claim.verificationNotes ? calloutBox(`${p("<strong>Verification notes</strong>")}<p style="margin:0;font-size:14px;color:#334155;line-height:1.6;">${claim.verificationNotes}</p>`) : ""}
+    ${claim.verificationNotes ? calloutBox(`${p("<strong>Proof message</strong>")}<p style="margin:0;font-size:14px;color:#334155;line-height:1.6;">${claim.verificationNotes}</p>`) : ""}
     ${primaryButton("Review in Basecamp", reviewUrl)}
   `);
 
   const text = [
-    `New listing claim: ${claim.businessName}`,
+    `New SouthernVT Claim Request: ${claim.businessName}`,
     "",
     `Business: ${claim.businessName}`,
     `Listing URL: ${claim.listingUrl}`,
-    `Contact: ${claim.contactName}`,
+    `Claimant name: ${claim.contactName}`,
     `Role: ${claim.role}`,
-    `Email: ${claim.email}`,
-    `Phone: ${claim.phone || "Not provided"}`,
+    `Claimant email: ${claim.email}`,
+    `Claimant phone: ${claim.phone || "Not provided"}`,
     `Website: ${claim.website || "Not provided"}`,
     "",
     "Requested updates:",
     claim.requestedUpdates || "None provided",
     "",
-    "Verification notes:",
+    "Proof message:",
     claim.verificationNotes || "None provided",
     "",
     `Claim ID: ${claim.id}`,
@@ -129,7 +129,7 @@ export async function sendClaimAdminNotificationEmail(claim: BusinessClaim): Pro
     {
       from: emailFrom,
       to: adminEmail,
-      subject: `New listing claim: ${claim.businessName}`,
+      subject: `New SouthernVT Claim Request: ${claim.businessName}`,
       html,
       text,
     },

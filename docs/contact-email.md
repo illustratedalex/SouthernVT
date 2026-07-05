@@ -10,6 +10,9 @@ The SouthernVT contact form sends real email via [Resend](https://resend.com). T
 |---|---|---|
 | `RESEND_API_KEY` | Resend API key | `re_...` |
 | `CONTACT_EMAIL_FROM` | Display name + address for outbound contact emails | `SouthernVT <hello@southernvt.com>` |
+| `GENERAL_EMAIL_TO` | Destination inbox for general contact reasons | `hello@southernvt.com` |
+| `PARTNERS_EMAIL_TO` | Destination inbox for claims and partner inquiries | `partners@southernvt.com` |
+| `PRESS_EMAIL_TO` | Destination inbox for media requests | `press@southernvt.com` |
 
 Set these in your `.env.local` for local development and in Vercel → Settings → Environment Variables for production.
 
@@ -54,7 +57,7 @@ The API route (`app/api/contact/route.ts`) inspects the submitted `reason` and r
 | Founding Partner Inquiry | partners@southernvt.com |
 | Press / Media | press@southernvt.com |
 
-Routing logic lives in `lib/email/contactEmail.ts` → `routeContactEmail()`.
+Routing logic lives in `lib/email/contactEmail.ts` → `destinationForReason()`.
 
 ---
 
@@ -79,4 +82,7 @@ Set in Vercel → Settings → Environment Variables → Production:
 ```
 RESEND_API_KEY=re_...
 CONTACT_EMAIL_FROM=SouthernVT <hello@southernvt.com>
+GENERAL_EMAIL_TO=hello@southernvt.com
+PARTNERS_EMAIL_TO=partners@southernvt.com
+PRESS_EMAIL_TO=press@southernvt.com
 ```

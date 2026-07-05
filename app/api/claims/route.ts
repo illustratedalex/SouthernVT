@@ -24,6 +24,22 @@ export async function POST(request: Request) {
     );
   }
 
+  // Email guard — fail safely when claim notifications are not configured
+  if (
+    !process.env.RESEND_API_KEY?.trim() ||
+    !process.env.CLAIMS_EMAIL_FROM?.trim() ||
+    !(process.env.PARTNERS_EMAIL_TO?.trim() || process.env.CLAIMS_ADMIN_EMAIL?.trim())
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Claim email notifications are not enabled yet. Please email partners@southernvt.com to submit your claim.",
+        notConfigured: true,
+      },
+      { status: 503 },
+    );
+  }
+
   if (
     !payload.businessListingId ||
     !payload.businessSlug ||

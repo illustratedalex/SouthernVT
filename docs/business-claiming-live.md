@@ -35,7 +35,7 @@ SouthernVT supports a real business owner claim workflow backed by Supabase.
    - verification notes (optional)
 3. SouthernVT saves the request to `business_claims` with `status = pending`.
 4. Emails are sent:
-   - admin notification to `CLAIMS_ADMIN_EMAIL`
+   - admin notification to `PARTNERS_EMAIL_TO` (fallback `CLAIMS_ADMIN_EMAIL`)
    - confirmation to the submitter
 5. A hidden honeypot field is validated server-side to block bot spam.
 6. The owner sees: **"Your claim request has been submitted. SouthernVT will review it before granting access."**
@@ -133,7 +133,8 @@ Verification cannot be bought or requested. It is granted by the SouthernVT edit
 | `SUPABASE_SERVICE_ROLE_KEY` | Required for claim persistence and Basecamp review |
 | `RESEND_API_KEY` | Required for claim emails |
 | `CLAIMS_EMAIL_FROM` | Sender address for claim emails |
-| `CLAIMS_ADMIN_EMAIL` | Admin inbox that receives new claim notifications |
+| `PARTNERS_EMAIL_TO` | Admin inbox that receives new claim notifications |
+| `CLAIMS_ADMIN_EMAIL` | Optional fallback if `PARTNERS_EMAIL_TO` is not set |
 
 ---
 

@@ -6,7 +6,7 @@ type FoundingPartnerCTAProps = {
   secondaryHref?: string;
 };
 
-export function FoundingPartnerCTA({ primaryHref = "/contact", secondaryHref = "mailto:alex@southernvt.com?subject=SouthernVT%20Founding%20Partners" }: FoundingPartnerCTAProps) {
+export function FoundingPartnerCTA({ primaryHref = "/contact?reason=Founding%20Partner%20Inquiry#contact-form", secondaryHref = "mailto:partners@southernvt.com?subject=SouthernVT%20Founding%20Partner%20Interest" }: FoundingPartnerCTAProps) {
   return (
     <EditorialSection
       eyebrow="Next step"
@@ -34,7 +34,7 @@ export function FoundingPartnerCTA({ primaryHref = "/contact", secondaryHref = "
           data-ga-href={secondaryHref}
         >
           <Button variant="ghost" className="border border-(--color-forest-green)/15 bg-white text-(--color-forest-green) motion-safe:hover:bg-[#f4efe1]">
-            Contact Alex
+            Email Partners
           </Button>
         </a>
       </div>
