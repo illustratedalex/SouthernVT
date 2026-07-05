@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { Badge } from "@/components/ui";
 import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import { NearbyPlacesRail } from "@/components/discovery/NearbyPlacesRail";
 import { NextAdventureCard } from "@/components/discovery/NextAdventureCard";
@@ -34,6 +35,7 @@ import { isFeatureEnabled } from "@/lib/featureFlags";
 import { placeJsonLd } from "@/lib/jsonLd";
 import { getPlaceLayoutProfile } from "@/lib/places/placeLayoutProfiles";
 import { getSuggestedNextStopsForPlace } from "@/lib/graph/RelationshipQueries";
+import { getCoverageBadgeForPlace } from "@/lib/editorial/CoveragePolicy";
 import { createPageMetadata, createPlaceMetadata } from "@/lib/seo";
 import { getPlaceDNA } from "@/lib/repositories/PlaceDNARepository";
 import { getCollections } from "@/lib/repositories/collectionRepository";
@@ -47,6 +49,7 @@ import type { Place } from "@/types/Place";
 import type { Story } from "@/types/Story";
 import { PlacePassportCTA } from "@/components/public/PlacePassportCTA";
 import { PlacePlanningCTA } from "@/components/public/PlacePlanningCTA";
+import { TravelerExperiences } from "@/components/public/TravelerExperiences";
 import { VerificationBadge } from "@/components/public/VerificationBadge";
 import { VerificationPanel } from "@/components/public/VerificationPanel";
 import { getVerificationByPlaceId } from "@/lib/repositories/VerificationRepository";
@@ -197,6 +200,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     .filter((candidate): candidate is Place => Boolean(candidate && candidate.status === "published"));
   const nearbyAdventureFeed = [...featuredNearbyAdventures, ...nearbyPlaces].slice(0, 6);
   const relationshipNextStops = getSuggestedNextStopsForPlace(place.slug, 4);
+  const coverageBadge = getCoverageBadgeForPlace(place);
 
   const galleryImages = place.gallery.length ? place.gallery : [place.featuredImage];
   const scoringGallery = [...new Set([...galleryImages, ...nearbyAdventureFeed.map((candidate) => candidate.featuredImage).filter(Boolean)])];
@@ -302,6 +306,11 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
       <Navbar />
 
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Places", href: "/places" }, { label: place.name }]} />
+      <section className="mx-auto max-w-7xl px-6 pt-4 sm:px-8 lg:px-10">
+        <Badge variant={coverageBadge.badgeVariant}>
+          {coverageBadge.icon} {coverageBadge.label}
+        </Badge>
+      </section>
 
       <HeroImage
         eyebrow={place.placeType}
@@ -774,6 +783,20 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
           secondaryHref={layoutProfile.secondaryCTA.secondaryHref}
           secondaryLabel={layoutProfile.secondaryCTA.secondaryLabel}
         />
+      </section>
+
+      <section className="mx-auto max-w-7xl space-y-4 px-6 pb-12 sm:px-8 lg:px-10">
+        <article className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">SouthernVT Editorial Review</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {verificationRecord?.levels.includes("personally_visited") ? <Badge variant="forest">Personally Visited</Badge> : null}
+            {verificationRecord?.levels.includes("photo_verified") ? <Badge variant="amber">Photo Verified</Badge> : null}
+            {verificationRecord?.levels.includes("southernvt_recommended") ? <Badge variant="featured">SouthernVT Recommended</Badge> : null}
+            {!verificationRecord ? <Badge variant="subtle">Verification in progress</Badge> : null}
+          </div>
+        </article>
+
+        <TravelerExperiences listingType={place.placeType} />
       </section>
 
       <Footer />

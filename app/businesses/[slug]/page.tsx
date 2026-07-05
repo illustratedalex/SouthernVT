@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AnalyticsTrackOnRender } from "@/components/analytics/AnalyticsTrackOnRender";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { TravelerExperiences } from "@/components/public/TravelerExperiences";
 import { Badge } from "@/components/ui";
 import {
   getBusinessListingBySlug,
@@ -259,6 +260,20 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             </Link>
           </article>
         </aside>
+      </section>
+
+      <section className="mx-auto max-w-6xl space-y-4 px-6 pb-10 sm:px-8 lg:px-10">
+        <article className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">SouthernVT Editorial Review</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {listing.isVerified ? <Badge variant="forest">Personally Visited</Badge> : null}
+            {listing.isVerified ? <Badge variant="amber">Photo Verified</Badge> : null}
+            {listing.isVerified ? <Badge variant="featured">SouthernVT Recommended</Badge> : null}
+            {!listing.isVerified ? <Badge variant="subtle">Verification in progress</Badge> : null}
+          </div>
+        </article>
+
+        <TravelerExperiences listingType={listing.category} />
       </section>
 
       <Footer />

@@ -666,6 +666,20 @@ export default async function BasecampContentStudioPage() {
             </div>
           </section>
 
+          <section className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Editorial Resources</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900">Policy and standards</h2>
+            <p className="mt-1 text-sm text-slate-600">Reference core editorial policy documents used across planning and publication.</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href="/our-coverage" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-white">
+                Coverage Policy
+              </Link>
+              <Link href="/why-trust-southernvt" className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-white">
+                Verification Promise
+              </Link>
+            </div>
+          </section>
+
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-slate-900">Daily Goals</h2>
             <div className="grid gap-4 md:grid-cols-3">
