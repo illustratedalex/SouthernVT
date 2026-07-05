@@ -8,6 +8,8 @@ export type BillingPlanId =
 
 export type BillingPlanKind = "basic" | "enhanced" | "founding_partner" | "future_premium";
 
+export type BillingProvider = "square" | "manual" | "comped";
+
 export type BillingPlan = {
   id: BillingPlanId;
   name: string;
@@ -18,8 +20,20 @@ export type BillingPlan = {
   purchasable: boolean;
   description: string;
   trustNote: string;
+  /** Square subscription plan ID (from Square Developer Dashboard catalog) */
+  squareCatalogPlanIdMonthly?: string;
+  squareCatalogPlanVariationIdMonthly?: string;
+  squareCatalogPlanIdYearly?: string;
+  squareCatalogPlanVariationIdYearly?: string;
 };
 
+export type SquareBillingStatus = {
+  configured: boolean;
+  missing: string[];
+  environment: "sandbox" | "production";
+};
+
+/** @deprecated Use SquareBillingStatus — Stripe has been replaced by Square */
 export type StripeBillingStatus = {
   configured: boolean;
   missing: string[];
@@ -47,6 +61,9 @@ export const billingPlans: BillingPlan[] = [
     purchasable: true,
     description: "Enhanced visibility for businesses that want a stronger directory presence.",
     trustNote: "Paid business listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
+    // Set these in lib/billing/plans.ts once Square catalog items are created in the Dashboard.
+    squareCatalogPlanIdMonthly: process.env.SQUARE_PLAN_ID_ENHANCED ?? "",
+    squareCatalogPlanVariationIdMonthly: process.env.SQUARE_PLAN_VARIATION_ID_ENHANCED_MONTHLY ?? "",
   },
   {
     id: "enhanced_yearly",
@@ -58,6 +75,8 @@ export const billingPlans: BillingPlan[] = [
     purchasable: true,
     description: "Save with annual billing for the same Enhanced Listing benefits.",
     trustNote: "Paid business listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
+    squareCatalogPlanIdYearly: process.env.SQUARE_PLAN_ID_ENHANCED ?? "",
+    squareCatalogPlanVariationIdYearly: process.env.SQUARE_PLAN_VARIATION_ID_ENHANCED_YEARLY ?? "",
   },
   {
     id: "founding_partner_monthly",
@@ -69,6 +88,8 @@ export const billingPlans: BillingPlan[] = [
     purchasable: true,
     description: "Early-supporter recognition during beta with a closer relationship to SouthernVT.",
     trustNote: "Founding Partner support does not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
+    squareCatalogPlanIdMonthly: process.env.SQUARE_PLAN_ID_FOUNDING_PARTNER ?? "",
+    squareCatalogPlanVariationIdMonthly: process.env.SQUARE_PLAN_VARIATION_ID_FOUNDING_PARTNER_MONTHLY ?? "",
   },
   {
     id: "founding_partner_yearly",
@@ -80,6 +101,8 @@ export const billingPlans: BillingPlan[] = [
     purchasable: true,
     description: "Annual Founding Partner support for early supporters.",
     trustNote: "Founding Partner support does not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
+    squareCatalogPlanIdYearly: process.env.SQUARE_PLAN_ID_FOUNDING_PARTNER ?? "",
+    squareCatalogPlanVariationIdYearly: process.env.SQUARE_PLAN_VARIATION_ID_FOUNDING_PARTNER_YEARLY ?? "",
   },
   {
     id: "future_premium",
@@ -114,25 +137,39 @@ export function getCurrentBillingPlanLabel(isFoundingPartner: boolean, status: s
   return "Free Basic Listing";
 }
 
-export function getStripeBillingStatus(): StripeBillingStatus {
+export function getSquareBillingStatus(): SquareBillingStatus {
   const missing: string[] = [];
 
-  if (!process.env.STRIPE_SECRET_KEY?.trim()) {
-    missing.push("STRIPE_SECRET_KEY");
+  if (!process.env.SQUARE_ACCESS_TOKEN?.trim()) {
+    missing.push("SQUARE_ACCESS_TOKEN");
   }
-  if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim()) {
-    missing.push("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
+  if (!process.env.SQUARE_LOCATION_ID?.trim()) {
+    missing.push("SQUARE_LOCATION_ID");
   }
-  if (!process.env.STRIPE_WEBHOOK_SECRET?.trim()) {
-    missing.push("STRIPE_WEBHOOK_SECRET");
-  }
+
+  const rawEnv = (process.env.SQUARE_ENVIRONMENT ?? "sandbox").toLowerCase();
+  const environment = rawEnv === "production" ? "production" : "sandbox";
 
   return {
     configured: missing.length === 0,
     missing,
+    environment,
   };
 }
 
-export function hasStripeBillingEnv() {
-  return getStripeBillingStatus().configured;
+export function hasSquareBillingEnv(): boolean {
+  return getSquareBillingStatus().configured;
+}
+
+/**
+ * @deprecated Square is now the primary billing provider.
+ * Kept for backward compatibility — returns configured: false always.
+ */
+export function getStripeBillingStatus(): StripeBillingStatus {
+  return { configured: false, missing: ["STRIPE_SECRET_KEY", "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", "STRIPE_WEBHOOK_SECRET"] };
+}
+
+/** @deprecated Use hasSquareBillingEnv */
+export function hasStripeBillingEnv(): boolean {
+  return false;
 }

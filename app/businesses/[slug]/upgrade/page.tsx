@@ -3,11 +3,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { billingPlans, getCurrentBillingPlanLabel, getStripeBillingStatus } from "@/lib/billing/plans";
+import { billingPlans, getCurrentBillingPlanLabel, getSquareBillingStatus } from "@/lib/billing/plans";
 import { isBusinessPlaceType } from "@/lib/businessClaims";
 import { getBusinessListingBySlugWithLiveClaimStatus } from "@/lib/businessListings.server";
 import { createPageMetadata } from "@/lib/seo";
 import { getPlaceBySlug } from "@/repositories/PlaceRepository";
+import { SquareCheckoutButton } from "@/components/billing/SquareCheckoutButton";
 
 interface BusinessUpgradePageProps {
   params: Promise<{ slug: string }>;
@@ -44,7 +45,7 @@ export default async function BusinessUpgradePage({ params }: BusinessUpgradePag
     notFound();
   }
 
-  const stripeStatus = getStripeBillingStatus();
+  const squareStatus = getSquareBillingStatus();
   const currentPlan = getCurrentBillingPlanLabel(listing.isFoundingPartner, listing.status);
   const monthlyPlans = billingPlans.filter((plan) => plan.active && plan.interval !== "free");
 
@@ -62,7 +63,7 @@ export default async function BusinessUpgradePage({ params }: BusinessUpgradePag
           <p className="mt-2 text-sm leading-7 text-slate-700">
             Paid business listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
           </p>
-          {!stripeStatus.configured ? (
+          {!squareStatus.configured ? (
             <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-7 text-amber-900">
               Online checkout is coming soon. Contact{" "}
               <a href="mailto:partners@southernvt.com" className="font-semibold underline underline-offset-2">
@@ -72,7 +73,7 @@ export default async function BusinessUpgradePage({ params }: BusinessUpgradePag
             </div>
           ) : (
             <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-7 text-emerald-900">
-              Stripe is configured, but live checkout remains in beta staging. Upgrade requests are validated before any payment flow is enabled.
+              Square is configured. Use the upgrade buttons below to continue with checkout.
             </div>
           )}
           <div className="mt-5 flex flex-wrap gap-3">
@@ -94,10 +95,25 @@ export default async function BusinessUpgradePage({ params }: BusinessUpgradePag
               </h2>
               <p className="mt-3 text-sm leading-7 text-slate-700">{plan.description}</p>
               <p className="mt-3 text-sm leading-7 text-slate-600">{plan.trustNote}</p>
-              <div className="mt-4">
-                <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${plan.purchasable ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-slate-50 text-slate-600"}`}>
-                  {plan.purchasable ? "Purchasable" : "Disabled"}
-                </span>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {plan.purchasable && squareStatus.configured ? (
+                  <SquareCheckoutButton
+                    businessSlug={listing.slug}
+                    planId={plan.id}
+                    billingCadence={plan.interval as "monthly" | "yearly"}
+                  />
+                ) : plan.purchasable ? (
+                  <a
+                    href="mailto:partners@southernvt.com"
+                    className="inline-flex rounded-full bg-[#1f3b2f] px-5 py-2.5 text-sm font-semibold text-[#f8f2e4] hover:bg-[#2d5242] transition"
+                  >
+                    Contact us to upgrade
+                  </a>
+                ) : (
+                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Disabled
+                  </span>
+                )}
               </div>
             </article>
           ))}

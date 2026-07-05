@@ -1,25 +1,16 @@
 import { NextResponse } from "next/server";
-import { getStripeBillingStatus } from "@/lib/billing/plans";
 
-export async function POST(request: Request) {
-  const stripeStatus = getStripeBillingStatus();
-  if (!stripeStatus.configured) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Stripe webhooks are not configured yet.",
-      },
-      { status: 503 },
-    );
-  }
-
-  const body = await request.text();
-  console.log("[Stripe webhook stub] Received billing webhook payload:", body.slice(0, 200));
-
-  return NextResponse.json({
-    success: true,
-    received: true,
-    processed: false,
-    message: "Billing webhook endpoint is staged for beta launch.",
-  });
+/**
+ * @deprecated SouthernVT now uses Square for billing.
+ * Use POST /api/billing/square-webhook instead.
+ */
+export async function POST() {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "This endpoint has been replaced. SouthernVT now uses Square for billing. Use /api/billing/square-webhook.",
+      replacedBy: "/api/billing/square-webhook",
+    },
+    { status: 410 },
+  );
 }

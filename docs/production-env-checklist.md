@@ -85,15 +85,26 @@ Vercel Analytics is automatically enabled on Vercel — no env var needed.
 
 ---
 
-### Stripe (Optional — for paid business listing upgrades)
+### Square (Optional — for paid business listing upgrades)
+
+See `docs/square-billing.md` for full setup instructions.
 
 | Variable | Value | Notes |
 |---|---|---|
-| `STRIPE_SECRET_KEY` | `sk_live_...` | Server-only. Never expose to client. |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_...` | Public key — safe for client |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` | Webhook signing secret from Stripe Dashboard |
+| `SQUARE_ACCESS_TOKEN` | `EAA...` | Server-only. Never expose to client. |
+| `SQUARE_LOCATION_ID` | `L...` | Seller location ID from Square dashboard |
+| `SQUARE_ENVIRONMENT` | `sandbox` or `production` | Defaults to `sandbox` if unset |
+| `SQUARE_WEBHOOK_SIGNATURE_KEY` | `...` | From Square Developer Dashboard webhook config |
+| `SQUARE_PLAN_VARIATION_ID_ENHANCED_MONTHLY` | `...` | Square catalog plan variation ID |
+| `SQUARE_PLAN_VARIATION_ID_ENHANCED_YEARLY` | `...` | Square catalog plan variation ID |
+| `SQUARE_PLAN_VARIATION_ID_FOUNDING_PARTNER_MONTHLY` | `...` | Square catalog plan variation ID |
+| `SQUARE_PLAN_VARIATION_ID_FOUNDING_PARTNER_YEARLY` | `...` | Square catalog plan variation ID |
 
-Stripe is not required for launch. Leave these blank until paid upgrades are implemented.
+Square is not required for launch. Leave these blank until paid upgrades are enabled.
+
+#### Deprecated: Stripe
+
+Stripe was previously scaffolded as the billing provider but was never launched. Do not set Stripe env vars — the Stripe routes now return `410 Gone`.
 
 ---
 
@@ -137,5 +148,5 @@ Stripe is not required for launch. Leave these blank until paid upgrades are imp
 ## Notes
 
 - **Never commit real secrets to git.** Use `.env.local` locally (git-ignored).
-- **`SUPABASE_SERVICE_ROLE_KEY` and `STRIPE_SECRET_KEY`** are server-only. Set them in Vercel but never prefix with `NEXT_PUBLIC_`.
+- **`SUPABASE_SERVICE_ROLE_KEY` and `SQUARE_ACCESS_TOKEN`** are server-only. Set them in Vercel but never prefix with `NEXT_PUBLIC_`.
 - The `/basecamp/settings/api` page reads env vars at request time and shows live **Configured / Missing** status for each service.

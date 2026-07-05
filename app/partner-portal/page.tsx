@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { OwnerListingEditRequestForm } from "@/components/partner/OwnerListingEditRequestForm";
-import { billingPlans, getCurrentBillingPlanLabel, getStripeBillingStatus } from "@/lib/billing/plans";
+import { billingPlans, getCurrentBillingPlanLabel, getSquareBillingStatus } from "@/lib/billing/plans";
 import { getAuthenticatedOwnerUser } from "@/lib/auth/session";
 import { getOwnedBusinessListings } from "@/lib/claims/liveClaims";
 import { createPageMetadata } from "@/lib/seo";
@@ -14,7 +14,7 @@ export const metadata = createPageMetadata({
 export default async function PartnerPortalLandingPage() {
   const user = await getAuthenticatedOwnerUser();
   const ownedListings = user ? await getOwnedBusinessListings(user.id) : [];
-  const stripeStatus = getStripeBillingStatus();
+  const squareStatus = getSquareBillingStatus();
 
   return (
     <section className="mx-auto max-w-6xl space-y-8 px-6 py-14 sm:px-8 lg:px-10">
@@ -39,7 +39,7 @@ export default async function PartnerPortalLandingPage() {
         <p className="mt-3 text-sm leading-7 text-slate-700">
           Claiming a listing is free. Paid business listing upgrades are structured for later launch, but they do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
         </p>
-        {!stripeStatus.configured ? (
+        {!squareStatus.configured ? (
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-7 text-amber-900">
             Online checkout is coming soon. Contact{" "}
             <a href="mailto:partners@southernvt.com" className="font-semibold underline underline-offset-2">
@@ -49,7 +49,7 @@ export default async function PartnerPortalLandingPage() {
           </div>
         ) : (
           <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-7 text-emerald-900">
-            Stripe is configured, but live checkout is intentionally staged for beta launch. We&apos;ll only enable payment flow when the rest of the owner workflow is ready.
+            Square is configured. Upgrade options are available on your listing upgrade page.
           </div>
         )}
         <div className="mt-4 grid gap-3 md:grid-cols-3">

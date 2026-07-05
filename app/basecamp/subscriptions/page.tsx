@@ -1,7 +1,7 @@
 import { Sidebar } from "@/components/admin";
 import { BasecampPageHeader, BasecampSection } from "@/components/basecamp";
 import { foundingPartners } from "@/data/foundingPartners";
-import { billingPlans, getStripeBillingStatus } from "@/lib/billing/plans";
+import { billingPlans, getSquareBillingStatus } from "@/lib/billing/plans";
 
 const navItems = [
   { label: "Dashboard", href: "/basecamp" },
@@ -23,7 +23,7 @@ function formatCurrency(value: number) {
 export default function BasecampSubscriptionsPage() {
   const activeFoundingPartners = foundingPartners.filter((partner) => partner.status === "active");
   const mrrEstimate = activeFoundingPartners.reduce((sum, partner) => sum + partner.monthlySupport, 0);
-  const stripeStatus = getStripeBillingStatus();
+  const squareStatus = getSquareBillingStatus();
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(213,183,102,0.16),transparent_32%),linear-gradient(135deg,#f7efe1_0%,#fcfaf6_100%)] text-slate-800">
@@ -34,8 +34,8 @@ export default function BasecampSubscriptionsPage() {
           <BasecampPageHeader
             eyebrow="Basecamp"
             title="Subscriptions"
-            description="Track listing upgrade readiness, Founding Partner support, and manual subscription records before Stripe goes live."
-            statusPill={stripeStatus.configured ? "Stripe configured" : "Manual records"}
+            description="Track listing upgrade readiness, Founding Partner support, and manual subscription records. Billing provider: Square."
+            statusPill={squareStatus.configured ? "Square configured" : "Manual records"}
             primaryAction={{ label: "Open upgrade page", href: "/businesses/grafton-inn/upgrade" }}
           />
 
@@ -51,18 +51,20 @@ export default function BasecampSubscriptionsPage() {
               <p className="mt-2 text-sm text-slate-600">Live support records in the manual CRM.</p>
             </article>
             <article className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Plan status</p>
-              <p className="mt-2 text-3xl font-semibold text-slate-900">{stripeStatus.configured ? "Configured" : "Manual"}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Billing provider</p>
+              <p className="mt-2 text-3xl font-semibold text-slate-900">{squareStatus.configured ? "Square" : "Manual"}</p>
               <p className="mt-2 text-sm text-slate-600">
-                {stripeStatus.configured ? "Stripe env vars are present, but live checkout is not enabled in beta." : "Stripe env vars are missing, so billing remains manual."}
+                {squareStatus.configured
+                  ? `Square is configured (${squareStatus.environment}). Payment link creation is live.`
+                  : "Square env vars are missing. Billing remains manual — contact partners@southernvt.com."}
               </p>
             </article>
           </section>
 
           <BasecampSection
             title="Billing plan readiness"
-            eyebrow="Manual / mock records"
-            description="Stripe-backed billing is staged structurally, but launch is intentionally conservative until checkout is enabled."
+            eyebrow="Square / manual records"
+            description="Square-backed billing is ready when SQUARE_ACCESS_TOKEN, SQUARE_LOCATION_ID, and catalog plan variation IDs are configured."
           >
             <div className="grid gap-4 md:grid-cols-2">
               {billingPlans.map((plan) => (
