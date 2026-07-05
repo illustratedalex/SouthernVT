@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isContactEmailConfigured, sendContactEmail } from "@/lib/email/contactEmail";
+import { isContactEmailConfigured, sendContactEmail } from "@/lib/email";
 
 type ContactPayload = {
   name?: string;
