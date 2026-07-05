@@ -13,9 +13,9 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-6 text-sm">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:flex sm:flex-wrap sm:gap-6">
           {footerLinks.map((link) => (
-            <a key={link.label} href={link.href} className="transition hover:text-(--color-cream)">
+            <a key={link.label} href={link.href} className="py-1 transition hover:text-(--color-cream)">
               {link.label}
             </a>
           ))}

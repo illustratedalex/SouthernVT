@@ -114,26 +114,26 @@ export function TravelerExperiences({ listingType, overallRating = 5, verifiedVi
   const profile = profiles[toProfileId(listingType)];
 
   return (
-    <section className="rounded-[28px] border border-[#e8dfc8] bg-[#fcfaf6] p-6 shadow-sm">
+    <section className="rounded-[28px] border border-[#e8dfc8] bg-[#fcfaf6] p-4 shadow-sm sm:p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Traveler Experiences</p>
       <h2 className="mt-2 text-2xl font-semibold text-slate-900">Experience highlights (example preview)</h2>
       <p className="mt-2 text-sm leading-7 text-slate-700">
         These are sample experience signals used during beta preview. Live guest reviews and ratings are not yet enabled.
       </p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-[#ece3cf] bg-white p-4">
+      <div className="mt-4 flex flex-col gap-4 rounded-2xl border border-[#ece3cf] bg-white p-4 sm:flex-row sm:items-center">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Overall Experience</p>
           <p className="mt-1 text-2xl font-semibold text-[#1f5a3d]">{renderStars(overallRating)}</p>
         </div>
-        <div className="h-10 w-px bg-[#ece3cf]" />
+        <div className="hidden h-10 w-px bg-[#ece3cf] sm:block" />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Based on</p>
           <p className="mt-1 text-lg font-semibold text-slate-900">{verifiedVisitors} Verified Visitors</p>
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {profile.categories.map((item) => (
           <article key={item.label} className="rounded-2xl border border-[#ece3cf] bg-white p-3">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -167,7 +167,7 @@ export function TravelerExperiences({ listingType, overallRating = 5, verifiedVi
         <button
           type="button"
           disabled
-          className="mt-3 inline-flex rounded-full bg-[#c8d6cd] px-5 py-2 text-sm font-semibold text-slate-700"
+          className="mt-3 inline-flex h-11 items-center rounded-full bg-[#c8d6cd] px-5 text-sm font-semibold text-slate-700"
         >
           Reviews coming soon
         </button>

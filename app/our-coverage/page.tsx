@@ -38,7 +38,7 @@ export default function OurCoveragePage() {
           <Badge variant="featured" className="text-[10px] tracking-[0.18em]">
             Editorial Policy
           </Badge>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#fff9ee] md:text-6xl">Our Coverage</h1>
+          <h1 className="mt-4 max-w-4xl text-3xl font-semibold leading-tight text-[#fff9ee] sm:text-4xl md:text-6xl">Our Coverage</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-[#eee5d6]">How SouthernVT chooses the places, stories, and businesses we feature.</p>
         </div>
       </section>
@@ -145,7 +145,7 @@ export default function OurCoveragePage() {
         <EditorialSection eyebrow="Section 8" title="Help Us Discover Places" description="Know a destination we should review next?">
           <div className="flex flex-wrap gap-3">
             <Link href="/suggest-place">
-              <Button variant="secondary">Suggest a Place</Button>
+              <Button variant="secondary" size="lg">Suggest a Place</Button>
             </Link>
           </div>
         </EditorialSection>

@@ -36,7 +36,7 @@ export function BusinessListingCard({ listing, ctaLabel = "View listing" }: Busi
 
       <Link
         href={`/businesses/${listing.slug}`}
-        className="mt-5 inline-flex rounded-full bg-(--color-forest-green) px-4 py-2 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+        className="mt-5 inline-flex h-11 items-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
       >
         {ctaLabel}
       </Link>

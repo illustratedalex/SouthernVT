@@ -13,7 +13,7 @@ export function FoundingPartnerHero({ title, headline, subheadline }: FoundingPa
       <div className="relative space-y-5">
         <Badge variant="featured">{title}</Badge>
         <div className="space-y-3">
-          <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">{headline}</h1>
+          <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-slate-900 sm:text-5xl">{headline}</h1>
           <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">{subheadline}</p>
         </div>
       </div>

@@ -163,7 +163,7 @@ export default async function Home() {
 
       <section className="relative overflow-hidden border-b border-[#d7cbb3] bg-[#10261e] text-[#f8f2e4]">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=80')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(7,18,14,0.28),rgba(8,22,17,0.1))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(7,18,14,0.52),rgba(8,22,17,0.24))]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_44%,rgba(4,12,9,0.3)_100%)]" />
         <div className="absolute inset-y-0 left-0 w-full bg-[linear-gradient(95deg,rgba(8,31,24,0.86),rgba(8,31,24,0.72)_42%,rgba(8,31,24,0.24)_72%,transparent)] lg:w-[62%]" />
 
@@ -172,7 +172,7 @@ export default async function Home() {
             <MetaText as="p" variant="eyebrow" className="text-(--color-maple-gold)">
               Southern Vermont Travel Magazine
             </MetaText>
-            <h1 className="max-w-5xl text-4xl font-semibold leading-tight text-[#fff9ee] drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)] md:text-6xl">
+            <h1 className="max-w-5xl text-3xl font-semibold leading-tight text-[#fff9ee] drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)] sm:text-4xl md:text-6xl">
               Discover Southern Vermont Like a Local
             </h1>
             <div className="max-w-2xl rounded-2xl border border-white/20 bg-black/30 p-4 text-white shadow-[0_12px_36px_rgba(0,0,0,0.35)] backdrop-blur-[2px]">
@@ -242,7 +242,7 @@ export default async function Home() {
               <h2 className="mt-2 text-2xl font-semibold text-slate-900">
                 {todaysAdventure ? `Route anchored at ${todaysAdventure.name}` : "Build your day from local signals"}
               </h2>
-              <p className="mt-3 max-w-[34ch] text-base leading-7 text-slate-700">
+              <p className="mt-3 max-w-[34ch] text-sm leading-7 text-slate-700 sm:text-base">
                 {todaysAdventure
                   ? todaysAdventure.description
                   : "Start with the strongest recommendation, then add food, views, and an evening stop nearby."}
@@ -250,7 +250,7 @@ export default async function Home() {
               {todaysAdventure ? (
                 <Link
                   href={`/places/${todaysAdventure.slug}`}
-                  className="mt-4 inline-flex rounded-full bg-(--color-maple-gold) px-4 py-2 text-sm font-semibold text-(--color-forest-green) motion-safe:transition motion-safe:hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-maple-gold) focus-visible:ring-offset-2"
+                  className="mt-4 inline-flex h-11 items-center rounded-full bg-(--color-maple-gold) px-4 text-sm font-semibold text-(--color-forest-green) motion-safe:transition motion-safe:hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-maple-gold) focus-visible:ring-offset-2"
                 >
                   Open today&apos;s route
                 </Link>
@@ -284,13 +284,13 @@ export default async function Home() {
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
                   href={weeklyIssue.coverStory.href}
-                  className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-forest-green) px-5 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-(--color-forest-green) px-5 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
                 >
                   Read the Feature
                 </Link>
                 <Link
                   href="/guides"
-                  className="inline-flex h-11 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-5 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-5 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
                 >
                   Browse guides
                 </Link>
@@ -341,13 +341,13 @@ export default async function Home() {
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
                   href={intelligenceSummary.bestOpportunity.href}
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
                 >
                   Open editor
                 </Link>
                 <Link
                   href="/guides"
-                  className="inline-flex h-10 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-4 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-4 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
                 >
                   Read guides
                 </Link>
@@ -383,7 +383,7 @@ export default async function Home() {
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
                   href="/places"
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-forest-green) px-4 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
                 >
                   Explore places
                 </Link>
@@ -418,7 +418,7 @@ export default async function Home() {
           <EditorialSection eyebrow="Featured Destination" title="Hamilton Falls" description="A flagship Southern Vermont destination in a full magazine-style feature.">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
               <div className="overflow-hidden rounded-3xl">
-                <div className="h-80 w-full bg-[linear-gradient(135deg,rgba(20,49,38,0.82),rgba(216,177,93,0.34)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center" />
+                <div className="h-64 w-full bg-[linear-gradient(135deg,rgba(20,49,38,0.82),rgba(216,177,93,0.34)),url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center sm:h-80" />
               </div>
               <Card variant="compact" className="p-5">
                 <MetaText as="p" variant="eyebrow">

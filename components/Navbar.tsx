@@ -6,16 +6,16 @@ import { publicNavigationGroups } from "@/lib/navigation";
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-(--color-pine)/15 bg-(--color-cream)/90 backdrop-blur">
-      <Container className="flex items-center justify-between py-4">
+      <Container className="flex items-center justify-between py-3 sm:py-4">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-(--color-forest-green) text-sm font-semibold uppercase tracking-[0.24em] text-(--color-cream)">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--color-forest-green) text-sm font-semibold uppercase tracking-[0.24em] text-(--color-cream)">
             SV
           </div>
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-(--color-forest-green)">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-(--color-forest-green)">
               SouthernVT
             </p>
-            <p className="text-xs text-slate-600">Travel guide</p>
+            <p className="hidden text-xs text-slate-600 sm:block">Travel guide</p>
           </div>
         </Link>
 
@@ -48,9 +48,9 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <details className="relative lg:hidden">
-            <summary className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#d8c9ad] bg-[#fcfaf6] text-[#1f3b2f] marker:content-none">
+            <summary className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-[#d8c9ad] bg-[#fcfaf6] text-[#1f3b2f] marker:content-none">
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden>
                 <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>

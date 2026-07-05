@@ -92,7 +92,12 @@ export function ConciergeWizard({
             data-ga-style={selectedStyle}
             data-ga-radius={selectedRadius}
             data-ga-href={buildHref({ generate: "1" })}
-            className="inline-flex h-12 items-center justify-center rounded-full bg-(--color-forest-green) px-6 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
+            className={`inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold motion-safe:transition ${
+              allInputsSelected
+                ? "bg-(--color-forest-green) text-(--color-cream) motion-safe:hover:bg-(--color-pine)"
+                : "pointer-events-none bg-[#c9d6cf] text-slate-600"
+            }`}
+            aria-disabled={!allInputsSelected}
           >
             Generate Concierge Plan
           </Link>

@@ -23,7 +23,7 @@ export function FoundingPartnerCTA({ primaryHref = "/contact?reason=Founding%20P
           data-ga-partner-surface="founding_partners_page"
           data-ga-href={primaryHref}
         >
-          <Button variant="secondary">Become a Founding Partner</Button>
+          <Button variant="secondary" size="lg">Become a Founding Partner</Button>
         </Link>
         <a
           href={secondaryHref}
@@ -33,7 +33,7 @@ export function FoundingPartnerCTA({ primaryHref = "/contact?reason=Founding%20P
           data-ga-partner-surface="founding_partners_page"
           data-ga-href={secondaryHref}
         >
-          <Button variant="ghost" className="border border-(--color-forest-green)/15 bg-white text-(--color-forest-green) motion-safe:hover:bg-[#f4efe1]">
+          <Button variant="ghost" size="lg" className="border border-(--color-forest-green)/15 bg-white text-(--color-forest-green) motion-safe:hover:bg-[#f4efe1]">
             Email Partners
           </Button>
         </a>

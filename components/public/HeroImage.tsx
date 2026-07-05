@@ -21,9 +21,9 @@ export function HeroImage({ eyebrow, title, subtitle, image, alt, badges = [], c
 
       <div className="relative mx-auto grid max-w-7xl gap-8 px-6 py-12 sm:px-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:px-10 lg:py-16">
         <div className="space-y-4">
-          {eyebrow ? <p className="text-xs font-semibold uppercase tracking-[0.28em] text-(--color-maple-gold)">{eyebrow}</p> : null}
-          <h1 className="max-w-4xl text-4xl font-semibold leading-tight md:text-6xl">{title}</h1>
-          {subtitle ? <p className="max-w-3xl text-lg leading-8 text-slate-200">{subtitle}</p> : null}
+          {eyebrow ? <p className="text-xs font-semibold uppercase tracking-[0.18em] sm:tracking-[0.28em] text-(--color-maple-gold)">{eyebrow}</p> : null}
+          <h1 className="max-w-4xl text-3xl font-semibold leading-tight sm:text-4xl md:text-6xl">{title}</h1>
+          {subtitle ? <p className="max-w-3xl text-base leading-7 text-slate-200 sm:text-lg sm:leading-8">{subtitle}</p> : null}
           <BadgeRow badges={badges} />
         </div>
 

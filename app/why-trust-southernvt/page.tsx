@@ -46,7 +46,7 @@ export default function WhyTrustSouthernVTPage() {
           <Badge variant="featured" className="text-[10px] tracking-[0.18em]">
             Trust & Verification
           </Badge>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold leading-tight text-[#fff9ee] md:text-6xl">Why Trust SouthernVT?</h1>
+          <h1 className="mt-4 max-w-4xl text-3xl font-semibold leading-tight text-[#fff9ee] sm:text-4xl md:text-6xl">Why Trust SouthernVT?</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-[#eee5d6]">
             We don&apos;t sell rankings. We verify, photograph, and tell the story.
           </p>
@@ -106,10 +106,10 @@ export default function WhyTrustSouthernVTPage() {
         >
           <div className="flex flex-wrap gap-3">
             <Link href="/places">
-              <Button variant="secondary">Explore Verified Places</Button>
+              <Button variant="secondary" size="lg">Explore Verified Places</Button>
             </Link>
             <Link href="/feedback">
-              <Button variant="ghost" className="border border-(--color-forest-green)/20 bg-white text-(--color-forest-green) motion-safe:hover:bg-[#f4efe1]">
+              <Button variant="ghost" size="lg" className="border border-(--color-forest-green)/20 bg-white text-(--color-forest-green) motion-safe:hover:bg-[#f4efe1]">
                 Suggest a Place
               </Button>
             </Link>
@@ -121,4 +121,3 @@ export default function WhyTrustSouthernVTPage() {
     </main>
   );
 }
-

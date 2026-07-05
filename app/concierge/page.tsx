@@ -50,7 +50,8 @@ function buildHref(base: Record<string, string | undefined>, updates: Record<str
     }
   });
   const query = params.toString();
-  return query ? `/concierge?${query}` : "/concierge";
+  const basePath = query ? `/concierge?${query}` : "/concierge";
+  return `${basePath}#concierge-wizard`;
 }
 
 export default async function ConciergePage({ searchParams }: ConciergePageProps) {
@@ -92,18 +93,20 @@ export default async function ConciergePage({ searchParams }: ConciergePageProps
       <section className="mx-auto max-w-7xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
         <ConciergeHero />
 
-        <ConciergeWizard
-          selectedMood={selectedMood}
-          selectedTime={selectedTime}
-          selectedStyle={selectedStyle}
-          selectedRadius={selectedRadius}
-          moodOptions={conciergeMoodOptions.map((option) => ({ value: option.value, label: option.label }))}
-          timeOptions={conciergeTimeOptions.map((option) => ({ value: option.value, label: option.label }))}
-          styleOptions={conciergeTravelStyleOptions.map((option) => ({ value: option.value, label: option.label }))}
-          radiusOptions={conciergeRadiusOptions.map((option) => ({ value: option.value, label: option.label }))}
-          buildHref={(updates) => buildHref(currentParams, updates)}
-          allInputsSelected={allInputsSelected}
-        />
+        <section id="concierge-wizard">
+          <ConciergeWizard
+            selectedMood={selectedMood}
+            selectedTime={selectedTime}
+            selectedStyle={selectedStyle}
+            selectedRadius={selectedRadius}
+            moodOptions={conciergeMoodOptions.map((option) => ({ value: option.value, label: option.label }))}
+            timeOptions={conciergeTimeOptions.map((option) => ({ value: option.value, label: option.label }))}
+            styleOptions={conciergeTravelStyleOptions.map((option) => ({ value: option.value, label: option.label }))}
+            radiusOptions={conciergeRadiusOptions.map((option) => ({ value: option.value, label: option.label }))}
+            buildHref={(updates) => buildHref(currentParams, updates)}
+            allInputsSelected={allInputsSelected}
+          />
+        </section>
 
         {trip ? <ConciergeResults trip={trip} aiConciergeEnabled={aiConciergeEnabled} /> : null}
       </section>

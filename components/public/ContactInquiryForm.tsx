@@ -34,7 +34,7 @@ function destinationForReason(reason: InquiryReason | "") {
   return "hello@southernvt.com";
 }
 
-const inputClass = "h-11 w-full rounded-2xl border border-[#d7cbb3] bg-[#fcfaf6] px-4 outline-none focus:border-[#d8b15d] focus:ring-2 focus:ring-[#d8b15d]/20 transition";
+const inputClass = "h-12 w-full rounded-2xl border border-[#d7cbb3] bg-[#fcfaf6] px-4 outline-none focus:border-[#d8b15d] focus:ring-2 focus:ring-[#d8b15d]/20 transition";
 const textareaClass = "w-full rounded-2xl border border-[#d7cbb3] bg-[#fcfaf6] px-4 py-3 outline-none focus:border-[#d8b15d] focus:ring-2 focus:ring-[#d8b15d]/20 transition";
 
 export default function ContactInquiryForm() {
@@ -177,7 +177,7 @@ export default function ContactInquiryForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-full bg-[#1f3b2f] px-6 py-3 text-sm font-semibold text-[#f8f2e4] transition hover:bg-[#162e23] disabled:opacity-60"
+            className="inline-flex h-12 items-center rounded-full bg-[#1f3b2f] px-6 text-sm font-semibold text-[#f8f2e4] transition hover:bg-[#162e23] disabled:opacity-60"
           >
             {submitting ? "Sending…" : "Send Message"}
           </button>
@@ -186,4 +186,3 @@ export default function ContactInquiryForm() {
     </section>
   );
 }
-
