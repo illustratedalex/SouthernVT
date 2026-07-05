@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
@@ -92,7 +93,9 @@ export default function ContactPage() {
           </div>
         </EditorialSection>
 
-        <ContactInquiryForm />
+        <Suspense fallback={<div className="rounded-[28px] border border-[#e8dfc8] bg-white p-6 shadow-sm"><p className="text-sm text-slate-500">Loading contact form…</p></div>}>
+          <ContactInquiryForm />
+        </Suspense>
 
         <EditorialSection eyebrow="Quick Links" title="Popular SouthernVT destinations">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
