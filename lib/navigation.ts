@@ -47,6 +47,7 @@ export const publicNavigationGroups: NavigationGroup[] = [
 
 export const footerLinks = [
   { label: "About", href: "/about" },
+  { label: "Our Coverage", href: "/our-coverage" },
   { label: "Why Trust SouthernVT?", href: "/why-trust-southernvt" },
   { label: "Founding Partners", href: "/founding-partners" },
   { label: "Contact", href: "/contact" },
