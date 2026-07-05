@@ -57,6 +57,7 @@ import { getVerificationByPlaceId } from "@/lib/repositories/VerificationReposit
 
 interface PlaceDetailPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ upgrade?: string }>;
 }
 
 export async function generateStaticParams() {
@@ -105,8 +106,9 @@ export async function generateMetadata({ params }: PlaceDetailPageProps): Promis
   return createPlaceMetadata(place, story?.summary);
 }
 
-export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) {
+export default async function PlaceDetailPage({ params, searchParams }: PlaceDetailPageProps) {
   const { slug } = await params;
+  const query = await searchParams;
   const place = await getPlaceBySlug(slug);
 
   if (!place || place.status !== "published") {
@@ -295,6 +297,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   const premiumEvents = allEvents.filter((event) => event.venuePlaceId === place.id).slice(0, 3);
   const premiumDeals = allDeals.filter((deal) => deal.placeId === place.id).slice(0, 3);
   const jsonLd = placeJsonLd(place);
+  const showUpgradeBusinessOnlyNotice = query.upgrade === "business-only";
 
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
@@ -338,6 +341,11 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
       </HeroImage>
 
       <section className="mx-auto max-w-7xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
+        {showUpgradeBusinessOnlyNotice ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-900">
+            Listing upgrades are only available for business listings.
+          </div>
+        ) : null}
         {showPremiumProfile ? (
           <ContentSection
             title="Premium Business Profile"

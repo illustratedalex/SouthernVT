@@ -99,6 +99,21 @@ export default function WhyTrustSouthernVTPage() {
         </EditorialSection>
 
         <EditorialSection
+          eyebrow="Editorial Integrity"
+          title="Editorial Places vs Business Listings"
+          description="How SouthernVT separates editorial destination coverage from commercial business listing tools."
+        >
+          <Prose>
+            <p>
+              SouthernVT treats destinations and businesses differently. Places, trails, parks, waterfalls, covered bridges, scenic drives, and editorial destinations cannot be upgraded or purchased. They are selected, written, and organized through SouthernVT&apos;s editorial process.
+            </p>
+            <p>
+              Businesses may claim or upgrade their business listings, but paid upgrades do not purchase editorial recommendations, rankings, verification, or SouthernVT Recommended status.
+            </p>
+          </Prose>
+        </EditorialSection>
+
+        <EditorialSection
           eyebrow="Next Actions"
           title="Explore trusted places or suggest one we should verify"
           description="Help shape a stronger local-first guide for Southern Vermont travelers."

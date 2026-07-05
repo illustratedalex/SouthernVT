@@ -46,7 +46,7 @@ export const billingPlans: BillingPlan[] = [
     active: true,
     purchasable: true,
     description: "Enhanced visibility for businesses that want a stronger directory presence.",
-    trustNote: "Paid listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
+    trustNote: "Paid business listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
   },
   {
     id: "enhanced_yearly",
@@ -57,7 +57,7 @@ export const billingPlans: BillingPlan[] = [
     active: true,
     purchasable: true,
     description: "Save with annual billing for the same Enhanced Listing benefits.",
-    trustNote: "Paid listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
+    trustNote: "Paid business listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.",
   },
   {
     id: "founding_partner_monthly",

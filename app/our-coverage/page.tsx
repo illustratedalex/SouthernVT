@@ -52,6 +52,9 @@ export default function OurCoveragePage() {
             <p>
               We prioritize quality, context, and traveler usefulness over large unfiltered directories.
             </p>
+            <p>
+              Places remain editorial. Businesses may participate commercially, but editorial trust signals are earned.
+            </p>
           </Prose>
         </EditorialSection>
 

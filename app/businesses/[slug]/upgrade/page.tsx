@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { billingPlans, getCurrentBillingPlanLabel, getStripeBillingStatus } from "@/lib/billing/plans";
+import { isBusinessPlaceType } from "@/lib/businessClaims";
 import { getBusinessListingBySlugWithLiveClaimStatus } from "@/lib/businessListings.server";
 import { createPageMetadata } from "@/lib/seo";
+import { getPlaceBySlug } from "@/repositories/PlaceRepository";
 
 interface BusinessUpgradePageProps {
   params: Promise<{ slug: string }>;
@@ -35,6 +37,10 @@ export default async function BusinessUpgradePage({ params }: BusinessUpgradePag
   const listing = await getBusinessListingBySlugWithLiveClaimStatus(slug);
 
   if (!listing) {
+    const place = await getPlaceBySlug(slug);
+    if (place && !isBusinessPlaceType(place.placeType)) {
+      redirect(`/places/${place.slug}?upgrade=business-only`);
+    }
     notFound();
   }
 
@@ -48,13 +54,13 @@ export default async function BusinessUpgradePage({ params }: BusinessUpgradePag
 
       <section className="mx-auto max-w-5xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
         <article className="rounded-[28px] border border-[#e8dfc8] bg-white p-8 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Listing upgrades</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Business listing upgrades</p>
           <h1 className="mt-2 text-3xl font-semibold text-slate-900">Upgrade {listing.name}</h1>
           <p className="mt-3 text-sm leading-7 text-slate-700">
             Current plan: <span className="font-semibold text-slate-900">{currentPlan}</span>
           </p>
           <p className="mt-2 text-sm leading-7 text-slate-700">
-            Paid listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
+            Paid business listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
           </p>
           {!stripeStatus.configured ? (
             <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-7 text-amber-900">

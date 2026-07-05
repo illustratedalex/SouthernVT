@@ -85,7 +85,7 @@ Vercel Analytics is automatically enabled on Vercel — no env var needed.
 
 ---
 
-### Stripe (Optional — for paid listing upgrades)
+### Stripe (Optional — for paid business listing upgrades)
 
 | Variable | Value | Notes |
 |---|---|---|

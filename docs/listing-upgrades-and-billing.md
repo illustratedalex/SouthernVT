@@ -1,6 +1,6 @@
 # Listing Upgrades and Billing
 
-SouthernVT keeps listing upgrades structurally ready for beta, but intentionally conservative so businesses cannot accidentally purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
+SouthernVT keeps business listing upgrades structurally ready for beta, but intentionally conservative so businesses cannot accidentally purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
 
 ---
 
@@ -44,9 +44,15 @@ SouthernVT keeps listing upgrades structurally ready for beta, but intentionally
 
 This sentence appears on upgrade pages and checkout-related surfaces:
 
-> Paid listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
+> Paid business listing upgrades do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
 
 Founding Partner support is also editorially separate and does not influence verification or rankings.
+
+### Editorial vs commercial rule
+
+- Places cannot be upgraded.
+- Only business listings can purchase enhanced listing tools.
+- Verification and SouthernVT Recommended remain editorial only.
 
 ---
 
@@ -58,7 +64,7 @@ Set these in Vercel before attempting any real checkout launch:
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 
-If any are missing, the upgrade page shows:
+If any are missing, the business listing upgrade page shows:
 
 > Online checkout is coming soon. Contact partners@southernvt.com to activate this plan.
 
@@ -69,7 +75,7 @@ If any are missing, the upgrade page shows:
 1. Open **Vercel → Project → Settings → Environment Variables**
 2. Add the Stripe variables above for the **Production** environment
 3. Redeploy the app
-4. Verify the upgrade page and Basecamp subscription page show the expected readiness copy
+4. Verify the business listing upgrade page and Basecamp subscription page show the expected readiness copy
 
 ---
 
@@ -103,7 +109,7 @@ Validation performed:
 - plan is purchasable
 - plan does not reference verification or recommendation products
 
-If Stripe env vars are missing, the route returns a 503 with the same coming-soon message shown on the upgrade page.
+If Stripe env vars are missing, the route returns a 503 with the same coming-soon message shown on the business listing upgrade page.
 
 ---
 

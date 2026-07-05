@@ -37,7 +37,7 @@ export default async function PartnerPortalLandingPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1f3b2f]">Billing &amp; upgrade path</p>
         <h2 className="mt-2 text-2xl font-semibold text-slate-900">Current plan: {user && ownedListings[0] ? getCurrentBillingPlanLabel(ownedListings[0].isFoundingPartner, ownedListings[0].status) : "Free Basic Listing"}</h2>
         <p className="mt-3 text-sm leading-7 text-slate-700">
-          Claiming a listing is free. Paid upgrades are structured for later launch, but they do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
+          Claiming a listing is free. Paid business listing upgrades are structured for later launch, but they do not purchase editorial recommendations, verification, rankings, or SouthernVT Recommended status.
         </p>
         {!stripeStatus.configured ? (
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-7 text-amber-900">
