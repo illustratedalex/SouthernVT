@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireBasecampReviewerEmail } from "@/lib/auth/basecamp";
 import { reviewBusinessClaim } from "@/lib/claims/liveClaims";
+import { sendClaimApprovedEmail, sendClaimRejectedEmail } from "@/lib/email/claimEmails";
 import type { ClaimReviewInput } from "@/types/Claim";
 
 interface RouteContext {
@@ -25,6 +26,15 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       },
       payload.reviewedBy ?? reviewerEmail,
     );
+
+    // Send outcome email — fire-and-forget so a mail failure doesn't block the review
+    const notifyEmail = payload.status === "approved"
+      ? sendClaimApprovedEmail(claim)
+      : sendClaimRejectedEmail(claim);
+
+    notifyEmail.catch((error: unknown) => {
+      console.error("Claim outcome email failed:", error instanceof Error ? error.message : error);
+    });
 
     return NextResponse.json({ claim });
   } catch (error) {
