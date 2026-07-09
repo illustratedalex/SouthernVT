@@ -1,3 +1,4 @@
+import DeadSignalCredit from "@/components/DeadSignalCredit";
 import { Container } from "@/components/ui";
 import { footerLinks } from "@/lib/navigation";
 import { SITE_NAME } from "@/lib/constants";
@@ -13,12 +14,16 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:flex sm:flex-wrap sm:gap-6">
-          {footerLinks.map((link) => (
-            <a key={link.label} href={link.href} className="py-1 transition hover:text-(--color-cream)">
-              {link.label}
-            </a>
-          ))}
+        <div className="flex flex-col items-start gap-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:flex sm:flex-wrap sm:gap-6">
+            {footerLinks.map((link) => (
+              <a key={link.label} href={link.href} className="py-1 transition hover:text-(--color-cream)">
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          <DeadSignalCredit />
         </div>
       </Container>
     </footer>
