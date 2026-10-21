@@ -1,5 +1,19 @@
 # SEO Foundation
 
+## October 21, 2026 canonical repair
+
+Production source was verified against Vercel deployment `dpl_GhGuX9hNuKTNMDHD7LxqojLX9kG5`,
+commit `8ae6aee9707d611fb576c953edf5b54cdf7ea2a1` on `develop`.
+Public GETs confirmed the homepage and listing canonicals/sitemap used the bare
+host while navigation resolves to `https://www.southernvt.com`.
+The shared helper now normalizes either owned production host to HTTPS www,
+including legacy environment values. Explicit custom/preview origins remain supported.
+The About page receives its own metadata and a sitemap entry.
+Visible content, data repositories, private routes, authentication, billing and
+analytics instrumentation are unchanged. This source change needs PR checks and
+hosted verification before it can be recorded as live; it does not establish
+Google indexing or ranking gains.
+
 ## Metadata strategy
 
 The public site uses centralized metadata helpers in [lib/seo.ts](../lib/seo.ts):

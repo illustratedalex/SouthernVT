@@ -1,5 +1,12 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata = createPageMetadata({
+  title: "About SouthernVT | Southern Vermont Discovery Guide",
+  description: "Learn about SouthernVT, a local-first guide to Southern Vermont destinations, scenic routes, and local businesses.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

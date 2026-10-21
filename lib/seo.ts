@@ -5,7 +5,7 @@ import type { Deal } from "@/types/Deal";
 import type { Event } from "@/types/Event";
 import type { Place } from "@/types/Place";
 
-const DEFAULT_SITE_URL = "https://southernvt.com";
+const DEFAULT_SITE_URL = "https://www.southernvt.com";
 const SITE_NAME = "SouthernVT";
 
 function trimTrailingSlash(value: string) {
@@ -13,7 +13,18 @@ function trimTrailingSlash(value: string) {
 }
 
 export function getSiteUrl() {
-  return trimTrailingSlash(process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL);
+  const configuredUrl = trimTrailingSlash(process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL);
+  // Both owned production hosts resolve to HTTPS www. Keep preview/custom
+  // configuration available, but do not emit redirecting production URLs.
+  try {
+    const url = new URL(configuredUrl);
+    if (["southernvt.com", "www.southernvt.com"].includes(url.hostname)) {
+      return DEFAULT_SITE_URL;
+    }
+    return configuredUrl;
+  } catch {
+    return DEFAULT_SITE_URL;
+  }
 }
 
 export function absoluteUrl(path: string) {
