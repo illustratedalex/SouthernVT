@@ -5,6 +5,13 @@ import { EventCard } from "@/components/public/EventCard";
 import { createPageMetadata } from "@/lib/seo";
 import { getPublishedEvents } from "@/repositories/EventRepository";
 
+const vermontDate = new Intl.DateTimeFormat("sv-SE", {
+  timeZone: "America/New_York",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
 interface EventsPageProps {
   searchParams: Promise<{ q?: string; type?: string; town?: string }>;
 }
@@ -23,7 +30,10 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
   const loadedEvents = await getPublishedEvents();
   const events = Array.isArray(loadedEvents) ? loadedEvents : [];
-  const upcomingEvents = events.filter((event) => event.status === "published");
+  const today = vermontDate.format(new Date());
+  const upcomingEvents = events.filter((event) =>
+    event.status === "published" && (event.endDate || event.startDate) >= today,
+  );
   const featuredEvents = upcomingEvents.filter((event) => event.featured).slice(0, 3);
 
   const eventTypes = [...new Set(upcomingEvents.map((event) => event.eventType))].sort((a, b) => a.localeCompare(b));
@@ -74,7 +84,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
         <section className="space-y-4">
           <div className="flex items-end justify-between gap-2">
-            <h2 className="text-3xl font-semibold text-slate-900">Upcoming events grid</h2>
+            <h2 className="text-3xl font-semibold text-slate-900">Upcoming events</h2>
             <p className="text-sm text-slate-600">{filtered.length} result{filtered.length === 1 ? "" : "s"}</p>
           </div>
 
@@ -83,7 +93,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
               {filtered.map((event) => <EventCard key={event.id} event={event} />)}
             </div>
           ) : (
-            <div className="rounded-[24px] border border-[#e8dfc8] bg-white p-6 text-sm leading-7 text-slate-700 shadow-sm">No published events match this filter set yet.</div>
+            <div className="rounded-[24px] border border-[#e8dfc8] bg-white p-6 text-sm leading-7 text-slate-700 shadow-sm">No upcoming events match these filters.</div>
           )}
         </section>
       </section>

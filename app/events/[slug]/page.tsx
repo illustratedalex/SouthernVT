@@ -1,3 +1,4 @@
+import { formatEventDates } from "@/lib/eventDates";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
@@ -53,6 +54,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const nearbyPlaces = allPlaces.filter((place) => place.city === event.city && place.id !== event.venuePlaceId).slice(0, 4);
   const relatedDeals = allDeals.filter((deal) => deal.status === "published" && (deal.placeId === event.venuePlaceId || deal.tags.some((tag) => event.tags.includes(tag)))).slice(0, 4);
 
+  const eventDates = formatEventDates(event.startDate, event.endDate);
+
   return (
     <main className="min-h-screen bg-(--color-cream) text-(--color-slate)">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -66,10 +69,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         subtitle={event.description}
         image={event.featuredImage}
         alt={event.title}
-        badges={[event.eventType, event.city, `${event.startDate} - ${event.endDate}`]}
+        badges={[event.eventType, event.city, eventDates]}
       >
         <div className="space-y-3 text-sm leading-7 text-slate-200">
-          <p>{event.startDate} {event.startTime} to {event.endDate} {event.endTime}</p>
+          <p>{eventDates}</p>
           <p>{venue?.name ?? event.address}</p>
         </div>
       </HeroImage>
@@ -77,7 +80,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
       <section className="mx-auto max-w-7xl space-y-6 px-6 py-10 sm:px-8 lg:px-10">
         <QuickFacts
           facts={[
-            { label: "Date", value: event.startDate, detail: `${event.endDate}` },
+            { label: "Date", value: eventDates },
             { label: "Time", value: event.startTime, detail: `${event.endTime} end` },
             { label: "Venue", value: venue?.name ?? event.address, detail: `${event.city}, ${event.state}` },
             { label: "Cost", value: event.cost || "Contact organizer", detail: event.ticketUrl ? "Tickets available" : "Check organizer details" },

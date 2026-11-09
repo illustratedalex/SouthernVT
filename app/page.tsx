@@ -10,7 +10,6 @@ import { getBusinessListingsWithLiveClaimStatus } from "@/lib/businessListings.s
 import { getCollections } from "@/lib/repositories/collectionRepository";
 import { createPageMetadata } from "@/lib/seo";
 import { getPlaces } from "@/repositories/PlaceRepository";
-import { weeklyIssue } from "@/data/weeklyIssue";
 import { southernVT100Destinations } from "@/data/southernvt100";
 
 export const metadata = createPageMetadata({
@@ -169,9 +168,9 @@ export default async function Home() {
 
         <div className="relative mx-auto grid max-w-7xl gap-8 px-6 py-14 sm:px-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:px-10 lg:py-20">
           <div className="space-y-6">
-            <MetaText as="p" variant="eyebrow" className="text-(--color-maple-gold)">
+            <p className="w-fit rounded-md bg-[#10261e] px-2 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-[#ffe0b6]">
               Southern Vermont Travel Magazine
-            </MetaText>
+            </p>
             <h1 className="max-w-5xl text-3xl font-semibold leading-tight text-[#fff9ee] drop-shadow-[0_8px_22px_rgba(0,0,0,0.45)] sm:text-4xl md:text-6xl">
               Discover Southern Vermont Like a Local
             </h1>
@@ -262,60 +261,21 @@ export default async function Home() {
 
       <section className="mx-auto max-w-7xl space-y-9 px-6 py-10 sm:px-8 lg:px-10">
         <EditorialSection
-          eyebrow="Current Issue"
-          title={weeklyIssue.title}
-          description={weeklyIssue.theme}
+          eyebrow="Featured Guide"
+          title="Breweries & Bites"
+          description="Local pours and easygoing food stops for a chilly Southern Vermont weekend."
         >
-          <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-            <Card variant="compact" className="p-5">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge variant="featured">Weekly Issue</Badge>
-                <span className="rounded-full border border-[#d7cbb3] bg-[#fcfaf6] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
-                  {weeklyIssue.currentStage}
-                </span>
-              </div>
-              <h3 className="mt-4 text-2xl font-semibold text-slate-900">Help build a guide to cooler summer days.</h3>
-              <Prose size="sm" className="mt-3">
-                <p>
-                  Hamilton Falls leads the issue with a large summer feature, while Jamaica State Park, Lye Brook Falls,
-                  West River recreation, and a river safety guide round out the week.
-                </p>
-              </Prose>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link
-                  href={weeklyIssue.coverStory.href}
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-(--color-forest-green) px-5 text-sm font-semibold text-(--color-cream) motion-safe:transition motion-safe:hover:bg-(--color-pine)"
-                >
-                  Read the Feature
-                </Link>
-                <Link
-                  href="/guides"
-                  className="inline-flex h-12 items-center justify-center rounded-full border border-[#d7cbb3] bg-white px-5 text-sm font-semibold text-slate-800 motion-safe:transition motion-safe:hover:bg-[#fcfaf6]"
-                >
-                  Browse guides
-                </Link>
-              </div>
-            </Card>
-
-            <Card variant="compact" className="p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">Newsletter Preview</p>
-                  <h3 className="mt-2 text-2xl font-semibold text-slate-900">{weeklyIssue.newsletterPreview.subject}</h3>
-                </div>
-                <Badge variant="forest">Example</Badge>
-              </div>
-
-              <div className="mt-4 space-y-3">
-                {weeklyIssue.newsletterPreview.sections.map((section) => (
-                  <div key={section.title} className="rounded-2xl border border-[#ece3cf] bg-[#fcfaf6] p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1f3b2f]">{section.title}</p>
-                    <p className="mt-2 text-sm leading-7 text-slate-600">{section.summary}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
+          <Card variant="compact" className="p-5">
+            <p className="text-sm leading-7 text-slate-700">
+              Build a day around a local brewery and a stop for Vermont-made snacks.
+            </p>
+            <Link
+              href="/collections/breweries-and-bites"
+              className="mt-4 inline-flex h-12 items-center justify-center rounded-full bg-(--color-forest-green) px-5 text-sm font-semibold text-(--color-cream) transition hover:bg-(--color-pine)"
+            >
+              Explore Breweries &amp; Bites
+            </Link>
+          </Card>
         </EditorialSection>
 
         {editorialIntelligenceEnabled && intelligenceSummary.bestOpportunity ? (
