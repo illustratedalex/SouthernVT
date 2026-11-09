@@ -1,3 +1,4 @@
+import { formatEventDates } from "@/lib/eventDates";
 import Link from "next/link";
 import type { Event } from "@/types/Event";
 
@@ -21,7 +22,7 @@ export function EventCard({ event }: EventCardProps) {
         <p className="line-clamp-3 text-sm leading-7 text-slate-700">{event.description}</p>
 
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-[#f7efe1] px-3 py-1 text-xs font-semibold text-[#1f3b2f]">{event.startDate}</span>
+          <span className="rounded-full bg-[#f7efe1] px-3 py-1 text-xs font-semibold text-[#1f3b2f]">{formatEventDates(event.startDate, event.endDate)}</span>
           {event.featured ? <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Featured</span> : null}
         </div>
 
